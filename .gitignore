@@ -18,12 +18,14 @@ Thumbs.db
 data/asl_quest.db
 data/backups/
 .env
+.claude/
 
 # Model weights / checkpoints - too large for git
 *.pth
 *.pt
 *.task
 
-# Raw diagnostic frame dumps
+# Raw diagnostic frame dumps and diagnostic images (too large / slow to push)
 outputs/asl_citizen_100/diagnostics/layer4_failure/frames/
-outputs/asl_citizen_100/diagnostics/raw_*.png
+outputs/asl_citizen_100/diagnostics/*.png
+outputs/asl_citizen_native_10/diagnostics/**/*.png
