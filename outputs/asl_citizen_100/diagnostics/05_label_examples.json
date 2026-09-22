@@ -1,0 +1,77 @@
+{
+  "examples": [
+    {
+      "video_file": "39033263528917295-SPECIAL.mp4",
+      "manifest_gloss": "SPECIAL1",
+      "manifest_class_idx": 93,
+      "dataset_label": 93,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    },
+    {
+      "video_file": "8096327288020262-CHAIN.mp4",
+      "manifest_gloss": "CHAIN",
+      "manifest_class_idx": 52,
+      "dataset_label": 52,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    },
+    {
+      "video_file": "207441560328397-PARTY.mp4",
+      "manifest_gloss": "PARTY1",
+      "manifest_class_idx": 86,
+      "dataset_label": 86,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    },
+    {
+      "video_file": "31608598408438104-BEHAVIOR.mp4",
+      "manifest_gloss": "BEHAVIOR",
+      "manifest_class_idx": 24,
+      "dataset_label": 24,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    },
+    {
+      "video_file": "2702343124706794-CHAIN.mp4",
+      "manifest_gloss": "CHAIN",
+      "manifest_class_idx": 52,
+      "dataset_label": 52,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    },
+    {
+      "video_file": "7610485274159868-BACKPACK.mp4",
+      "manifest_gloss": "BACKPACK1",
+      "manifest_class_idx": 16,
+      "dataset_label": 16,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    },
+    {
+      "video_file": "9506496385757299-BACKPACK.mp4",
+      "manifest_gloss": "BACKPACK1",
+      "manifest_class_idx": 16,
+      "dataset_label": 16,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    },
+    {
+      "video_file": "6423047538549398-MECHANIC.mp4",
+      "manifest_gloss": "MECHANIC1",
+      "manifest_class_idx": 81,
+      "dataset_label": 81,
+      "pred_gloss": "BOY",
+      "pred_idx": 33,
+      "mapping_ok": true
+    }
+  ],
+  "all_mapping_ok": true
+}

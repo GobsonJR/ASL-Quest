@@ -1,0 +1,50 @@
+{
+  "checkpoint": "asl_citizen_100_resnet18_gru_last.pth",
+  "split": "test",
+  "samples": 250,
+  "strict_ok": true,
+  "missing_keys": [],
+  "unexpected_keys": [],
+  "top1": 0.012000000104308128,
+  "top5": 0.06,
+  "unique_predicted_classes": 5,
+  "most_frequent": {
+    "idx": 19,
+    "gloss": "BASKET1",
+    "count": 136
+  },
+  "top10": [
+    {
+      "idx": 19,
+      "gloss": "BASKET1",
+      "count": 136
+    },
+    {
+      "idx": 93,
+      "gloss": "SPECIAL1",
+      "count": 111
+    },
+    {
+      "idx": 64,
+      "gloss": "DEVELOP1",
+      "count": 1
+    },
+    {
+      "idx": 77,
+      "gloss": "HURDLE/TRIP1",
+      "count": 1
+    },
+    {
+      "idx": 3,
+      "gloss": "ADVERTISE",
+      "count": 1
+    }
+  ],
+  "distribution": {
+    "19": 136,
+    "93": 111,
+    "3": 1,
+    "64": 1,
+    "77": 1
+  }
+}

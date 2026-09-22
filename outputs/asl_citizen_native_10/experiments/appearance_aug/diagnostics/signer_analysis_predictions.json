@@ -1,0 +1,112 @@
+{
+  "appearance_aug": {
+    "P15": {
+      "total": 11,
+      "correct": 2,
+      "accuracy": 0.1818,
+      "predicted_class_distribution": {
+        "YES": 6,
+        "BOOK": 3,
+        "THANKYOU": 2
+      }
+    },
+    "P17": {
+      "total": 10,
+      "correct": 2,
+      "accuracy": 0.2,
+      "predicted_class_distribution": {
+        "HELLO": 1,
+        "YES": 7,
+        "BOOK": 2
+      }
+    },
+    "P18": {
+      "total": 11,
+      "correct": 1,
+      "accuracy": 0.0909,
+      "predicted_class_distribution": {
+        "YES": 9,
+        "HELP": 1,
+        "MOTHER": 1
+      }
+    },
+    "P22": {
+      "total": 10,
+      "correct": 1,
+      "accuracy": 0.1,
+      "predicted_class_distribution": {
+        "YES": 6,
+        "THANKYOU": 1,
+        "BOOK": 3
+      }
+    },
+    "P35": {
+      "total": 14,
+      "correct": 2,
+      "accuracy": 0.1429,
+      "predicted_class_distribution": {
+        "YES": 10,
+        "EAT1": 4
+      }
+    },
+    "P42": {
+      "total": 13,
+      "correct": 1,
+      "accuracy": 0.0769,
+      "predicted_class_distribution": {
+        "YES": 10,
+        "EAT1": 2,
+        "THANKYOU": 1
+      }
+    },
+    "P47": {
+      "total": 11,
+      "correct": 1,
+      "accuracy": 0.0909,
+      "predicted_class_distribution": {
+        "EAT1": 5,
+        "YES": 6
+      }
+    },
+    "P48": {
+      "total": 12,
+      "correct": 1,
+      "accuracy": 0.0833,
+      "predicted_class_distribution": {
+        "YES": 10,
+        "HELLO": 1,
+        "THANKYOU": 1
+      }
+    },
+    "P49": {
+      "total": 10,
+      "correct": 1,
+      "accuracy": 0.1,
+      "predicted_class_distribution": {
+        "YES": 10
+      }
+    },
+    "P6": {
+      "total": 13,
+      "correct": 2,
+      "accuracy": 0.1538,
+      "predicted_class_distribution": {
+        "YES": 6,
+        "THANKYOU": 1,
+        "MOTHER": 4,
+        "EAT1": 1,
+        "BOOK": 1
+      }
+    },
+    "P9": {
+      "total": 14,
+      "correct": 5,
+      "accuracy": 0.3571,
+      "predicted_class_distribution": {
+        "MOTHER": 3,
+        "YES": 3,
+        "BOOK": 8
+      }
+    }
+  }
+}

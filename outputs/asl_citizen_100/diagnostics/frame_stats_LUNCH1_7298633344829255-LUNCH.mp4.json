@@ -1,0 +1,43 @@
+{
+  "video_file": "7298633344829255-LUNCH.mp4",
+  "gloss": "LUNCH1",
+  "frame_count": 41,
+  "indices": [
+    0,
+    3,
+    5,
+    8,
+    11,
+    13,
+    16,
+    19,
+    21,
+    24,
+    27,
+    29,
+    32,
+    35,
+    37,
+    40
+  ],
+  "mean_abs_diff_between_consecutive_raw_frames": [
+    0.0164931807667017,
+    0.02170551009476185,
+    0.03281163051724434,
+    0.03318991884589195,
+    0.024515971541404724,
+    0.022128356620669365,
+    0.02203117124736309,
+    0.019738556817173958,
+    0.026038600131869316,
+    0.031412284821271896,
+    0.019528338685631752,
+    0.020566849038004875,
+    0.016936104744672775,
+    0.015775766223669052,
+    0.0182191152125597
+  ],
+  "all_frames_identical": false,
+  "contact_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_LUNCH1_7298633344829255-LUNCH.png",
+  "raw_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\raw_LUNCH1_7298633344829255-LUNCH.png"
+}

@@ -1,0 +1,43 @@
+{
+  "video_file": "2559496007066704-BRAVE.mp4",
+  "gloss": "BRAVE",
+  "frame_count": 46,
+  "indices": [
+    0,
+    3,
+    6,
+    9,
+    12,
+    15,
+    18,
+    21,
+    24,
+    27,
+    30,
+    33,
+    36,
+    39,
+    42,
+    45
+  ],
+  "mean_abs_diff_between_consecutive_raw_frames": [
+    0.026230502873659134,
+    0.029024815186858177,
+    0.05462293699383736,
+    0.05314559116959572,
+    0.038601044565439224,
+    0.059171609580516815,
+    0.03534325212240219,
+    0.05035321041941643,
+    0.0508708693087101,
+    0.029358675703406334,
+    0.021926971152424812,
+    0.0187835730612278,
+    0.013688615523278713,
+    0.008637978695333004,
+    0.01406616996973753
+  ],
+  "all_frames_identical": false,
+  "contact_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_BRAVE_2559496007066704-BRAVE.png",
+  "raw_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\raw_BRAVE_2559496007066704-BRAVE.png"
+}

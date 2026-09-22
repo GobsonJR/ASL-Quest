@@ -1,0 +1,28 @@
+{
+  "appearance_aug": {
+    "num_test_samples": 129,
+    "feature_dim": 256,
+    "intra_class_mean_distance": {
+      "BOOK": 5.0634,
+      "EAT1": 5.0797,
+      "HELLO": 5.1802,
+      "HELP": 4.9709,
+      "MOTHER": 5.0765,
+      "NO": 5.0109,
+      "PLEASE": 5.3398,
+      "THANKYOU": 4.8336,
+      "WATER": 5.2713,
+      "YES": 5.436
+    },
+    "inter_class_centroid_mean_distance": 1.2042,
+    "nearest_centroid_accuracy": 0.3101,
+    "classifier_top1_accuracy_cross_check": 0.1473,
+    "silhouette_score_by_true_class": -0.0723,
+    "silhouette_score_by_signer": 0.2167,
+    "pca_explained_variance_ratio": [
+      0.243,
+      0.1616
+    ],
+    "num_unique_test_signers": 11
+  }
+}

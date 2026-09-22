@@ -1,0 +1,11 @@
+{
+  "samples": 48,
+  "orig_top1": 0.020833333333333332,
+  "repeated_frame_top1": 0.0,
+  "shuffled_time_top1": 0.020833333333333332,
+  "agree_orig_vs_repeat": 0.16666666666666666,
+  "agree_orig_vs_shuffle": 0.4166666666666667,
+  "mean_kl_orig_vs_repeat": 0.3808051956196626,
+  "mean_kl_orig_vs_shuffle": 0.16411080855565766,
+  "interpretation_hint": "If orig \u2248 repeated \u2248 shuffled, GRU is not using temporal order. If shuffle hurts more than repeat, order matters."
+}

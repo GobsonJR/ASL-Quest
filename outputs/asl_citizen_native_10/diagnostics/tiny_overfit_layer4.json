@@ -1,0 +1,208 @@
+{
+  "experiment_name": "asl_citizen_native_10",
+  "backbone_mode": "layer4",
+  "num_classes": 10,
+  "glosses": [
+    "BOOK",
+    "EAT1",
+    "HELLO",
+    "HELP",
+    "MOTHER",
+    "NO",
+    "PLEASE",
+    "THANKYOU",
+    "WATER",
+    "YES"
+  ],
+  "num_samples": 50,
+  "videos_per_class": 5,
+  "epochs_requested": 40,
+  "epochs_ran": 7,
+  "stopped_early_at_95": true,
+  "batch_size": 4,
+  "head_lr": 0.001,
+  "backbone_lr": 0.0001,
+  "dropout": 0.0,
+  "deterministic_eval_transforms": true,
+  "temporal_jitter": false,
+  "num_frames": 16,
+  "device": "cuda",
+  "trainability": {
+    "backbone_train_mode": "layer4",
+    "pretrained_loaded": true,
+    "stem_trainable": false,
+    "layer1_trainable": false,
+    "layer2_trainable": false,
+    "layer3_trainable": false,
+    "layer4_trainable": true,
+    "gru_trainable": true,
+    "classifier_trainable": true,
+    "total": 11770442,
+    "trainable": 8987658,
+    "frozen": 2782784
+  },
+  "gradient_flow": {
+    "layer4": {
+      "has_grad": true,
+      "mean_abs": 0.0011567617766559124,
+      "max_abs": 0.1515694558620453,
+      "finite": true,
+      "numel": 8393728
+    },
+    "gru": {
+      "has_grad": true,
+      "mean_abs": 0.0027698646299540997,
+      "max_abs": 0.0637153908610344,
+      "finite": true,
+      "numel": 591360
+    },
+    "classifier": {
+      "has_grad": true,
+      "mean_abs": 0.0636720061302185,
+      "max_abs": 0.3746788799762726,
+      "finite": true,
+      "numel": 2570
+    },
+    "frozen_layer1_requires_grad": false,
+    "layer4_requires_grad": true,
+    "gru_requires_grad": true,
+    "classifier_requires_grad": true
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 2.7965206146240233,
+      "accuracy": 0.04,
+      "unique_predicted_classes": 8,
+      "prediction_distribution": {
+        "0": 5,
+        "1": 8,
+        "3": 4,
+        "4": 3,
+        "5": 9,
+        "6": 8,
+        "7": 1,
+        "9": 12
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 2,
+      "loss": 2.0791302871704103,
+      "accuracy": 0.34,
+      "unique_predicted_classes": 7,
+      "prediction_distribution": {
+        "0": 3,
+        "1": 1,
+        "2": 14,
+        "4": 13,
+        "7": 8,
+        "8": 9,
+        "9": 2
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 3,
+      "loss": 1.3846594905853271,
+      "accuracy": 0.66,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 2,
+        "1": 8,
+        "2": 4,
+        "3": 7,
+        "4": 6,
+        "5": 5,
+        "6": 4,
+        "7": 5,
+        "8": 2,
+        "9": 7
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 4,
+      "loss": 0.8962648010253906,
+      "accuracy": 0.84,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 3,
+        "1": 9,
+        "2": 4,
+        "3": 3,
+        "4": 6,
+        "5": 5,
+        "6": 5,
+        "7": 5,
+        "8": 5,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 5,
+      "loss": 0.5275718224048614,
+      "accuracy": 0.9,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 3,
+        "1": 6,
+        "2": 6,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 5,
+        "8": 7,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 6,
+      "loss": 0.3069458079338074,
+      "accuracy": 0.94,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 5,
+        "1": 6,
+        "2": 5,
+        "3": 6,
+        "4": 4,
+        "5": 5,
+        "6": 5,
+        "7": 5,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 7,
+      "loss": 0.18985531955957413,
+      "accuracy": 0.98,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 5,
+        "1": 4,
+        "2": 5,
+        "3": 6,
+        "4": 5,
+        "5": 5,
+        "6": 5,
+        "7": 5,
+        "8": 5,
+        "9": 5
+      },
+      "collapse_warning": false
+    }
+  ],
+  "final_train_accuracy": 0.98,
+  "best_train_accuracy": 0.98,
+  "final_loss": 0.18985531955957413,
+  "gate_passed": true,
+  "strong_success": true,
+  "checkpoint_path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\diagnostics\\tiny_overfit_layer4_model.pth",
+  "timestamp": "2026-09-16T02:05:34.857291+00:00"
+}

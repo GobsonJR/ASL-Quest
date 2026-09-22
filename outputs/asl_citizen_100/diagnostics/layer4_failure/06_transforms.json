@@ -1,0 +1,59 @@
+{
+  "train_steps": [
+    {
+      "class": "Resize",
+      "size": [
+        256,
+        256
+      ]
+    },
+    {
+      "class": "RandomResizedCrop",
+      "size": [
+        224,
+        224
+      ],
+      "scale": [
+        0.85,
+        1.0
+      ],
+      "ratio": [
+        0.9,
+        1.1
+      ]
+    },
+    {
+      "class": "ToTensor"
+    },
+    {
+      "class": "Normalize"
+    }
+  ],
+  "eval_steps": [
+    {
+      "class": "Resize",
+      "size": [
+        240,
+        240
+      ]
+    },
+    {
+      "class": "CenterCrop",
+      "size": [
+        224,
+        224
+      ]
+    },
+    {
+      "class": "ToTensor",
+      "size": null
+    },
+    {
+      "class": "Normalize",
+      "size": null
+    }
+  ],
+  "horizontal_flip_train": false,
+  "horizontal_flip_eval": false,
+  "note": "Dataset applies the Compose independently to each of 16 frames. RandomResizedCrop therefore draws a NEW crop per frame, breaking temporal alignment."
+}

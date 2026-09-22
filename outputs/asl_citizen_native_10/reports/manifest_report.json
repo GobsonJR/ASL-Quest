@@ -1,0 +1,268 @@
+{
+  "experiment_name": "asl_citizen_native_10",
+  "num_classes": 10,
+  "selection_rule": "10 glosses hand-picked from the curated 20-word ASL_CITIZEN_20_GLOSSES list (src/asl_citizen/vocab.py), which itself requires exact source-CSV labels, presence in all three official splits, and one lexical variant per concept.",
+  "mapping_rule": "class indices assigned by alphabetical gloss order among selected classes",
+  "selections": [
+    {
+      "rank": 1,
+      "gloss": "HELLO",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14,
+      "suitability": "Core greeting; natural first sign for a student demo."
+    },
+    {
+      "rank": 2,
+      "gloss": "THANKYOU",
+      "total": 31,
+      "train": 16,
+      "val": 3,
+      "test": 12,
+      "suitability": "High-frequency courtesy sign, visually distinct from HELLO."
+    },
+    {
+      "rank": 3,
+      "gloss": "PLEASE",
+      "total": 31,
+      "train": 14,
+      "val": 4,
+      "test": 13,
+      "suitability": "High-frequency courtesy sign; pairs with THANKYOU."
+    },
+    {
+      "rank": 4,
+      "gloss": "YES",
+      "total": 30,
+      "train": 15,
+      "val": 5,
+      "test": 10,
+      "suitability": "Basic affirmative response; short, high-motion sign."
+    },
+    {
+      "rank": 5,
+      "gloss": "NO",
+      "total": 30,
+      "train": 16,
+      "val": 3,
+      "test": 11,
+      "suitability": "Basic negative response; pairs with YES for contrast."
+    },
+    {
+      "rank": 6,
+      "gloss": "MOTHER",
+      "total": 32,
+      "train": 14,
+      "val": 3,
+      "test": 15,
+      "suitability": "Common people/family noun; single lexical variant in the dataset."
+    },
+    {
+      "rank": 7,
+      "gloss": "WATER",
+      "total": 30,
+      "train": 14,
+      "val": 4,
+      "test": 12,
+      "suitability": "Everyday concrete noun with a distinctive handshape."
+    },
+    {
+      "rank": 8,
+      "gloss": "EAT1",
+      "total": 39,
+      "train": 18,
+      "val": 4,
+      "test": 17,
+      "suitability": "Everyday action verb; highest video count of the 10 (39), aids memorization; EAT1 kept, EAT2 excluded as a duplicate lexical variant."
+    },
+    {
+      "rank": 9,
+      "gloss": "HELP",
+      "total": 31,
+      "train": 13,
+      "val": 5,
+      "test": 13,
+      "suitability": "Common actionable request verb, distinct two-handed motion."
+    },
+    {
+      "rank": 10,
+      "gloss": "BOOK",
+      "total": 31,
+      "train": 15,
+      "val": 4,
+      "test": 12,
+      "suitability": "Everyday object noun with a distinctive static handshape (contrast to the motion-heavy signs above)."
+    }
+  ],
+  "split_counts": {
+    "train": 149,
+    "val": 39,
+    "test": 129,
+    "total": 317
+  },
+  "leakage_check": {
+    "signer_independent": true,
+    "train_participants": [
+      "P1",
+      "P10",
+      "P11",
+      "P14",
+      "P16",
+      "P2",
+      "P20",
+      "P23",
+      "P24",
+      "P27",
+      "P29",
+      "P30",
+      "P31",
+      "P33",
+      "P34",
+      "P36",
+      "P37",
+      "P4",
+      "P40",
+      "P41",
+      "P43",
+      "P46",
+      "P50",
+      "P51",
+      "P52",
+      "P7"
+    ],
+    "val_participants": [
+      "P12",
+      "P21",
+      "P26",
+      "P39",
+      "P5"
+    ],
+    "test_participants": [
+      "P15",
+      "P17",
+      "P18",
+      "P22",
+      "P35",
+      "P42",
+      "P47",
+      "P48",
+      "P49",
+      "P6",
+      "P9"
+    ],
+    "train_val_overlap": [],
+    "train_test_overlap": [],
+    "val_test_overlap": [],
+    "cross_split_duplicate_filenames": []
+  },
+  "class_balance": {
+    "num_classes": 10,
+    "per_class": [
+      {
+        "gloss": "BOOK",
+        "train": 15,
+        "val": 4,
+        "test": 12,
+        "total": 31
+      },
+      {
+        "gloss": "EAT1",
+        "train": 18,
+        "val": 4,
+        "test": 17,
+        "total": 39
+      },
+      {
+        "gloss": "HELLO",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "HELP",
+        "train": 13,
+        "val": 5,
+        "test": 13,
+        "total": 31
+      },
+      {
+        "gloss": "MOTHER",
+        "train": 14,
+        "val": 3,
+        "test": 15,
+        "total": 32
+      },
+      {
+        "gloss": "NO",
+        "train": 16,
+        "val": 3,
+        "test": 11,
+        "total": 30
+      },
+      {
+        "gloss": "PLEASE",
+        "train": 14,
+        "val": 4,
+        "test": 13,
+        "total": 31
+      },
+      {
+        "gloss": "THANKYOU",
+        "train": 16,
+        "val": 3,
+        "test": 12,
+        "total": 31
+      },
+      {
+        "gloss": "WATER",
+        "train": 14,
+        "val": 4,
+        "test": 12,
+        "total": 30
+      },
+      {
+        "gloss": "YES",
+        "train": 15,
+        "val": 5,
+        "test": 10,
+        "total": 30
+      }
+    ],
+    "min_total": 30,
+    "max_total": 39,
+    "mean_total": 31.7,
+    "median_total": 31.0,
+    "classes_missing_any_split": []
+  },
+  "video_path_check": {
+    "checked": 317,
+    "missing_count": 0,
+    "missing": []
+  },
+  "duplicate_check": {
+    "total_videos": 317,
+    "unique_video_ids": 317,
+    "duplicate_video_ids": [],
+    "duplicate_filenames": []
+  },
+  "video_duration_stats": {
+    "sample_size": 317,
+    "unreadable_count": 0,
+    "duration_seconds": {
+      "min": 1.0,
+      "max": 22.133,
+      "mean": 2.671,
+      "median": 2.373
+    },
+    "frame_count": {
+      "min": 17.0,
+      "max": 664.0,
+      "mean": 78.92,
+      "median": 69.0
+    }
+  },
+  "data_dir": "D:\\SIGN LANGUAGE\\data\\asl_citizen_native_10",
+  "outputs_dir": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10"
+}

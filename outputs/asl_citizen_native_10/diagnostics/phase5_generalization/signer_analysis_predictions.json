@@ -1,0 +1,226 @@
+{
+  "frozen": {
+    "P15": {
+      "total": 11,
+      "correct": 3,
+      "accuracy": 0.2727,
+      "predicted_class_distribution": {
+        "YES": 7,
+        "BOOK": 2,
+        "THANKYOU": 2
+      }
+    },
+    "P17": {
+      "total": 10,
+      "correct": 2,
+      "accuracy": 0.2,
+      "predicted_class_distribution": {
+        "HELLO": 1,
+        "YES": 8,
+        "THANKYOU": 1
+      }
+    },
+    "P18": {
+      "total": 11,
+      "correct": 1,
+      "accuracy": 0.0909,
+      "predicted_class_distribution": {
+        "HELP": 7,
+        "YES": 2,
+        "MOTHER": 1,
+        "THANKYOU": 1
+      }
+    },
+    "P22": {
+      "total": 10,
+      "correct": 2,
+      "accuracy": 0.2,
+      "predicted_class_distribution": {
+        "YES": 6,
+        "THANKYOU": 4
+      }
+    },
+    "P35": {
+      "total": 14,
+      "correct": 1,
+      "accuracy": 0.0714,
+      "predicted_class_distribution": {
+        "MOTHER": 1,
+        "EAT1": 4,
+        "YES": 9
+      }
+    },
+    "P42": {
+      "total": 13,
+      "correct": 1,
+      "accuracy": 0.0769,
+      "predicted_class_distribution": {
+        "EAT1": 3,
+        "YES": 10
+      }
+    },
+    "P47": {
+      "total": 11,
+      "correct": 2,
+      "accuracy": 0.1818,
+      "predicted_class_distribution": {
+        "EAT1": 8,
+        "YES": 3
+      }
+    },
+    "P48": {
+      "total": 12,
+      "correct": 2,
+      "accuracy": 0.1667,
+      "predicted_class_distribution": {
+        "YES": 8,
+        "EAT1": 2,
+        "HELLO": 1,
+        "THANKYOU": 1
+      }
+    },
+    "P49": {
+      "total": 10,
+      "correct": 1,
+      "accuracy": 0.1,
+      "predicted_class_distribution": {
+        "YES": 10
+      }
+    },
+    "P6": {
+      "total": 13,
+      "correct": 1,
+      "accuracy": 0.0769,
+      "predicted_class_distribution": {
+        "YES": 9,
+        "THANKYOU": 4
+      }
+    },
+    "P9": {
+      "total": 14,
+      "correct": 1,
+      "accuracy": 0.0714,
+      "predicted_class_distribution": {
+        "EAT1": 1,
+        "YES": 11,
+        "BOOK": 2
+      }
+    }
+  },
+  "layer4": {
+    "P15": {
+      "total": 11,
+      "correct": 2,
+      "accuracy": 0.1818,
+      "predicted_class_distribution": {
+        "YES": 5,
+        "NO": 6
+      }
+    },
+    "P17": {
+      "total": 10,
+      "correct": 1,
+      "accuracy": 0.1,
+      "predicted_class_distribution": {
+        "YES": 6,
+        "NO": 4
+      }
+    },
+    "P18": {
+      "total": 11,
+      "correct": 1,
+      "accuracy": 0.0909,
+      "predicted_class_distribution": {
+        "WATER": 7,
+        "HELP": 2,
+        "THANKYOU": 1,
+        "MOTHER": 1
+      }
+    },
+    "P22": {
+      "total": 10,
+      "correct": 0,
+      "accuracy": 0.0,
+      "predicted_class_distribution": {
+        "NO": 4,
+        "WATER": 4,
+        "THANKYOU": 1,
+        "YES": 1
+      }
+    },
+    "P35": {
+      "total": 14,
+      "correct": 2,
+      "accuracy": 0.1429,
+      "predicted_class_distribution": {
+        "MOTHER": 3,
+        "EAT1": 11
+      }
+    },
+    "P42": {
+      "total": 13,
+      "correct": 0,
+      "accuracy": 0.0,
+      "predicted_class_distribution": {
+        "NO": 6,
+        "THANKYOU": 5,
+        "YES": 2
+      }
+    },
+    "P47": {
+      "total": 11,
+      "correct": 0,
+      "accuracy": 0.0,
+      "predicted_class_distribution": {
+        "WATER": 2,
+        "HELP": 1,
+        "NO": 8
+      }
+    },
+    "P48": {
+      "total": 12,
+      "correct": 2,
+      "accuracy": 0.1667,
+      "predicted_class_distribution": {
+        "YES": 4,
+        "THANKYOU": 1,
+        "NO": 6,
+        "EAT1": 1
+      }
+    },
+    "P49": {
+      "total": 10,
+      "correct": 2,
+      "accuracy": 0.2,
+      "predicted_class_distribution": {
+        "WATER": 3,
+        "NO": 4,
+        "YES": 3
+      }
+    },
+    "P6": {
+      "total": 13,
+      "correct": 1,
+      "accuracy": 0.0769,
+      "predicted_class_distribution": {
+        "MOTHER": 3,
+        "WATER": 4,
+        "NO": 2,
+        "EAT1": 3,
+        "THANKYOU": 1
+      }
+    },
+    "P9": {
+      "total": 14,
+      "correct": 1,
+      "accuracy": 0.0714,
+      "predicted_class_distribution": {
+        "WATER": 5,
+        "MOTHER": 5,
+        "THANKYOU": 2,
+        "YES": 1,
+        "NO": 1
+      }
+    }
+  }
+}

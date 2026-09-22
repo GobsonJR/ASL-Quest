@@ -1,0 +1,877 @@
+{
+  "sampled_classes": [
+    {
+      "gloss": "CATEGORY",
+      "class_idx": 49,
+      "n_train": 16,
+      "n_val": 3,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P23",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P37",
+        "P40",
+        "P50",
+        "P52"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "9366699230120215-CATEGORY.mp4",
+          "frames": 86,
+          "sec": 2.8689999999999998
+        },
+        {
+          "video_file": "02490137063434572-CATEGORY.mp4",
+          "frames": 79,
+          "sec": 2.6399999999999997
+        },
+        {
+          "video_file": "4218684862336075-CATEGORY.mp4",
+          "frames": 56,
+          "sec": 1.867
+        },
+        {
+          "video_file": "02865030271489233-CATEGORY.mp4",
+          "frames": 54,
+          "sec": 1.8
+        },
+        {
+          "video_file": "8112347836642517-CATEGORY.mp4",
+          "frames": 58,
+          "sec": 1.935
+        },
+        {
+          "video_file": "08694334915738033-CATEGORY.mp4",
+          "frames": 54,
+          "sec": 1.8
+        },
+        {
+          "video_file": "23518674100858927-CATEGORY.mp4",
+          "frames": 75,
+          "sec": 2.5
+        },
+        {
+          "video_file": "2284097335099624-CATEGORY.mp4",
+          "frames": 75,
+          "sec": 2.507
+        }
+      ]
+    },
+    {
+      "gloss": "TWINS1",
+      "class_idx": 97,
+      "n_train": 18,
+      "n_val": 4,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P27",
+        "P29",
+        "P31",
+        "P33",
+        "P37",
+        "P40",
+        "P43",
+        "P50",
+        "P52"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39",
+        "P5"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "4612467897905175-TWINS.mp4",
+          "frames": 90,
+          "sec": 3.003
+        },
+        {
+          "video_file": "6356650419987919-TWINS.mp4",
+          "frames": 89,
+          "sec": 2.967
+        },
+        {
+          "video_file": "5792471419482148-TWINS.mp4",
+          "frames": 65,
+          "sec": 2.172
+        },
+        {
+          "video_file": "9855459225573504-TWINS.mp4",
+          "frames": 69,
+          "sec": 2.312
+        },
+        {
+          "video_file": "725056754340963-TWINS.mp4",
+          "frames": 74,
+          "sec": 2.4390243902439024
+        },
+        {
+          "video_file": "37682735850288696-TWINS.mp4",
+          "frames": 73,
+          "sec": 2.4330000000000003
+        },
+        {
+          "video_file": "687175058377234-TWINS.mp4",
+          "frames": 59,
+          "sec": 1.972
+        },
+        {
+          "video_file": "7631730254707754-TWINS.mp4",
+          "frames": 57,
+          "sec": 1.9
+        }
+      ]
+    },
+    {
+      "gloss": "CHANNEL",
+      "class_idx": 53,
+      "n_train": 14,
+      "n_val": 4,
+      "train_signers": [
+        "P11",
+        "P16",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P36",
+        "P37",
+        "P40",
+        "P50",
+        "P51",
+        "P52",
+        "P7"
+      ],
+      "val_signers": [
+        "P12",
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "7416766344210868-CHANNEL.mp4",
+          "frames": 77,
+          "sec": 2.567
+        },
+        {
+          "video_file": "22878192813095-CHANNEL.mp4",
+          "frames": 47,
+          "sec": 1.568
+        },
+        {
+          "video_file": "04692550550323449-CHANNEL.mp4",
+          "frames": 72,
+          "sec": 2.353018072486029
+        },
+        {
+          "video_file": "8043797064070148-CHANNEL.mp4",
+          "frames": 75,
+          "sec": 2.5020000000000002
+        },
+        {
+          "video_file": "0699347109409787-CHANNEL.mp4",
+          "frames": 54,
+          "sec": 1.8019999999999998
+        },
+        {
+          "video_file": "104959056923142-CHANNEL.mp4",
+          "frames": 69,
+          "sec": 2.3
+        },
+        {
+          "video_file": "14353879673908687-CHANNEL.mp4",
+          "frames": 123,
+          "sec": 4.104
+        },
+        {
+          "video_file": "4306538896372494-CHANNEL.mp4",
+          "frames": 81,
+          "sec": 2.703
+        }
+      ]
+    },
+    {
+      "gloss": "ALARM",
+      "class_idx": 5,
+      "n_train": 14,
+      "n_val": 4,
+      "train_signers": [
+        "P11",
+        "P16",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P36",
+        "P37",
+        "P40",
+        "P50",
+        "P51",
+        "P52",
+        "P7"
+      ],
+      "val_signers": [
+        "P12",
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "5094255125387595-ALARM.mp4",
+          "frames": 87,
+          "sec": 2.9
+        },
+        {
+          "video_file": "9360594608322135-ALARM.mp4",
+          "frames": 62,
+          "sec": 2.069
+        },
+        {
+          "video_file": "7031727030753636-ALARM.mp4",
+          "frames": 98,
+          "sec": 3.267
+        },
+        {
+          "video_file": "36285227744262327-ALARM.mp4",
+          "frames": 66,
+          "sec": 2.177068214804064
+        },
+        {
+          "video_file": "007052570289345361-ALARM.mp4",
+          "frames": 69,
+          "sec": 2.3
+        },
+        {
+          "video_file": "32967735523691566-ALARM.mp4",
+          "frames": 61,
+          "sec": 2.033
+        },
+        {
+          "video_file": "33026094180235965-ALARM.mp4",
+          "frames": 123,
+          "sec": 4.0487162606978275
+        },
+        {
+          "video_file": "050082045994648716-ALARM.mp4",
+          "frames": 72,
+          "sec": 2.4059999999999997
+        }
+      ]
+    },
+    {
+      "gloss": "BOY",
+      "class_idx": 33,
+      "n_train": 14,
+      "n_val": 6,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P37",
+        "P4",
+        "P40",
+        "P50",
+        "P52",
+        "P7"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39",
+        "P5"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "4701606875522637-BOY.mp4",
+          "frames": 82,
+          "sec": 2.7409999999999997
+        },
+        {
+          "video_file": "1845988193133219-BOY.mp4",
+          "frames": 61,
+          "sec": 2.035
+        },
+        {
+          "video_file": "09185137973370061-BOY.mp4",
+          "frames": 36,
+          "sec": 2.4024
+        },
+        {
+          "video_file": "3882428949192609-BOY.mp4",
+          "frames": 66,
+          "sec": 2.206
+        },
+        {
+          "video_file": "3098607539628562-BOY.mp4",
+          "frames": 50,
+          "sec": 1.667
+        },
+        {
+          "video_file": "41161724295860713-BOY.mp4",
+          "frames": 151,
+          "sec": 5.033
+        },
+        {
+          "video_file": "34102998813736063-BOY.mp4",
+          "frames": 95,
+          "sec": 3.1839999999999997
+        },
+        {
+          "video_file": "43409654505218187-BOY.mp4",
+          "frames": 100,
+          "sec": 3.342
+        }
+      ]
+    },
+    {
+      "gloss": "DINNER1",
+      "class_idx": 65,
+      "n_train": 18,
+      "n_val": 4,
+      "train_signers": [
+        "P11",
+        "P16",
+        "P27",
+        "P28",
+        "P29",
+        "P31",
+        "P33",
+        "P37",
+        "P40",
+        "P43",
+        "P50",
+        "P51",
+        "P52"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "48046366607913615-DINNER.mp4",
+          "frames": 94,
+          "sec": 3.136
+        },
+        {
+          "video_file": "9434171694753406-DINNER.mp4",
+          "frames": 73,
+          "sec": 2.436
+        },
+        {
+          "video_file": "6584846911041882-DINNER.mp4",
+          "frames": 105,
+          "sec": 3.503
+        },
+        {
+          "video_file": "18123549863499044-DINNER.mp4",
+          "frames": 60,
+          "sec": 2.005
+        },
+        {
+          "video_file": "7262160429010622-DINNER.mp4",
+          "frames": 77,
+          "sec": 2.569
+        },
+        {
+          "video_file": "5128050702012583-DINNER.mp4",
+          "frames": 82,
+          "sec": 2.736
+        },
+        {
+          "video_file": "029798118124713113-DINNER.mp4",
+          "frames": 64,
+          "sec": 2.133
+        },
+        {
+          "video_file": "6676304088782101-DINNER.mp4",
+          "frames": 51,
+          "sec": 1.7
+        }
+      ]
+    },
+    {
+      "gloss": "DECIDE1",
+      "class_idx": 62,
+      "n_train": 20,
+      "n_val": 3,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P37",
+        "P4",
+        "P40",
+        "P50",
+        "P51",
+        "P52",
+        "P7"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "08003931001097664-DECIDE.mp4",
+          "frames": 74,
+          "sec": 2.469
+        },
+        {
+          "video_file": "5201167247227318-DECIDE.mp4",
+          "frames": 83,
+          "sec": 2.708258557118152
+        },
+        {
+          "video_file": "8118012997438901-DECIDE.mp4",
+          "frames": 67,
+          "sec": 2.233
+        },
+        {
+          "video_file": "2464053408649325-DECIDE.mp4",
+          "frames": 73,
+          "sec": 2.436
+        },
+        {
+          "video_file": "3134439061460399-DECIDE.mp4",
+          "frames": 57,
+          "sec": 1.9
+        },
+        {
+          "video_file": "49337666671535385-DECIDE.mp4",
+          "frames": 71,
+          "sec": 2.3689999999999998
+        },
+        {
+          "video_file": "03913027306941852-DECIDE.mp4",
+          "frames": 83,
+          "sec": 2.725064022588483
+        },
+        {
+          "video_file": "2294303196632861-DECIDE.mp4",
+          "frames": 57,
+          "sec": 1.9
+        }
+      ]
+    },
+    {
+      "gloss": "CEMETERY",
+      "class_idx": 51,
+      "n_train": 17,
+      "n_val": 3,
+      "train_signers": [
+        "P1",
+        "P10",
+        "P11",
+        "P14",
+        "P16",
+        "P2",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P37",
+        "P40",
+        "P43",
+        "P50",
+        "P51",
+        "P52"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "44939873429204336-CEMETERY.mp4",
+          "frames": 90,
+          "sec": 3.003
+        },
+        {
+          "video_file": "5418273984027029-CEMETERY.mp4",
+          "frames": 133,
+          "sec": 4.433
+        },
+        {
+          "video_file": "4700164980726875-CEMETERY.mp4",
+          "frames": 104,
+          "sec": 3.476
+        },
+        {
+          "video_file": "06932549531498955-CEMETERY.mp4",
+          "frames": 55,
+          "sec": 1.8009758014342316
+        },
+        {
+          "video_file": "25342203817340914-CEMETERY.mp4",
+          "frames": 98,
+          "sec": 3.266993366003267
+        },
+        {
+          "video_file": "2813735428474613-CEMETERY.mp4",
+          "frames": 59,
+          "sec": 1.967
+        },
+        {
+          "video_file": "4990481595433105-CEMETERY.mp4",
+          "frames": 90,
+          "sec": 3.0
+        },
+        {
+          "video_file": "5266191142838652-CEMETERY.mp4",
+          "frames": 61,
+          "sec": 2.033
+        }
+      ]
+    },
+    {
+      "gloss": "BROTHER",
+      "class_idx": 38,
+      "n_train": 16,
+      "n_val": 3,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P20",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P37",
+        "P40",
+        "P50",
+        "P51",
+        "P52",
+        "P7"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "13498585088047066-BROTHER.mp4",
+          "frames": 89,
+          "sec": 2.967
+        },
+        {
+          "video_file": "4649907997271234-BROTHER.mp4",
+          "frames": 57,
+          "sec": 1.9
+        },
+        {
+          "video_file": "5300191533671401-BROTHER.mp4",
+          "frames": 79,
+          "sec": 2.633
+        },
+        {
+          "video_file": "4684116630451267-BROTHER.mp4",
+          "frames": 77,
+          "sec": 2.567
+        },
+        {
+          "video_file": "8528083792258134-BROTHER.mp4",
+          "frames": 80,
+          "sec": 2.6130128037627385
+        },
+        {
+          "video_file": "6657630771535601-BROTHER.mp4",
+          "frames": 68,
+          "sec": 2.267
+        },
+        {
+          "video_file": "46485000872838267-BROTHER.mp4",
+          "frames": 73,
+          "sec": 2.3725177938834543
+        },
+        {
+          "video_file": "4460836108274411-BROTHER.mp4",
+          "frames": 76,
+          "sec": 2.533333333333333
+        }
+      ]
+    },
+    {
+      "gloss": "DEAF1",
+      "class_idx": 61,
+      "n_train": 20,
+      "n_val": 4,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P23",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P36",
+        "P37",
+        "P40",
+        "P50",
+        "P51",
+        "P52",
+        "P7"
+      ],
+      "val_signers": [
+        "P12",
+        "P21",
+        "P26",
+        "P39"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "7822434515793355-DEAF.mp4",
+          "frames": 81,
+          "sec": 2.703
+        },
+        {
+          "video_file": "8003732238675179-DEAF.mp4",
+          "frames": 60,
+          "sec": 1.9483049746720353
+        },
+        {
+          "video_file": "07807851209534378-DEAF.mp4",
+          "frames": 80,
+          "sec": 2.674
+        },
+        {
+          "video_file": "14662097708148014-DEAF.mp4",
+          "frames": 92,
+          "sec": 3.075
+        },
+        {
+          "video_file": "9833342420720304-DEAF.mp4",
+          "frames": 52,
+          "sec": 1.735
+        },
+        {
+          "video_file": "4153430361974173-DEAF.mp4",
+          "frames": 71,
+          "sec": 2.335910511597302
+        },
+        {
+          "video_file": "9899511825675291-DEAF.mp4",
+          "frames": 65,
+          "sec": 2.167
+        },
+        {
+          "video_file": "41048138699229675-DEAF.mp4",
+          "frames": 59,
+          "sec": 1.967
+        }
+      ]
+    },
+    {
+      "gloss": "CANCER1",
+      "class_idx": 45,
+      "n_train": 18,
+      "n_val": 4,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P27",
+        "P29",
+        "P31",
+        "P33",
+        "P37",
+        "P40",
+        "P43",
+        "P50",
+        "P52"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39",
+        "P5"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "9502926253049975-CANCER.mp4",
+          "frames": 90,
+          "sec": 3.003
+        },
+        {
+          "video_file": "6774117724322335-CANCER.mp4",
+          "frames": 103,
+          "sec": 3.403046221957908
+        },
+        {
+          "video_file": "6945672015907272-CANCER.mp4",
+          "frames": 83,
+          "sec": 2.774
+        },
+        {
+          "video_file": "08979220108286445-CANCER.mp4",
+          "frames": 84,
+          "sec": 2.8
+        },
+        {
+          "video_file": "09886203907430358-CANCER.mp4",
+          "frames": 104,
+          "sec": 3.4340432557371634
+        },
+        {
+          "video_file": "6798088944949527-CANCER.mp4",
+          "frames": 87,
+          "sec": 2.9
+        },
+        {
+          "video_file": "7065122552937446-CANCER.mp4",
+          "frames": 73,
+          "sec": 2.4330000000000003
+        },
+        {
+          "video_file": "3400858540940377-CANCER.mp4",
+          "frames": 55,
+          "sec": 1.835
+        }
+      ]
+    },
+    {
+      "gloss": "GUESS1",
+      "class_idx": 74,
+      "n_train": 18,
+      "n_val": 5,
+      "train_signers": [
+        "P11",
+        "P14",
+        "P16",
+        "P27",
+        "P29",
+        "P30",
+        "P31",
+        "P33",
+        "P36",
+        "P37",
+        "P4",
+        "P40",
+        "P43",
+        "P52",
+        "P7"
+      ],
+      "val_signers": [
+        "P21",
+        "P26",
+        "P39",
+        "P5"
+      ],
+      "signer_overlap": [],
+      "duration_samples": [
+        {
+          "video_file": "24946258334528815-GUESS.mp4",
+          "frames": 111,
+          "sec": 3.7
+        },
+        {
+          "video_file": "7383284467475846-GUESS.mp4",
+          "frames": 73,
+          "sec": 2.44
+        },
+        {
+          "video_file": "9825690623317844-GUESS.mp4",
+          "frames": 72,
+          "sec": 2.4
+        },
+        {
+          "video_file": "4920186526279182-GUESS.mp4",
+          "frames": 55,
+          "sec": 1.833
+        },
+        {
+          "video_file": "36149171254574775-GUESS.mp4",
+          "frames": 46,
+          "sec": 1.533
+        },
+        {
+          "video_file": "40743125054260143-GUESS.mp4",
+          "frames": 55,
+          "sec": 1.843
+        },
+        {
+          "video_file": "09392026245020113-GUESS.mp4",
+          "frames": 49,
+          "sec": 1.638
+        },
+        {
+          "video_file": "5972296571735796-GUESS.mp4",
+          "frames": 78,
+          "sec": 2.6
+        }
+      ]
+    }
+  ],
+  "possible_similar_name_groups": {
+    "food_related": [
+      "BREAKFAST1",
+      "DINNER1",
+      "EAT1",
+      "LUNCH1"
+    ],
+    "boy_girl_people": [
+      "BOY",
+      "THEY1"
+    ]
+  },
+  "split_count_stats": {
+    "train_videos_min_max_mean": {
+      "min": 13,
+      "max": 24,
+      "mean": 17.07
+    },
+    "val_videos_min_max_mean": {
+      "min": 3,
+      "max": 7,
+      "mean": 3.93
+    }
+  }
+}

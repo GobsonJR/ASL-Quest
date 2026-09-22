@@ -1,0 +1,314 @@
+{
+  "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\checkpoints\\asl_citizen_native_10_resnet18_gru_best.pth",
+  "split": "test",
+  "samples": 129,
+  "num_classes": 10,
+  "checkpoint_class_mapping_matches_manifest": true,
+  "checkpoint_num_classes_correct": true,
+  "infra_note_class_to_idx_path_round_trip": "checkpoint.py config_to_dict/config_from_dict do not persist class_to_idx_path/idx_to_class_path; corrected locally in this script before building the dataloader (not modified in checkpoint.py itself).",
+  "state_dict_load_missing_keys": [],
+  "state_dict_load_unexpected_keys": [],
+  "logits_finite": true,
+  "top1_accuracy": 0.09302325546741486,
+  "top5_accuracy": 0.49612403100775193,
+  "macro_precision": 0.0093,
+  "macro_recall": 0.1,
+  "macro_f1": 0.017,
+  "per_class": [
+    {
+      "gloss": "BOOK",
+      "support": 12,
+      "precision": 0.093,
+      "recall": 1.0,
+      "f1": 0.1702,
+      "predicted_count": 129
+    },
+    {
+      "gloss": "EAT1",
+      "support": 17,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "HELLO",
+      "support": 14,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "HELP",
+      "support": 13,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "MOTHER",
+      "support": 15,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "NO",
+      "support": 11,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "PLEASE",
+      "support": 13,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "THANKYOU",
+      "support": 12,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "WATER",
+      "support": 12,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    },
+    {
+      "gloss": "YES",
+      "support": 10,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "predicted_count": 0
+    }
+  ],
+  "confusion_matrix": {
+    "labels": [
+      "BOOK",
+      "EAT1",
+      "HELLO",
+      "HELP",
+      "MOTHER",
+      "NO",
+      "PLEASE",
+      "THANKYOU",
+      "WATER",
+      "YES"
+    ],
+    "matrix": [
+      [
+        12,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        17,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        14,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        13,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        15,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        11,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        13,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        12,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        12,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        10,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    ]
+  },
+  "prediction_distribution": {
+    "BOOK": 129,
+    "EAT1": 0,
+    "HELLO": 0,
+    "HELP": 0,
+    "MOTHER": 0,
+    "NO": 0,
+    "PLEASE": 0,
+    "THANKYOU": 0,
+    "WATER": 0,
+    "YES": 0
+  },
+  "unique_predicted_classes": 1,
+  "dominant_predicted_class": "BOOK",
+  "dominant_class_share": 1.0,
+  "collapse_warning_one_class": true,
+  "collapse_warning_dominant_share": true,
+  "signer_accuracy": {
+    "P15": {
+      "correct": 1,
+      "total": 11,
+      "accuracy": 0.0909
+    },
+    "P17": {
+      "correct": 1,
+      "total": 10,
+      "accuracy": 0.1
+    },
+    "P18": {
+      "correct": 1,
+      "total": 11,
+      "accuracy": 0.0909
+    },
+    "P22": {
+      "correct": 1,
+      "total": 10,
+      "accuracy": 0.1
+    },
+    "P35": {
+      "correct": 1,
+      "total": 14,
+      "accuracy": 0.0714
+    },
+    "P42": {
+      "correct": 1,
+      "total": 13,
+      "accuracy": 0.0769
+    },
+    "P47": {
+      "correct": 1,
+      "total": 11,
+      "accuracy": 0.0909
+    },
+    "P48": {
+      "correct": 1,
+      "total": 12,
+      "accuracy": 0.0833
+    },
+    "P49": {
+      "correct": 1,
+      "total": 10,
+      "accuracy": 0.1
+    },
+    "P6": {
+      "correct": 1,
+      "total": 13,
+      "accuracy": 0.0769
+    },
+    "P9": {
+      "correct": 2,
+      "total": 14,
+      "accuracy": 0.1429
+    }
+  },
+  "signer_accuracy_min": 0.0714,
+  "signer_accuracy_max": 0.1429,
+  "training_val_accuracy_at_checkpoint": 0.10256410390138626,
+  "training_val_top5_at_checkpoint": 0.48717948717948717,
+  "training_epoch": 1
+}

@@ -1,0 +1,584 @@
+{
+  "test_predictions_by_signer": {
+    "frozen": {
+      "P15": {
+        "total": 11,
+        "correct": 3,
+        "accuracy": 0.2727,
+        "predicted_class_distribution": {
+          "YES": 7,
+          "BOOK": 2,
+          "THANKYOU": 2
+        }
+      },
+      "P17": {
+        "total": 10,
+        "correct": 2,
+        "accuracy": 0.2,
+        "predicted_class_distribution": {
+          "HELLO": 1,
+          "YES": 8,
+          "THANKYOU": 1
+        }
+      },
+      "P18": {
+        "total": 11,
+        "correct": 1,
+        "accuracy": 0.0909,
+        "predicted_class_distribution": {
+          "HELP": 7,
+          "YES": 2,
+          "MOTHER": 1,
+          "THANKYOU": 1
+        }
+      },
+      "P22": {
+        "total": 10,
+        "correct": 2,
+        "accuracy": 0.2,
+        "predicted_class_distribution": {
+          "YES": 6,
+          "THANKYOU": 4
+        }
+      },
+      "P35": {
+        "total": 14,
+        "correct": 1,
+        "accuracy": 0.0714,
+        "predicted_class_distribution": {
+          "MOTHER": 1,
+          "EAT1": 4,
+          "YES": 9
+        }
+      },
+      "P42": {
+        "total": 13,
+        "correct": 1,
+        "accuracy": 0.0769,
+        "predicted_class_distribution": {
+          "EAT1": 3,
+          "YES": 10
+        }
+      },
+      "P47": {
+        "total": 11,
+        "correct": 2,
+        "accuracy": 0.1818,
+        "predicted_class_distribution": {
+          "EAT1": 8,
+          "YES": 3
+        }
+      },
+      "P48": {
+        "total": 12,
+        "correct": 2,
+        "accuracy": 0.1667,
+        "predicted_class_distribution": {
+          "YES": 8,
+          "EAT1": 2,
+          "HELLO": 1,
+          "THANKYOU": 1
+        }
+      },
+      "P49": {
+        "total": 10,
+        "correct": 1,
+        "accuracy": 0.1,
+        "predicted_class_distribution": {
+          "YES": 10
+        }
+      },
+      "P6": {
+        "total": 13,
+        "correct": 1,
+        "accuracy": 0.0769,
+        "predicted_class_distribution": {
+          "YES": 9,
+          "THANKYOU": 4
+        }
+      },
+      "P9": {
+        "total": 14,
+        "correct": 1,
+        "accuracy": 0.0714,
+        "predicted_class_distribution": {
+          "EAT1": 1,
+          "YES": 11,
+          "BOOK": 2
+        }
+      }
+    },
+    "layer4": {
+      "P15": {
+        "total": 11,
+        "correct": 2,
+        "accuracy": 0.1818,
+        "predicted_class_distribution": {
+          "YES": 5,
+          "NO": 6
+        }
+      },
+      "P17": {
+        "total": 10,
+        "correct": 1,
+        "accuracy": 0.1,
+        "predicted_class_distribution": {
+          "YES": 6,
+          "NO": 4
+        }
+      },
+      "P18": {
+        "total": 11,
+        "correct": 1,
+        "accuracy": 0.0909,
+        "predicted_class_distribution": {
+          "WATER": 7,
+          "HELP": 2,
+          "THANKYOU": 1,
+          "MOTHER": 1
+        }
+      },
+      "P22": {
+        "total": 10,
+        "correct": 0,
+        "accuracy": 0.0,
+        "predicted_class_distribution": {
+          "NO": 4,
+          "WATER": 4,
+          "THANKYOU": 1,
+          "YES": 1
+        }
+      },
+      "P35": {
+        "total": 14,
+        "correct": 2,
+        "accuracy": 0.1429,
+        "predicted_class_distribution": {
+          "MOTHER": 3,
+          "EAT1": 11
+        }
+      },
+      "P42": {
+        "total": 13,
+        "correct": 0,
+        "accuracy": 0.0,
+        "predicted_class_distribution": {
+          "NO": 6,
+          "THANKYOU": 5,
+          "YES": 2
+        }
+      },
+      "P47": {
+        "total": 11,
+        "correct": 0,
+        "accuracy": 0.0,
+        "predicted_class_distribution": {
+          "WATER": 2,
+          "HELP": 1,
+          "NO": 8
+        }
+      },
+      "P48": {
+        "total": 12,
+        "correct": 2,
+        "accuracy": 0.1667,
+        "predicted_class_distribution": {
+          "YES": 4,
+          "THANKYOU": 1,
+          "NO": 6,
+          "EAT1": 1
+        }
+      },
+      "P49": {
+        "total": 10,
+        "correct": 2,
+        "accuracy": 0.2,
+        "predicted_class_distribution": {
+          "WATER": 3,
+          "NO": 4,
+          "YES": 3
+        }
+      },
+      "P6": {
+        "total": 13,
+        "correct": 1,
+        "accuracy": 0.0769,
+        "predicted_class_distribution": {
+          "MOTHER": 3,
+          "WATER": 4,
+          "NO": 2,
+          "EAT1": 3,
+          "THANKYOU": 1
+        }
+      },
+      "P9": {
+        "total": 14,
+        "correct": 1,
+        "accuracy": 0.0714,
+        "predicted_class_distribution": {
+          "WATER": 5,
+          "MOTHER": 5,
+          "THANKYOU": 2,
+          "YES": 1,
+          "NO": 1
+        }
+      }
+    }
+  },
+  "clips_per_signer_per_class_by_split": {
+    "train": {
+      "BOOK": {
+        "P40": 1,
+        "P7": 1,
+        "P37": 1,
+        "P51": 1,
+        "P16": 1,
+        "P50": 1,
+        "P14": 1,
+        "P10": 1,
+        "P31": 1,
+        "P33": 1,
+        "P29": 1,
+        "P11": 1,
+        "P30": 1,
+        "P27": 1,
+        "P52": 1
+      },
+      "EAT1": {
+        "P40": 2,
+        "P37": 2,
+        "P7": 1,
+        "P14": 1,
+        "P16": 1,
+        "P50": 2,
+        "P4": 1,
+        "P31": 1,
+        "P30": 1,
+        "P33": 1,
+        "P29": 2,
+        "P11": 1,
+        "P27": 1,
+        "P52": 1
+      },
+      "HELLO": {
+        "P40": 1,
+        "P37": 1,
+        "P7": 1,
+        "P41": 1,
+        "P16": 1,
+        "P50": 1,
+        "P30": 1,
+        "P31": 1,
+        "P29": 1,
+        "P33": 1,
+        "P11": 1,
+        "P51": 1,
+        "P27": 1,
+        "P52": 1
+      },
+      "HELP": {
+        "P40": 1,
+        "P37": 1,
+        "P14": 1,
+        "P16": 1,
+        "P20": 1,
+        "P4": 1,
+        "P31": 1,
+        "P30": 1,
+        "P33": 1,
+        "P29": 2,
+        "P11": 1,
+        "P52": 1
+      },
+      "MOTHER": {
+        "P40": 1,
+        "P37": 1,
+        "P7": 1,
+        "P16": 1,
+        "P20": 1,
+        "P14": 1,
+        "P29": 1,
+        "P31": 1,
+        "P33": 1,
+        "P11": 1,
+        "P51": 1,
+        "P30": 1,
+        "P27": 1,
+        "P52": 1
+      },
+      "NO": {
+        "P40": 1,
+        "P43": 1,
+        "P37": 1,
+        "P36": 1,
+        "P2": 1,
+        "P16": 1,
+        "P50": 1,
+        "P14": 1,
+        "P23": 1,
+        "P27": 1,
+        "P29": 1,
+        "P31": 1,
+        "P33": 1,
+        "P11": 1,
+        "P51": 1,
+        "P52": 1
+      },
+      "PLEASE": {
+        "P40": 1,
+        "P37": 1,
+        "P7": 1,
+        "P16": 1,
+        "P50": 1,
+        "P14": 1,
+        "P30": 1,
+        "P31": 1,
+        "P29": 1,
+        "P33": 1,
+        "P11": 1,
+        "P51": 1,
+        "P27": 1,
+        "P52": 1
+      },
+      "THANKYOU": {
+        "P1": 1,
+        "P40": 1,
+        "P43": 1,
+        "P37": 1,
+        "P2": 1,
+        "P16": 1,
+        "P50": 1,
+        "P14": 1,
+        "P27": 1,
+        "P10": 1,
+        "P31": 1,
+        "P33": 1,
+        "P29": 1,
+        "P11": 1,
+        "P51": 1,
+        "P52": 1
+      },
+      "WATER": {
+        "P37": 1,
+        "P7": 1,
+        "P51": 1,
+        "P16": 1,
+        "P50": 1,
+        "P14": 1,
+        "P4": 1,
+        "P31": 1,
+        "P30": 1,
+        "P33": 1,
+        "P29": 1,
+        "P11": 1,
+        "P27": 1,
+        "P52": 1
+      },
+      "YES": {
+        "P40": 1,
+        "P37": 2,
+        "P34": 1,
+        "P14": 1,
+        "P46": 1,
+        "P50": 1,
+        "P24": 1,
+        "P31": 1,
+        "P33": 1,
+        "P29": 2,
+        "P11": 1,
+        "P27": 1,
+        "P52": 1
+      }
+    },
+    "val": {
+      "BOOK": {
+        "P12": 1,
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "EAT1": {
+        "P5": 1,
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "HELLO": {
+        "P12": 1,
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "HELP": {
+        "P5": 1,
+        "P21": 1,
+        "P39": 1,
+        "P26": 2
+      },
+      "MOTHER": {
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "NO": {
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "PLEASE": {
+        "P12": 1,
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "THANKYOU": {
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "WATER": {
+        "P5": 1,
+        "P21": 1,
+        "P39": 1,
+        "P26": 1
+      },
+      "YES": {
+        "P21": 2,
+        "P39": 2,
+        "P26": 1
+      }
+    },
+    "test": {
+      "BOOK": {
+        "P42": 1,
+        "P6": 1,
+        "P35": 1,
+        "P15": 1,
+        "P18": 1,
+        "P47": 1,
+        "P48": 1,
+        "P49": 1,
+        "P22": 1,
+        "P17": 1,
+        "P9": 2
+      },
+      "EAT1": {
+        "P42": 3,
+        "P35": 3,
+        "P6": 3,
+        "P15": 1,
+        "P18": 1,
+        "P47": 1,
+        "P49": 1,
+        "P48": 1,
+        "P22": 1,
+        "P17": 1,
+        "P9": 1
+      },
+      "HELLO": {
+        "P35": 1,
+        "P6": 1,
+        "P42": 1,
+        "P15": 1,
+        "P18": 2,
+        "P47": 2,
+        "P49": 1,
+        "P48": 1,
+        "P9": 2,
+        "P22": 1,
+        "P17": 1
+      },
+      "HELP": {
+        "P42": 2,
+        "P6": 1,
+        "P35": 1,
+        "P15": 1,
+        "P18": 1,
+        "P47": 1,
+        "P49": 1,
+        "P48": 2,
+        "P22": 1,
+        "P17": 1,
+        "P9": 1
+      },
+      "MOTHER": {
+        "P42": 1,
+        "P35": 2,
+        "P6": 2,
+        "P15": 1,
+        "P18": 1,
+        "P47": 1,
+        "P48": 2,
+        "P49": 1,
+        "P9": 2,
+        "P22": 1,
+        "P17": 1
+      },
+      "NO": {
+        "P42": 1,
+        "P35": 1,
+        "P6": 1,
+        "P15": 1,
+        "P47": 1,
+        "P18": 1,
+        "P48": 1,
+        "P49": 1,
+        "P22": 1,
+        "P9": 1,
+        "P17": 1
+      },
+      "PLEASE": {
+        "P35": 2,
+        "P42": 1,
+        "P6": 1,
+        "P15": 1,
+        "P18": 1,
+        "P47": 1,
+        "P48": 1,
+        "P17": 1,
+        "P49": 1,
+        "P9": 2,
+        "P22": 1
+      },
+      "THANKYOU": {
+        "P42": 1,
+        "P35": 1,
+        "P6": 1,
+        "P15": 2,
+        "P47": 1,
+        "P18": 1,
+        "P48": 1,
+        "P49": 1,
+        "P22": 1,
+        "P9": 1,
+        "P17": 1
+      },
+      "WATER": {
+        "P42": 2,
+        "P6": 1,
+        "P35": 1,
+        "P15": 1,
+        "P18": 1,
+        "P47": 1,
+        "P49": 1,
+        "P48": 1,
+        "P22": 1,
+        "P17": 1,
+        "P9": 1
+      },
+      "YES": {
+        "P35": 1,
+        "P6": 1,
+        "P15": 1,
+        "P18": 1,
+        "P47": 1,
+        "P48": 1,
+        "P49": 1,
+        "P22": 1,
+        "P9": 1,
+        "P17": 1
+      }
+    }
+  },
+  "note": "test_predictions_by_signer shows, for each held-out test signer and each checkpoint, how many of their clips were predicted into each class regardless of the true label. clips_per_signer_per_class_by_split shows how many clips each signer contributed per class in train/val/test (train/val/test signer sets are fully disjoint, confirmed in Phase 4 preflight)."
+}

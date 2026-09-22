@@ -1,0 +1,133 @@
+{
+  "train_resize_target": [
+    256,
+    256
+  ],
+  "train_random_resized_crop": {
+    "output_size": 224,
+    "scale": [
+      0.85,
+      1.0
+    ],
+    "ratio": [
+      0.9,
+      1.1
+    ]
+  },
+  "eval_resize_target": [
+    240,
+    240
+  ],
+  "eval_center_crop_output_size": 224,
+  "samples": [
+    {
+      "gloss": "BOOK",
+      "split": "train",
+      "video_file": "8258920636382685-BOOK.mp4",
+      "original_size": [
+        640,
+        480
+      ],
+      "train_crop_box_ltwh": [
+        2,
+        18,
+        244,
+        234
+      ],
+      "train_crop_area_fraction_of_resized": 0.8712,
+      "eval_crop_area_fraction_of_resized": 0.8711,
+      "image_path": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\spatial_preprocessing\\BOOK_train_preprocessing.png"
+    },
+    {
+      "gloss": "EAT1",
+      "split": "val",
+      "video_file": "8779902440064791-EAT.mp4",
+      "original_size": [
+        640,
+        480
+      ],
+      "train_crop_box_ltwh": [
+        2,
+        7,
+        236,
+        247
+      ],
+      "train_crop_area_fraction_of_resized": 0.8895,
+      "eval_crop_area_fraction_of_resized": 0.8711,
+      "image_path": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\spatial_preprocessing\\EAT1_val_preprocessing.png"
+    },
+    {
+      "gloss": "HELLO",
+      "split": "test",
+      "video_file": "5911924789322505-HELLO.mp4",
+      "original_size": [
+        640,
+        480
+      ],
+      "train_crop_box_ltwh": [
+        0,
+        1,
+        238,
+        251
+      ],
+      "train_crop_area_fraction_of_resized": 0.9115,
+      "eval_crop_area_fraction_of_resized": 0.8711,
+      "image_path": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\spatial_preprocessing\\HELLO_test_preprocessing.png"
+    },
+    {
+      "gloss": "HELP",
+      "split": "train",
+      "video_file": "1512241224851143-HELP.mp4",
+      "original_size": [
+        640,
+        480
+      ],
+      "train_crop_box_ltwh": [
+        12,
+        4,
+        238,
+        252
+      ],
+      "train_crop_area_fraction_of_resized": 0.9152,
+      "eval_crop_area_fraction_of_resized": 0.8711,
+      "image_path": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\spatial_preprocessing\\HELP_train_preprocessing.png"
+    },
+    {
+      "gloss": "MOTHER",
+      "split": "val",
+      "video_file": "2401781217873089-MOTHER.mp4",
+      "original_size": [
+        640,
+        480
+      ],
+      "train_crop_box_ltwh": [
+        16,
+        0,
+        235,
+        246
+      ],
+      "train_crop_area_fraction_of_resized": 0.8821,
+      "eval_crop_area_fraction_of_resized": 0.8711,
+      "image_path": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\spatial_preprocessing\\MOTHER_val_preprocessing.png"
+    },
+    {
+      "gloss": "NO",
+      "split": "test",
+      "video_file": "5278795760893484-NO.mp4",
+      "original_size": [
+        640,
+        480
+      ],
+      "train_crop_box_ltwh": [
+        17,
+        1,
+        233,
+        253
+      ],
+      "train_crop_area_fraction_of_resized": 0.8995,
+      "eval_crop_area_fraction_of_resized": 0.8711,
+      "image_path": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\spatial_preprocessing\\NO_test_preprocessing.png"
+    }
+  ],
+  "note": "No hand/pose landmarks are available in this pipeline (unlike the production A-Z MediaPipe path), so hand visibility after cropping can only be assessed visually from the saved images, not measured automatically."
+}

@@ -1,0 +1,32 @@
+{
+  "checkpoint": "asl_citizen_100_resnet18_gru_best.pth",
+  "split": "test",
+  "samples": 250,
+  "strict_ok": true,
+  "missing_keys": [],
+  "unexpected_keys": [],
+  "top1": 0.00800000037997961,
+  "top5": 0.072,
+  "unique_predicted_classes": 2,
+  "most_frequent": {
+    "idx": 33,
+    "gloss": "BOY",
+    "count": 247
+  },
+  "top10": [
+    {
+      "idx": 33,
+      "gloss": "BOY",
+      "count": 247
+    },
+    {
+      "idx": 98,
+      "gloss": "TYPE1",
+      "count": 3
+    }
+  ],
+  "distribution": {
+    "33": 247,
+    "98": 3
+  }
+}

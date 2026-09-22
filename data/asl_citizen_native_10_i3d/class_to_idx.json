@@ -1,0 +1,12 @@
+{
+  "BOOK": 0,
+  "EAT1": 1,
+  "HELLO": 2,
+  "HELP": 3,
+  "MOTHER": 4,
+  "NO": 5,
+  "PLEASE": 6,
+  "THANKYOU": 7,
+  "WATER": 8,
+  "YES": 9
+}

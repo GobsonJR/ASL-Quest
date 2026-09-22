@@ -1,0 +1,16 @@
+{
+  "phase_4b_frozen": {
+    "class_silhouette": -0.0725,
+    "signer_silhouette": 0.205
+  },
+  "phase_4c_layer4": {
+    "class_silhouette": -0.0769,
+    "signer_silhouette": 0.094
+  },
+  "phase_6_appearance_aug": {
+    "class_silhouette": -0.0723,
+    "signer_silhouette": 0.2167
+  },
+  "class_silhouette_improved_vs_4b": true,
+  "signer_silhouette_decreased_vs_4b": false
+}

@@ -1,0 +1,1035 @@
+{
+  "phase": "7D_diagnosis",
+  "checkpoints": {
+    "training_history_file_exists": false,
+    "training_history": null,
+    "training_history_note": "training_history.json was not found. train.py only writes it after all epochs complete. Per-epoch train/val metrics are unavailable unless captured from console logs.",
+    "best": {
+      "path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_best.pth",
+      "epoch": 4,
+      "val_accuracy": 0.015267175622284412,
+      "val_top5_accuracy": 0.06870229007633588,
+      "num_classes": 100,
+      "num_frames": 16,
+      "image_size": 224,
+      "architecture": "resnet18_gru",
+      "freeze_backbone": true,
+      "learning_rate": 0.001,
+      "batch_size": 4,
+      "num_epochs_config": 20,
+      "has_optimizer_state": true,
+      "class_mapping_count": 100
+    },
+    "last": {
+      "path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_last.pth",
+      "epoch": 9,
+      "val_accuracy": 0.010178117081522942,
+      "val_top5_accuracy": 0.05597964376590331,
+      "num_classes": 100,
+      "num_frames": 16,
+      "image_size": 224,
+      "architecture": "resnet18_gru",
+      "freeze_backbone": true,
+      "learning_rate": 0.001,
+      "batch_size": 4,
+      "num_epochs_config": 20,
+      "has_optimizer_state": true,
+      "class_mapping_count": 100
+    }
+  },
+  "strict_load_best": {
+    "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_best.pth",
+    "strict_load_would_succeed": true,
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "num_missing": 0,
+    "num_unexpected": 0
+  },
+  "strict_load_last": {
+    "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_last.pth",
+    "strict_load_would_succeed": true,
+    "missing_keys": [],
+    "unexpected_keys": [],
+    "num_missing": 0,
+    "num_unexpected": 0
+  },
+  "random_baseline": {
+    "top1": 0.01,
+    "top5": 0.05
+  },
+  "test_metrics": {
+    "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_best.pth",
+    "split": "test",
+    "samples": 1444,
+    "top1_accuracy": 0.008310249075293541,
+    "top5_accuracy": 0.05193905817174515,
+    "num_classes": 100
+  },
+  "prediction_distribution_best": {
+    "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_best.pth",
+    "split": "test",
+    "samples": 300,
+    "top1_accuracy": 0.009999999776482582,
+    "top5_accuracy": 0.07,
+    "unique_predicted_classes": 2,
+    "most_frequent_prediction": [
+      33,
+      297
+    ],
+    "top10_predicted_classes": [
+      {
+        "class_idx": 33,
+        "gloss": "BOY",
+        "count": 297
+      },
+      {
+        "class_idx": 98,
+        "gloss": "TYPE1",
+        "count": 3
+      }
+    ],
+    "prediction_distribution": {
+      "33": 297,
+      "98": 3
+    }
+  },
+  "prediction_distribution_last": {
+    "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_last.pth",
+    "split": "test",
+    "samples": 300,
+    "top1_accuracy": 0.013333333656191826,
+    "top5_accuracy": 0.05333333333333334,
+    "unique_predicted_classes": 5,
+    "most_frequent_prediction": [
+      19,
+      186
+    ],
+    "top10_predicted_classes": [
+      {
+        "class_idx": 19,
+        "gloss": "BASKET1",
+        "count": 186
+      },
+      {
+        "class_idx": 93,
+        "gloss": "SPECIAL1",
+        "count": 111
+      },
+      {
+        "class_idx": 64,
+        "gloss": "DEVELOP1",
+        "count": 1
+      },
+      {
+        "class_idx": 77,
+        "gloss": "HURDLE/TRIP1",
+        "count": 1
+      },
+      {
+        "class_idx": 3,
+        "gloss": "ADVERTISE",
+        "count": 1
+      }
+    ],
+    "prediction_distribution": {
+      "19": 186,
+      "93": 111,
+      "3": 1,
+      "64": 1,
+      "77": 1
+    }
+  },
+  "best_vs_last_subset": {
+    "best": {
+      "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_best.pth",
+      "split": "test",
+      "samples": 200,
+      "top1_accuracy": 0.004999999888241291,
+      "top5_accuracy": 0.065,
+      "unique_predicted_classes": 2,
+      "most_frequent_prediction": [
+        33,
+        197
+      ],
+      "top10_predicted_classes": [
+        {
+          "class_idx": 33,
+          "gloss": "BOY",
+          "count": 197
+        },
+        {
+          "class_idx": 98,
+          "gloss": "TYPE1",
+          "count": 3
+        }
+      ],
+      "prediction_distribution": {
+        "33": 197,
+        "98": 3
+      }
+    },
+    "last": {
+      "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_last.pth",
+      "split": "test",
+      "samples": 200,
+      "top1_accuracy": 0.014999999664723873,
+      "top5_accuracy": 0.065,
+      "unique_predicted_classes": 5,
+      "most_frequent_prediction": [
+        19,
+        104
+      ],
+      "top10_predicted_classes": [
+        {
+          "class_idx": 19,
+          "gloss": "BASKET1",
+          "count": 104
+        },
+        {
+          "class_idx": 93,
+          "gloss": "SPECIAL1",
+          "count": 93
+        },
+        {
+          "class_idx": 64,
+          "gloss": "DEVELOP1",
+          "count": 1
+        },
+        {
+          "class_idx": 77,
+          "gloss": "HURDLE/TRIP1",
+          "count": 1
+        },
+        {
+          "class_idx": 3,
+          "gloss": "ADVERTISE",
+          "count": 1
+        }
+      ],
+      "prediction_distribution": {
+        "19": 104,
+        "93": 93,
+        "3": 1,
+        "64": 1,
+        "77": 1
+      }
+    }
+  },
+  "label_mapping": {
+    "file_class_count": 100,
+    "checkpoint_class_count": 100,
+    "indices_exactly_0_to_99": true,
+    "file_checkpoint_class_to_idx_match": true,
+    "inverse_consistent": true,
+    "examples": [
+      {
+        "video_file": "39033263528917295-SPECIAL.mp4",
+        "manifest_gloss": "SPECIAL1",
+        "manifest_class_idx": 93,
+        "class_to_idx_gloss": 93,
+        "dataset_label": 93,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "8096327288020262-CHAIN.mp4",
+        "manifest_gloss": "CHAIN",
+        "manifest_class_idx": 52,
+        "class_to_idx_gloss": 52,
+        "dataset_label": 52,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "207441560328397-PARTY.mp4",
+        "manifest_gloss": "PARTY1",
+        "manifest_class_idx": 86,
+        "class_to_idx_gloss": 86,
+        "dataset_label": 86,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "31608598408438104-BEHAVIOR.mp4",
+        "manifest_gloss": "BEHAVIOR",
+        "manifest_class_idx": 24,
+        "class_to_idx_gloss": 24,
+        "dataset_label": 24,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "2702343124706794-CHAIN.mp4",
+        "manifest_gloss": "CHAIN",
+        "manifest_class_idx": 52,
+        "class_to_idx_gloss": 52,
+        "dataset_label": 52,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "7610485274159868-BACKPACK.mp4",
+        "manifest_gloss": "BACKPACK1",
+        "manifest_class_idx": 16,
+        "class_to_idx_gloss": 16,
+        "dataset_label": 16,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "9506496385757299-BACKPACK.mp4",
+        "manifest_gloss": "BACKPACK1",
+        "manifest_class_idx": 16,
+        "class_to_idx_gloss": 16,
+        "dataset_label": 16,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "6423047538549398-MECHANIC.mp4",
+        "manifest_gloss": "MECHANIC1",
+        "manifest_class_idx": 81,
+        "class_to_idx_gloss": 81,
+        "dataset_label": 81,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "46617283654386044-BELT.mp4",
+        "manifest_gloss": "BELT1",
+        "manifest_class_idx": 26,
+        "class_to_idx_gloss": 26,
+        "dataset_label": 26,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "5781875286649776-CHEEK.mp4",
+        "manifest_gloss": "CHEEK",
+        "manifest_class_idx": 56,
+        "class_to_idx_gloss": 56,
+        "dataset_label": 56,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "8239709920147786-AFTER.mp4",
+        "manifest_gloss": "AFTER",
+        "manifest_class_idx": 4,
+        "class_to_idx_gloss": 4,
+        "dataset_label": 4,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      },
+      {
+        "video_file": "18512035840764907-BACK OUT.mp4",
+        "manifest_gloss": "BACKOUT",
+        "manifest_class_idx": 15,
+        "class_to_idx_gloss": 15,
+        "dataset_label": 15,
+        "prediction_gloss": "BOY",
+        "prediction_idx": 33,
+        "label_matches_mapping": true,
+        "dataset_label_matches_manifest": true
+      }
+    ],
+    "all_labels_consistent": true
+  },
+  "video_paths": {
+    "samples_checked": 20,
+    "all_exist": true,
+    "entries": [
+      {
+        "csv_video_file": "03644281354904466-CLOUD.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\03644281354904466-CLOUD.mp4",
+        "exists": true,
+        "size_bytes": 614132
+      },
+      {
+        "csv_video_file": "14027199560866777-FOREIGNER.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\14027199560866777-FOREIGNER.mp4",
+        "exists": true,
+        "size_bytes": 403041
+      },
+      {
+        "csv_video_file": "7647507802538407-ALPHABET.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\7647507802538407-ALPHABET.mp4",
+        "exists": true,
+        "size_bytes": 685223
+      },
+      {
+        "csv_video_file": "5356939703967203-ALPHABET.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\5356939703967203-ALPHABET.mp4",
+        "exists": true,
+        "size_bytes": 776068
+      },
+      {
+        "csv_video_file": "1508034199759607-THIRD.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\1508034199759607-THIRD.mp4",
+        "exists": true,
+        "size_bytes": 457852
+      },
+      {
+        "csv_video_file": "7291224290785421-EAT.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\7291224290785421-EAT.mp4",
+        "exists": true,
+        "size_bytes": 547299
+      },
+      {
+        "csv_video_file": "12591273558383032-CANCER.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\12591273558383032-CANCER.mp4",
+        "exists": true,
+        "size_bytes": 481409
+      },
+      {
+        "csv_video_file": "9114935082169129-BASKET 2.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\9114935082169129-BASKET 2.mp4",
+        "exists": true,
+        "size_bytes": 510912
+      },
+      {
+        "csv_video_file": "6733132641220483-DARK.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\6733132641220483-DARK.mp4",
+        "exists": true,
+        "size_bytes": 759039
+      },
+      {
+        "csv_video_file": "4087545522469531-APPLE.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\4087545522469531-APPLE.mp4",
+        "exists": true,
+        "size_bytes": 826434
+      },
+      {
+        "csv_video_file": "9248009026095918-CALENDAR.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\9248009026095918-CALENDAR.mp4",
+        "exists": true,
+        "size_bytes": 389698
+      },
+      {
+        "csv_video_file": "7203885947553725-BASKET 2.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\7203885947553725-BASKET 2.mp4",
+        "exists": true,
+        "size_bytes": 342171
+      },
+      {
+        "csv_video_file": "15029837796575918-CALL TTY.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\15029837796575918-CALL TTY.mp4",
+        "exists": true,
+        "size_bytes": 354504
+      },
+      {
+        "csv_video_file": "5702632225441844-WHAT FOR.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\5702632225441844-WHAT FOR.mp4",
+        "exists": true,
+        "size_bytes": 543206
+      },
+      {
+        "csv_video_file": "08620453440538589-APPEAR.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\08620453440538589-APPEAR.mp4",
+        "exists": true,
+        "size_bytes": 479963
+      },
+      {
+        "csv_video_file": "2349600796230753-AUTISM.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\2349600796230753-AUTISM.mp4",
+        "exists": true,
+        "size_bytes": 551616
+      },
+      {
+        "csv_video_file": "29862646233806744-CASTLE 4.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\29862646233806744-CASTLE 4.mp4",
+        "exists": true,
+        "size_bytes": 723586
+      },
+      {
+        "csv_video_file": "5226943306928418-MOVIE.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\5226943306928418-MOVIE.mp4",
+        "exists": true,
+        "size_bytes": 565152
+      },
+      {
+        "csv_video_file": "6495854564577164-BEHAVIOR.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\6495854564577164-BEHAVIOR.mp4",
+        "exists": true,
+        "size_bytes": 529187
+      },
+      {
+        "csv_video_file": "8788556697397354-BORROW.mp4",
+        "resolved_path": "D:\\ASL_Citizen\\ASL_Citizen\\videos\\8788556697397354-BORROW.mp4",
+        "exists": true,
+        "size_bytes": 324176
+      }
+    ]
+  },
+  "temporal_sampling": {
+    "examples": [
+      {
+        "video_file": "5771544176331973-CALL TTY.mp4",
+        "gloss": "CALLTTY",
+        "total_frames": 110,
+        "selected_indices": [
+          0,
+          7,
+          15,
+          22,
+          29,
+          36,
+          44,
+          51,
+          58,
+          65,
+          73,
+          80,
+          87,
+          94,
+          102,
+          109
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      },
+      {
+        "video_file": "28192168899394865-BOXING.mp4",
+        "gloss": "BOXING",
+        "total_frames": 30,
+        "selected_indices": [
+          0,
+          2,
+          4,
+          6,
+          8,
+          10,
+          12,
+          14,
+          15,
+          17,
+          19,
+          21,
+          23,
+          25,
+          27,
+          29
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      },
+      {
+        "video_file": "25950066981856557-CANDY 2.mp4",
+        "gloss": "CANDY2",
+        "total_frames": 48,
+        "selected_indices": [
+          0,
+          3,
+          6,
+          9,
+          13,
+          16,
+          19,
+          22,
+          25,
+          28,
+          31,
+          34,
+          38,
+          41,
+          44,
+          47
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      },
+      {
+        "video_file": "5566179200601824-MOVIE.mp4",
+        "gloss": "MOVIE1",
+        "total_frames": 86,
+        "selected_indices": [
+          0,
+          6,
+          11,
+          17,
+          23,
+          28,
+          34,
+          40,
+          45,
+          51,
+          57,
+          62,
+          68,
+          74,
+          79,
+          85
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      },
+      {
+        "video_file": "9535922160929544-CHAIN.mp4",
+        "gloss": "CHAIN",
+        "total_frames": 43,
+        "selected_indices": [
+          0,
+          3,
+          6,
+          8,
+          11,
+          14,
+          17,
+          20,
+          22,
+          25,
+          28,
+          31,
+          34,
+          36,
+          39,
+          42
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      },
+      {
+        "video_file": "5828053254147967-FOREIGNER.mp4",
+        "gloss": "FOREIGNER1",
+        "total_frames": 129,
+        "selected_indices": [
+          0,
+          9,
+          17,
+          26,
+          34,
+          43,
+          51,
+          60,
+          68,
+          77,
+          85,
+          94,
+          102,
+          111,
+          119,
+          128
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      },
+      {
+        "video_file": "9319298873644923-DEAF.mp4",
+        "gloss": "DEAF1",
+        "total_frames": 57,
+        "selected_indices": [
+          0,
+          4,
+          7,
+          11,
+          15,
+          19,
+          22,
+          26,
+          30,
+          34,
+          37,
+          41,
+          45,
+          49,
+          52,
+          56
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      },
+      {
+        "video_file": "08763437833459409-DARK.mp4",
+        "gloss": "DARK1",
+        "total_frames": 53,
+        "selected_indices": [
+          0,
+          3,
+          7,
+          10,
+          14,
+          17,
+          21,
+          24,
+          28,
+          31,
+          35,
+          38,
+          42,
+          45,
+          49,
+          52
+        ],
+        "chronological_order": true,
+        "num_unique_indices": 16
+      }
+    ]
+  },
+  "normalization": {
+    "bgr_shape": [
+      540,
+      960,
+      3
+    ],
+    "rgb_mean_before_norm": [
+      130.80248842592593,
+      120.1127700617284,
+      115.65581790123457
+    ],
+    "raw_tensor_0_1": {
+      "shape": [
+        3,
+        540,
+        960
+      ],
+      "dtype": "torch.float32",
+      "min": 0.0,
+      "max": 1.0,
+      "mean": 0.47917789220809937,
+      "std": 0.26590433716773987
+    },
+    "eval_tensor": {
+      "shape": [
+        3,
+        224,
+        224
+      ],
+      "dtype": "torch.float32",
+      "min": -2.1179039478302,
+      "max": 2.640000104904175,
+      "mean": 0.16380424797534943,
+      "std": 1.1431761980056763
+    },
+    "train_tensor": {
+      "shape": [
+        3,
+        224,
+        224
+      ],
+      "dtype": "torch.float32",
+      "min": -2.1179039478302,
+      "max": 2.640000104904175,
+      "mean": 0.13693846762180328,
+      "std": 1.145747184753418
+    },
+    "imagenet_mean": [
+      0.485,
+      0.456,
+      0.406
+    ],
+    "imagenet_std": [
+      0.229,
+      0.224,
+      0.225
+    ]
+  },
+  "preprocessing_comparison": {
+    "train_transforms": [
+      "Resize",
+      "RandomResizedCrop",
+      "ToTensor",
+      "Normalize"
+    ],
+    "eval_transforms": [
+      "Resize",
+      "CenterCrop",
+      "ToTensor",
+      "Normalize"
+    ],
+    "horizontal_flip_in_train": false,
+    "horizontal_flip_in_eval": false,
+    "test_uses_eval_transforms": true,
+    "train_uses_random_resized_crop": true,
+    "eval_uses_center_crop": true
+  },
+  "forward_pass_shapes": {
+    "input_shape": [
+      2,
+      16,
+      3,
+      224,
+      224
+    ],
+    "encoder_flat_input": [
+      32,
+      3,
+      224,
+      224
+    ],
+    "encoder_output": [
+      32,
+      512
+    ],
+    "encoder_reshaped": [
+      2,
+      16,
+      512
+    ],
+    "gru_output": [
+      2,
+      16,
+      256
+    ],
+    "pooled": [
+      2,
+      256
+    ],
+    "logits": [
+      2,
+      100
+    ],
+    "parameter_counts": {
+      "total": 11793572,
+      "trainable": 617060,
+      "frozen": 11176512
+    }
+  },
+  "training_batch_sample": {
+    "batch_video_shape": [
+      8,
+      16,
+      3,
+      224,
+      224
+    ],
+    "unique_labels_in_batch": 8,
+    "label_frequencies": {
+      "72": 1,
+      "52": 1,
+      "55": 1,
+      "40": 1,
+      "19": 1,
+      "47": 1,
+      "16": 1,
+      "99": 1
+    },
+    "unique_video_files": 8,
+    "video_files": [
+      "9399917763577323-FINE.mp4",
+      "08383243347252911-CHAIN.mp4",
+      "040967223583995516-CHASE.mp4",
+      "34312770923734726-CABINET.mp4",
+      "2439505261173014-BASKET 2.mp4",
+      "08116096371059345-CAPTURE.mp4",
+      "14052296225070893-BACKPACK.mp4",
+      "0154551425577234-WHAT FOR.mp4"
+    ],
+    "tensor_stats": {
+      "shape": [
+        8,
+        16,
+        3,
+        224,
+        224
+      ],
+      "dtype": "torch.float32",
+      "min": -2.1179039478302,
+      "max": 2.640000104904175,
+      "mean": 0.1177036389708519,
+      "std": 1.0654911994934082
+    },
+    "label_min": 16,
+    "label_max": 99
+  },
+  "contact_sheets": [
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_ACTION_42181372121741845-ACTION.png",
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_RECENT1_2555743333430964-RECENT.png",
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_NOON1_44147379249886454-NOON.png",
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_BREAKFAST1_8976315421586525-BREAKFAST.png",
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_LUNCH1_7298633344829255-LUNCH.png",
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_RESEARCH1_16510476271950658-RESEARCH.png",
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_MECHANIC1_6077910640818238-MECHANIC.png",
+    "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_BRAVE_2559496007066704-BRAVE.png"
+  ],
+  "tiny_subset_overfit_frozen_backbone": {
+    "classes": [
+      "5DOLLARS",
+      "ABOUT1",
+      "ACTION",
+      "ADVERTISE",
+      "AFTER",
+      "ALARM",
+      "ALLOFSUDDEN",
+      "ALPHABET",
+      "AND",
+      "ANGRY"
+    ],
+    "num_samples": 50,
+    "epochs": 15,
+    "freeze_backbone": true,
+    "final_train_accuracy": 0.72,
+    "best_train_accuracy": 0.72,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 2.764385585784912,
+        "train_acc": 0.08
+      },
+      {
+        "epoch": 2,
+        "train_loss": 2.406370897293091,
+        "train_acc": 0.12
+      },
+      {
+        "epoch": 3,
+        "train_loss": 2.1029929733276367,
+        "train_acc": 0.32
+      },
+      {
+        "epoch": 4,
+        "train_loss": 1.8643052673339844,
+        "train_acc": 0.32
+      },
+      {
+        "epoch": 5,
+        "train_loss": 1.7232568073272705,
+        "train_acc": 0.32
+      },
+      {
+        "epoch": 6,
+        "train_loss": 1.5242388105392457,
+        "train_acc": 0.52
+      },
+      {
+        "epoch": 7,
+        "train_loss": 1.4369441556930542,
+        "train_acc": 0.42
+      },
+      {
+        "epoch": 8,
+        "train_loss": 1.374101300239563,
+        "train_acc": 0.48
+      },
+      {
+        "epoch": 9,
+        "train_loss": 1.2268988990783691,
+        "train_acc": 0.5
+      },
+      {
+        "epoch": 10,
+        "train_loss": 1.4989932489395141,
+        "train_acc": 0.48
+      },
+      {
+        "epoch": 11,
+        "train_loss": 1.2551471662521363,
+        "train_acc": 0.54
+      },
+      {
+        "epoch": 12,
+        "train_loss": 1.1336144375801087,
+        "train_acc": 0.54
+      },
+      {
+        "epoch": 13,
+        "train_loss": 0.903453483581543,
+        "train_acc": 0.72
+      },
+      {
+        "epoch": 14,
+        "train_loss": 0.8239593648910523,
+        "train_acc": 0.7
+      },
+      {
+        "epoch": 15,
+        "train_loss": 0.8871015119552612,
+        "train_acc": 0.72
+      }
+    ],
+    "overfit_success": false
+  },
+  "tiny_subset_overfit_unfrozen_backbone": {
+    "classes": [
+      "5DOLLARS",
+      "ABOUT1",
+      "ACTION",
+      "ADVERTISE",
+      "AFTER",
+      "ALARM",
+      "ALLOFSUDDEN",
+      "ALPHABET",
+      "AND",
+      "ANGRY"
+    ],
+    "num_samples": 50,
+    "epochs": 10,
+    "freeze_backbone": false,
+    "final_train_accuracy": 0.44,
+    "best_train_accuracy": 0.48,
+    "history": [
+      {
+        "epoch": 1,
+        "train_loss": 2.8242423152923584,
+        "train_acc": 0.06
+      },
+      {
+        "epoch": 2,
+        "train_loss": 2.3656268978118895,
+        "train_acc": 0.18
+      },
+      {
+        "epoch": 3,
+        "train_loss": 2.1308732223510742,
+        "train_acc": 0.24
+      },
+      {
+        "epoch": 4,
+        "train_loss": 2.0062748527526857,
+        "train_acc": 0.36
+      },
+      {
+        "epoch": 5,
+        "train_loss": 1.884929141998291,
+        "train_acc": 0.22
+      },
+      {
+        "epoch": 6,
+        "train_loss": 1.7100850534439087,
+        "train_acc": 0.3
+      },
+      {
+        "epoch": 7,
+        "train_loss": 1.6108429670333861,
+        "train_acc": 0.4
+      },
+      {
+        "epoch": 8,
+        "train_loss": 1.5116952133178712,
+        "train_acc": 0.48
+      },
+      {
+        "epoch": 9,
+        "train_loss": 1.428821702003479,
+        "train_acc": 0.46
+      },
+      {
+        "epoch": 10,
+        "train_loss": 1.4021345424652099,
+        "train_acc": 0.44
+      }
+    ],
+    "overfit_success": false
+  }
+}

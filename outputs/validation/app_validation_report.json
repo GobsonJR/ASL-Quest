@@ -1,0 +1,367 @@
+{
+  "checks": [
+    {
+      "name": "frontend_proxy_health",
+      "ok": true,
+      "detail": {
+        "device": "cuda"
+      }
+    },
+    {
+      "name": "upload_direct_vs_proxy_parity",
+      "ok": true,
+      "detail": {
+        "failures": []
+      }
+    },
+    {
+      "name": "upload_letter_accuracy_first_image",
+      "ok": true,
+      "detail": {
+        "wrong": [
+          {
+            "letter": "J",
+            "file": "J1.jpg",
+            "direct_pred": "Z",
+            "proxy_pred": "Z",
+            "direct_conf": 0.644201397895813,
+            "proxy_conf": 0.644201397895813,
+            "match": false,
+            "parity": true
+          }
+        ],
+        "note": "J/B are known weak classes; low-confidence still counts as wrong label"
+      }
+    },
+    {
+      "name": "require_hand_on_cropped_dataset_image",
+      "ok": true,
+      "detail": {
+        "status": "ok",
+        "prediction": "A",
+        "message": null
+      }
+    },
+    {
+      "name": "hand_landmarker_available",
+      "ok": true,
+      "detail": "available"
+    },
+    {
+      "name": "blank_no_hand",
+      "ok": true,
+      "detail": {
+        "box": null
+      }
+    },
+    {
+      "name": "temporal_smoothing_majority",
+      "ok": true,
+      "detail": {
+        "stable_samples": [
+          "A",
+          "A",
+          "A",
+          "A",
+          "A"
+        ]
+      }
+    },
+    {
+      "name": "live_request_sequential_timing",
+      "ok": false,
+      "detail": {
+        "intervals_sec": [
+          0.015,
+          0.036,
+          0.02,
+          0.016,
+          0.05
+        ],
+        "mean_sec": 0.027,
+        "note": "No fixed 350ms delay; each request waits for backend round-trip"
+      }
+    },
+    {
+      "name": "confidence_threshold_constant",
+      "ok": true,
+      "detail": {
+        "threshold": 0.7
+      }
+    }
+  ],
+  "upload_rows": [
+    {
+      "letter": "A",
+      "file": "A1.jpg",
+      "direct_pred": "A",
+      "proxy_pred": "A",
+      "direct_conf": 0.9999790191650391,
+      "proxy_conf": 0.9999790191650391,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "B",
+      "file": "B1.jpg",
+      "direct_pred": "B",
+      "proxy_pred": "B",
+      "direct_conf": 0.6131778955459595,
+      "proxy_conf": 0.6131778955459595,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "C",
+      "file": "C1.jpg",
+      "direct_pred": "C",
+      "proxy_pred": "C",
+      "direct_conf": 0.9999812841415405,
+      "proxy_conf": 0.9999812841415405,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "D",
+      "file": "D1.jpg",
+      "direct_pred": "D",
+      "proxy_pred": "D",
+      "direct_conf": 0.9998025298118591,
+      "proxy_conf": 0.9998025298118591,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "E",
+      "file": "E1.jpg",
+      "direct_pred": "E",
+      "proxy_pred": "E",
+      "direct_conf": 0.9966082572937012,
+      "proxy_conf": 0.9966082572937012,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "F",
+      "file": "F1.jpg",
+      "direct_pred": "F",
+      "proxy_pred": "F",
+      "direct_conf": 1.0,
+      "proxy_conf": 1.0,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "G",
+      "file": "G1.jpg",
+      "direct_pred": "G",
+      "proxy_pred": "G",
+      "direct_conf": 1.0,
+      "proxy_conf": 1.0,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "H",
+      "file": "H1.jpg",
+      "direct_pred": "H",
+      "proxy_pred": "H",
+      "direct_conf": 0.9999977350234985,
+      "proxy_conf": 0.9999977350234985,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "I",
+      "file": "I1.jpg",
+      "direct_pred": "I",
+      "proxy_pred": "I",
+      "direct_conf": 0.9999983310699463,
+      "proxy_conf": 0.9999983310699463,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "J",
+      "file": "J1.jpg",
+      "direct_pred": "Z",
+      "proxy_pred": "Z",
+      "direct_conf": 0.644201397895813,
+      "proxy_conf": 0.644201397895813,
+      "match": false,
+      "parity": true
+    },
+    {
+      "letter": "K",
+      "file": "K1.jpg",
+      "direct_pred": "K",
+      "proxy_pred": "K",
+      "direct_conf": 0.9994950294494629,
+      "proxy_conf": 0.9994950294494629,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "L",
+      "file": "L1.jpg",
+      "direct_pred": "L",
+      "proxy_pred": "L",
+      "direct_conf": 0.9998760223388672,
+      "proxy_conf": 0.9998760223388672,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "M",
+      "file": "M1.jpg",
+      "direct_pred": "M",
+      "proxy_pred": "M",
+      "direct_conf": 0.9999517202377319,
+      "proxy_conf": 0.9999517202377319,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "N",
+      "file": "N1.jpg",
+      "direct_pred": "N",
+      "proxy_pred": "N",
+      "direct_conf": 0.99940025806427,
+      "proxy_conf": 0.99940025806427,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "O",
+      "file": "O1.jpg",
+      "direct_pred": "O",
+      "proxy_pred": "O",
+      "direct_conf": 0.9858669638633728,
+      "proxy_conf": 0.9858669638633728,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "P",
+      "file": "P1.jpg",
+      "direct_pred": "P",
+      "proxy_pred": "P",
+      "direct_conf": 0.9921751618385315,
+      "proxy_conf": 0.9921751618385315,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "Q",
+      "file": "Q1.jpg",
+      "direct_pred": "Q",
+      "proxy_pred": "Q",
+      "direct_conf": 0.9999991655349731,
+      "proxy_conf": 0.9999991655349731,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "R",
+      "file": "R1.jpg",
+      "direct_pred": "R",
+      "proxy_pred": "R",
+      "direct_conf": 0.9999938011169434,
+      "proxy_conf": 0.9999938011169434,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "S",
+      "file": "S1.jpg",
+      "direct_pred": "S",
+      "proxy_pred": "S",
+      "direct_conf": 0.9998199343681335,
+      "proxy_conf": 0.9998199343681335,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "T",
+      "file": "T1.jpg",
+      "direct_pred": "T",
+      "proxy_pred": "T",
+      "direct_conf": 0.9999973773956299,
+      "proxy_conf": 0.9999973773956299,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "U",
+      "file": "U1.jpg",
+      "direct_pred": "U",
+      "proxy_pred": "U",
+      "direct_conf": 0.9998093247413635,
+      "proxy_conf": 0.9998093247413635,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "V",
+      "file": "V1.jpg",
+      "direct_pred": "V",
+      "proxy_pred": "V",
+      "direct_conf": 0.9993457198143005,
+      "proxy_conf": 0.9993457198143005,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "W",
+      "file": "W1.jpg",
+      "direct_pred": "W",
+      "proxy_pred": "W",
+      "direct_conf": 0.9888482093811035,
+      "proxy_conf": 0.9888482093811035,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "X",
+      "file": "X1.jpg",
+      "direct_pred": "X",
+      "proxy_pred": "X",
+      "direct_conf": 1.0,
+      "proxy_conf": 1.0,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "Y",
+      "file": "Y1.jpg",
+      "direct_pred": "Y",
+      "proxy_pred": "Y",
+      "direct_conf": 1.0,
+      "proxy_conf": 1.0,
+      "match": true,
+      "parity": true
+    },
+    {
+      "letter": "Z",
+      "file": "Z1.jpg",
+      "direct_pred": "Z",
+      "proxy_pred": "Z",
+      "direct_conf": 0.9989503026008606,
+      "proxy_conf": 0.9989503026008606,
+      "match": true,
+      "parity": true
+    }
+  ],
+  "wrong_predictions": [
+    {
+      "letter": "J",
+      "file": "J1.jpg",
+      "direct_pred": "Z",
+      "proxy_pred": "Z",
+      "direct_conf": 0.644201397895813,
+      "proxy_conf": 0.644201397895813,
+      "match": false,
+      "parity": true
+    }
+  ]
+}

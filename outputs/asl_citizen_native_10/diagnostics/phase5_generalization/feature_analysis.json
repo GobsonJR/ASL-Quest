@@ -1,0 +1,54 @@
+{
+  "frozen": {
+    "num_test_samples": 129,
+    "feature_dim": 256,
+    "intra_class_mean_distance": {
+      "BOOK": 5.069,
+      "EAT1": 5.1218,
+      "HELLO": 5.1113,
+      "HELP": 4.9372,
+      "MOTHER": 5.1245,
+      "NO": 5.0769,
+      "PLEASE": 5.2942,
+      "THANKYOU": 4.8944,
+      "WATER": 5.397,
+      "YES": 5.3669
+    },
+    "inter_class_centroid_mean_distance": 1.1299,
+    "nearest_centroid_accuracy": 0.3101,
+    "classifier_top1_accuracy_cross_check": 0.1318,
+    "silhouette_score_by_true_class": -0.0725,
+    "silhouette_score_by_signer": 0.205,
+    "pca_explained_variance_ratio": [
+      0.255,
+      0.1432
+    ],
+    "num_unique_test_signers": 11
+  },
+  "layer4": {
+    "num_test_samples": 129,
+    "feature_dim": 256,
+    "intra_class_mean_distance": {
+      "BOOK": 9.4562,
+      "EAT1": 9.7391,
+      "HELLO": 9.6448,
+      "HELP": 9.6999,
+      "MOTHER": 9.9734,
+      "NO": 10.221,
+      "PLEASE": 10.1273,
+      "THANKYOU": 10.0738,
+      "WATER": 10.2854,
+      "YES": 9.8021
+    },
+    "inter_class_centroid_mean_distance": 1.9287,
+    "nearest_centroid_accuracy": 0.2248,
+    "classifier_top1_accuracy_cross_check": 0.093,
+    "silhouette_score_by_true_class": -0.0769,
+    "silhouette_score_by_signer": 0.0939,
+    "pca_explained_variance_ratio": [
+      0.3059,
+      0.1575
+    ],
+    "num_unique_test_signers": 11
+  }
+}

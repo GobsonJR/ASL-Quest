@@ -1,0 +1,28 @@
+{
+  "device": "cuda",
+  "temporal_pooling": "mean",
+  "splits": {
+    "train": {
+      "split": "train",
+      "num_clips": 149,
+      "feature_dim": 1024,
+      "duration_sec": 49.9,
+      "output_path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\experiments\\i3d_frozen\\features\\train_features.npz"
+    },
+    "val": {
+      "split": "val",
+      "num_clips": 39,
+      "feature_dim": 1024,
+      "duration_sec": 13.78,
+      "output_path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\experiments\\i3d_frozen\\features\\val_features.npz"
+    },
+    "test": {
+      "split": "test",
+      "num_clips": 129,
+      "feature_dim": 1024,
+      "duration_sec": 40.32,
+      "output_path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\experiments\\i3d_frozen\\features\\test_features.npz"
+    }
+  },
+  "peak_gpu_memory_mb": 392.7
+}

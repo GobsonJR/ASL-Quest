@@ -1,0 +1,293 @@
+{
+  "frozen": {
+    "never_correctly_predicted_classes": [
+      "HELLO",
+      "MOTHER",
+      "NO",
+      "PLEASE",
+      "WATER"
+    ],
+    "never_predicted_at_all_classes": [
+      "NO",
+      "PLEASE",
+      "WATER"
+    ],
+    "most_over_predicted_classes": [
+      {
+        "gloss": "YES",
+        "support": 10,
+        "predicted_count": 83,
+        "excess": 73
+      },
+      {
+        "gloss": "EAT1",
+        "support": 17,
+        "predicted_count": 18,
+        "excess": 1
+      },
+      {
+        "gloss": "THANKYOU",
+        "support": 12,
+        "predicted_count": 13,
+        "excess": 1
+      },
+      {
+        "gloss": "HELP",
+        "support": 13,
+        "predicted_count": 7,
+        "excess": -6
+      },
+      {
+        "gloss": "BOOK",
+        "support": 12,
+        "predicted_count": 4,
+        "excess": -8
+      }
+    ],
+    "top_confused_pairs": [
+      {
+        "true": "HELP",
+        "predicted": "YES",
+        "count": 11
+      },
+      {
+        "true": "EAT1",
+        "predicted": "YES",
+        "count": 10
+      },
+      {
+        "true": "HELLO",
+        "predicted": "YES",
+        "count": 9
+      },
+      {
+        "true": "PLEASE",
+        "predicted": "YES",
+        "count": 9
+      },
+      {
+        "true": "BOOK",
+        "predicted": "YES",
+        "count": 8
+      },
+      {
+        "true": "NO",
+        "predicted": "YES",
+        "count": 8
+      },
+      {
+        "true": "WATER",
+        "predicted": "YES",
+        "count": 8
+      },
+      {
+        "true": "MOTHER",
+        "predicted": "YES",
+        "count": 7
+      },
+      {
+        "true": "THANKYOU",
+        "predicted": "YES",
+        "count": 5
+      },
+      {
+        "true": "MOTHER",
+        "predicted": "EAT1",
+        "count": 4
+      }
+    ],
+    "most_asymmetric_pairs": [
+      {
+        "pair": [
+          "EAT1",
+          "YES"
+        ],
+        "EAT1_predicted_as_YES": 10,
+        "YES_predicted_as_EAT1": 0,
+        "abs_diff": 10
+      },
+      {
+        "pair": [
+          "HELP",
+          "YES"
+        ],
+        "HELP_predicted_as_YES": 11,
+        "YES_predicted_as_HELP": 1,
+        "abs_diff": 10
+      },
+      {
+        "pair": [
+          "HELLO",
+          "YES"
+        ],
+        "HELLO_predicted_as_YES": 9,
+        "YES_predicted_as_HELLO": 0,
+        "abs_diff": 9
+      },
+      {
+        "pair": [
+          "PLEASE",
+          "YES"
+        ],
+        "PLEASE_predicted_as_YES": 9,
+        "YES_predicted_as_PLEASE": 0,
+        "abs_diff": 9
+      },
+      {
+        "pair": [
+          "BOOK",
+          "YES"
+        ],
+        "BOOK_predicted_as_YES": 8,
+        "YES_predicted_as_BOOK": 0,
+        "abs_diff": 8
+      }
+    ]
+  },
+  "layer4": {
+    "never_correctly_predicted_classes": [
+      "BOOK",
+      "HELLO",
+      "HELP",
+      "MOTHER",
+      "PLEASE",
+      "THANKYOU"
+    ],
+    "never_predicted_at_all_classes": [
+      "BOOK",
+      "HELLO",
+      "PLEASE"
+    ],
+    "most_over_predicted_classes": [
+      {
+        "gloss": "NO",
+        "support": 11,
+        "predicted_count": 41,
+        "excess": 30
+      },
+      {
+        "gloss": "WATER",
+        "support": 12,
+        "predicted_count": 25,
+        "excess": 13
+      },
+      {
+        "gloss": "YES",
+        "support": 10,
+        "predicted_count": 22,
+        "excess": 12
+      },
+      {
+        "gloss": "THANKYOU",
+        "support": 12,
+        "predicted_count": 11,
+        "excess": -1
+      },
+      {
+        "gloss": "EAT1",
+        "support": 17,
+        "predicted_count": 15,
+        "excess": -2
+      }
+    ],
+    "top_confused_pairs": [
+      {
+        "true": "EAT1",
+        "predicted": "NO",
+        "count": 6
+      },
+      {
+        "true": "HELLO",
+        "predicted": "NO",
+        "count": 6
+      },
+      {
+        "true": "MOTHER",
+        "predicted": "NO",
+        "count": 5
+      },
+      {
+        "true": "THANKYOU",
+        "predicted": "NO",
+        "count": 5
+      },
+      {
+        "true": "BOOK",
+        "predicted": "NO",
+        "count": 4
+      },
+      {
+        "true": "HELP",
+        "predicted": "NO",
+        "count": 4
+      },
+      {
+        "true": "HELP",
+        "predicted": "WATER",
+        "count": 4
+      },
+      {
+        "true": "MOTHER",
+        "predicted": "WATER",
+        "count": 4
+      },
+      {
+        "true": "PLEASE",
+        "predicted": "EAT1",
+        "count": 4
+      },
+      {
+        "true": "WATER",
+        "predicted": "NO",
+        "count": 4
+      }
+    ],
+    "most_asymmetric_pairs": [
+      {
+        "pair": [
+          "HELLO",
+          "NO"
+        ],
+        "HELLO_predicted_as_NO": 6,
+        "NO_predicted_as_HELLO": 0,
+        "abs_diff": 6
+      },
+      {
+        "pair": [
+          "BOOK",
+          "NO"
+        ],
+        "BOOK_predicted_as_NO": 4,
+        "NO_predicted_as_BOOK": 0,
+        "abs_diff": 4
+      },
+      {
+        "pair": [
+          "EAT1",
+          "NO"
+        ],
+        "EAT1_predicted_as_NO": 6,
+        "NO_predicted_as_EAT1": 2,
+        "abs_diff": 4
+      },
+      {
+        "pair": [
+          "EAT1",
+          "PLEASE"
+        ],
+        "EAT1_predicted_as_PLEASE": 0,
+        "PLEASE_predicted_as_EAT1": 4,
+        "abs_diff": 4
+      },
+      {
+        "pair": [
+          "HELP",
+          "WATER"
+        ],
+        "HELP_predicted_as_WATER": 4,
+        "WATER_predicted_as_HELP": 0,
+        "abs_diff": 4
+      }
+    ]
+  }
+}

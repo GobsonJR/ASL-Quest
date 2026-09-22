@@ -1,0 +1,55 @@
+{
+  "total_train_clips": 149,
+  "clips_per_class": {
+    "BOOK": 15,
+    "EAT1": 18,
+    "HELLO": 14,
+    "HELP": 13,
+    "MOTHER": 14,
+    "NO": 16,
+    "PLEASE": 14,
+    "THANKYOU": 16,
+    "WATER": 14,
+    "YES": 15
+  },
+  "clips_per_class_stats": {
+    "mean": 14.9,
+    "std": 1.3748,
+    "min": 13,
+    "max": 18,
+    "n": 10
+  },
+  "unique_signers_per_class_train": {
+    "BOOK": 15,
+    "EAT1": 14,
+    "HELLO": 14,
+    "HELP": 12,
+    "MOTHER": 14,
+    "NO": 16,
+    "PLEASE": 14,
+    "THANKYOU": 16,
+    "WATER": 14,
+    "YES": 13
+  },
+  "unique_signers_per_class_stats": {
+    "mean": 14.2,
+    "std": 1.1662,
+    "min": 12,
+    "max": 16,
+    "n": 10
+  },
+  "mean_clips_per_signer_per_class_train": {
+    "BOOK": 1.0,
+    "EAT1": 1.286,
+    "HELLO": 1.0,
+    "HELP": 1.083,
+    "MOTHER": 1.0,
+    "NO": 1.0,
+    "PLEASE": 1.0,
+    "THANKYOU": 1.0,
+    "WATER": 1.0,
+    "YES": 1.154
+  },
+  "implication": "With a mean of roughly 1-2 clips per signer per class in training, most classes are represented by only a handful of distinct people. Any visual attribute correlated with a particular signer (clothing, skin tone, camera framing, background) is nearly as predictive of the training label as the sign motion itself, because the model rarely sees the SAME class performed by many DIFFERENT signers to average out signer-specific appearance. This does not by itself prove the model learned signer identity (see diagnostic 5's silhouette comparison for direct evidence), but it describes a concrete statistical mechanism by which a class-vs-signer shortcut is available in this dataset.",
+  "what_would_help": "The limiting factor by these counts is signers-per-class, not raw clip count: adding more clips from the SAME already-seen training signers would not by itself teach signer-invariant features, since the model can still associate class with the small existing signer set. Additional clips of each of the 10 glosses from NEW, previously-unseen training signers would directly increase the signer-diversity-per-class the model is exposed to during training, which is what should force it away from signer-specific shortcuts if a shortcut is in fact being learned."
+}

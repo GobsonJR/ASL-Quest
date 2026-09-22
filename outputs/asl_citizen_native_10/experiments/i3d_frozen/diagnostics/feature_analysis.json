@@ -1,0 +1,14 @@
+{
+  "i3d_frozen": {
+    "num_test_samples": 129,
+    "feature_dim": 1024,
+    "nearest_centroid_accuracy": 0.969,
+    "silhouette_score_by_true_class": 0.22,
+    "silhouette_score_by_signer": -0.0612,
+    "pca_explained_variance_ratio": [
+      0.1156,
+      0.0897
+    ],
+    "num_unique_test_signers": 11
+  }
+}

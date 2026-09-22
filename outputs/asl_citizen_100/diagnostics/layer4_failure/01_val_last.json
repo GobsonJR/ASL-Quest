@@ -1,0 +1,139 @@
+{
+  "checkpoint": "last",
+  "epoch": 9,
+  "split": "val",
+  "n": 393,
+  "loss": 5.907044277846358,
+  "top1": 0.01272264588624239,
+  "top5": 0.04071246819338423,
+  "unique_predicted_classes": 48,
+  "prediction_entropy_bits": 4.8193304153012475,
+  "max_entropy_bits_uniform_100": 6.643856189774725,
+  "collapse_ratio_top1": 0.1272264631043257,
+  "collapse_ratio_top3": 0.2697201017811705,
+  "top20_predicted": [
+    {
+      "class_idx": 57,
+      "gloss": "CHRISTMAS1",
+      "pred_count": 50,
+      "true_count": 3
+    },
+    {
+      "class_idx": 56,
+      "gloss": "CHEEK",
+      "pred_count": 32,
+      "true_count": 4
+    },
+    {
+      "class_idx": 17,
+      "gloss": "BASEBALLCAP",
+      "pred_count": 24,
+      "true_count": 5
+    },
+    {
+      "class_idx": 27,
+      "gloss": "BITE1",
+      "pred_count": 24,
+      "true_count": 4
+    },
+    {
+      "class_idx": 62,
+      "gloss": "DECIDE1",
+      "pred_count": 20,
+      "true_count": 3
+    },
+    {
+      "class_idx": 25,
+      "gloss": "BELIEVE1",
+      "pred_count": 20,
+      "true_count": 6
+    },
+    {
+      "class_idx": 91,
+      "gloss": "ROCKINGCHAIR1",
+      "pred_count": 18,
+      "true_count": 4
+    },
+    {
+      "class_idx": 33,
+      "gloss": "BOY",
+      "pred_count": 15,
+      "true_count": 6
+    },
+    {
+      "class_idx": 99,
+      "gloss": "WHATFOR1",
+      "pred_count": 13,
+      "true_count": 5
+    },
+    {
+      "class_idx": 20,
+      "gloss": "BASKETBALL1",
+      "pred_count": 13,
+      "true_count": 5
+    },
+    {
+      "class_idx": 79,
+      "gloss": "LOCK1",
+      "pred_count": 13,
+      "true_count": 5
+    },
+    {
+      "class_idx": 14,
+      "gloss": "AXE1",
+      "pred_count": 13,
+      "true_count": 4
+    },
+    {
+      "class_idx": 85,
+      "gloss": "NOON1",
+      "pred_count": 13,
+      "true_count": 4
+    },
+    {
+      "class_idx": 74,
+      "gloss": "GUESS1",
+      "pred_count": 11,
+      "true_count": 5
+    },
+    {
+      "class_idx": 93,
+      "gloss": "SPECIAL1",
+      "pred_count": 10,
+      "true_count": 5
+    },
+    {
+      "class_idx": 97,
+      "gloss": "TWINS1",
+      "pred_count": 10,
+      "true_count": 4
+    },
+    {
+      "class_idx": 77,
+      "gloss": "HURDLE/TRIP1",
+      "pred_count": 9,
+      "true_count": 3
+    },
+    {
+      "class_idx": 82,
+      "gloss": "MICROSCOPE1",
+      "pred_count": 8,
+      "true_count": 4
+    },
+    {
+      "class_idx": 95,
+      "gloss": "THEY1",
+      "pred_count": 6,
+      "true_count": 3
+    },
+    {
+      "class_idx": 49,
+      "gloss": "CATEGORY",
+      "pred_count": 6,
+      "true_count": 3
+    }
+  ],
+  "true_class_count": 100,
+  "true_entropy_bits": 6.607875178734659,
+  "never_predicted_count": 52
+}

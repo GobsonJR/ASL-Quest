@@ -1,0 +1,14 @@
+{
+  "train": [
+    "Resize",
+    "RandomResizedCrop",
+    "ToTensor",
+    "Normalize"
+  ],
+  "eval": [
+    "Resize",
+    "CenterCrop",
+    "ToTensor",
+    "Normalize"
+  ]
+}

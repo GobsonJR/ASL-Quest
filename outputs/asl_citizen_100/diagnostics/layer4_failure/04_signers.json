@@ -1,0 +1,73 @@
+{
+  "train": {
+    "n_videos": 1707,
+    "n_signers": 31,
+    "signer_ids": [
+      "P1",
+      "P10",
+      "P11",
+      "P14",
+      "P16",
+      "P2",
+      "P20",
+      "P23",
+      "P24",
+      "P25",
+      "P27",
+      "P28",
+      "P29",
+      "P3",
+      "P30",
+      "P31",
+      "P32",
+      "P33",
+      "P34",
+      "P36",
+      "P37",
+      "P38",
+      "P4",
+      "P40",
+      "P41",
+      "P43",
+      "P46",
+      "P50",
+      "P51",
+      "P52",
+      "P7"
+    ]
+  },
+  "val": {
+    "n_videos": 393,
+    "n_signers": 5,
+    "signer_ids": [
+      "P12",
+      "P21",
+      "P26",
+      "P39",
+      "P5"
+    ]
+  },
+  "test": {
+    "n_videos": 1444,
+    "n_signers": 11,
+    "signer_ids": [
+      "P15",
+      "P17",
+      "P18",
+      "P22",
+      "P35",
+      "P42",
+      "P47",
+      "P48",
+      "P49",
+      "P6",
+      "P9"
+    ]
+  },
+  "intersections": {
+    "train_val": [],
+    "train_test": [],
+    "val_test": []
+  },
+  "signer_independent": true
+}

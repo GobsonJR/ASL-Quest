@@ -1,0 +1,461 @@
+{
+  "from_training_log": {
+    "epoch_1_layer4_gradient": {
+      "has_grad": true,
+      "mean_abs": NaN,
+      "max_abs": NaN,
+      "finite": false,
+      "numel": 8393728
+    },
+    "epoch_2_layer4_gradient": {
+      "has_grad": true,
+      "mean_abs": 0.0005133291706442833,
+      "max_abs": 0.046523723751306534,
+      "finite": true,
+      "numel": 8393728
+    },
+    "note": "training_history.json records ONE gradient snapshot per epoch, taken from whatever batch was last processed in that epoch (gradient_flow_report is called once after the full epoch loop, so it reflects the LAST train batch of that epoch, not necessarily where within the epoch the instability first appeared)."
+  },
+  "dataset_epoch_structure": {
+    "train_samples": 149,
+    "batch_size": 4,
+    "num_batches_per_epoch": 38,
+    "last_batch_size": 1,
+    "note": "drop_last=False, so the final batch of every epoch has only 1 sample (149 = 37*4 + 1)."
+  },
+  "reproducibility_caveat": "This probe uses a freshly re-initialized layer4 model with the same seeding calls as train_native_10_layer4.py, but DataLoader uses num_workers=2 in the real training run; on this Windows (spawn) multiprocessing setup, worker-process scheduling order is not guaranteed to be bit-identical across runs even with the same seed. This probe therefore characterizes the MECHANISM (is small-batch AMP training on a freshly-initialized layer4 model prone to non-finite gradients) rather than certifying a bit-exact reproduction of the original epoch-1 batch.",
+  "trials": [
+    {
+      "seed": 100,
+      "amp_batch4": {
+        "input": {
+          "finite": true,
+          "min": -2.1179039478302,
+          "max": 2.640000104904175,
+          "abs_max": 2.640000104904175,
+          "mean": 0.04873441159725189
+        },
+        "batch_size": 4,
+        "use_amp": true,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0,
+          "max": 3.67578125,
+          "abs_max": 3.67578125,
+          "mean": 0.8937139511108398
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.97998046875,
+          "max": 0.9794921875,
+          "abs_max": 0.97998046875,
+          "mean": -0.005475576967000961
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.97412109375,
+          "max": 0.63671875,
+          "abs_max": 0.97412109375,
+          "mean": -0.05004577711224556
+        },
+        "loss": {
+          "value": 2.325439453125,
+          "finite": true
+        },
+        "layer4_grad_as_stored_scaled": {
+          "has_grad": true,
+          "mean_abs": 100.00273132324219,
+          "max_abs": 8309.6259765625,
+          "finite": true,
+          "numel": 8393728
+        },
+        "layer4_grad_manually_unscaled": {
+          "finite": true,
+          "mean_abs": 0.001525920582935214,
+          "max_abs": 0.12679482996463776
+        },
+        "scaler_scale_value": 65536.0
+      },
+      "amp_batch1": {
+        "input": {
+          "finite": true,
+          "min": -2.1007792949676514,
+          "max": 2.640000104904175,
+          "abs_max": 2.640000104904175,
+          "mean": -0.352266788482666
+        },
+        "batch_size": 1,
+        "use_amp": true,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0,
+          "max": 3.396484375,
+          "abs_max": 3.396484375,
+          "mean": 0.9225908517837524
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.95263671875,
+          "max": 0.92236328125,
+          "abs_max": 0.95263671875,
+          "mean": -0.002128228545188904
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.79736328125,
+          "max": 0.5966796875,
+          "abs_max": 0.79736328125,
+          "mean": -0.117889404296875
+        },
+        "loss": {
+          "value": 1.693359375,
+          "finite": true
+        },
+        "layer4_grad_as_stored_scaled": {
+          "has_grad": true,
+          "mean_abs": NaN,
+          "max_abs": NaN,
+          "finite": false,
+          "numel": 8393728
+        },
+        "layer4_grad_manually_unscaled": {
+          "finite": false,
+          "mean_abs": NaN,
+          "max_abs": NaN
+        },
+        "scaler_scale_value": 65536.0
+      },
+      "fp32_batch1": {
+        "input": {
+          "finite": true,
+          "min": -2.1007792949676514,
+          "max": 2.640000104904175,
+          "abs_max": 2.640000104904175,
+          "mean": -0.352266788482666
+        },
+        "batch_size": 1,
+        "use_amp": false,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0,
+          "max": 3.3964967727661133,
+          "abs_max": 3.3964967727661133,
+          "mean": 0.9226043820381165
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.9527485370635986,
+          "max": 0.9221411943435669,
+          "abs_max": 0.9527485370635986,
+          "mean": -0.002140505239367485
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.5991787910461426,
+          "max": 0.7222817540168762,
+          "abs_max": 0.7222817540168762,
+          "mean": -0.09887140989303589
+        },
+        "loss": {
+          "value": 1.5844682455062866,
+          "finite": true
+        },
+        "layer4_grad_fp32": {
+          "has_grad": true,
+          "mean_abs": 0.0016247493913397193,
+          "max_abs": 0.1087070032954216,
+          "finite": true,
+          "numel": 8393728
+        }
+      }
+    },
+    {
+      "seed": 101,
+      "amp_batch4": {
+        "input": {
+          "finite": true,
+          "min": -2.1179039478302,
+          "max": 2.640000104904175,
+          "abs_max": 2.640000104904175,
+          "mean": -0.1046866700053215
+        },
+        "batch_size": 4,
+        "use_amp": true,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0,
+          "max": 4.3359375,
+          "abs_max": 4.3359375,
+          "mean": 0.8816922903060913
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.9951171875,
+          "max": 0.99267578125,
+          "abs_max": 0.9951171875,
+          "mean": 0.011541025713086128
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.70458984375,
+          "max": 1.1181640625,
+          "abs_max": 1.1181640625,
+          "mean": 0.17516666650772095
+        },
+        "loss": {
+          "value": 2.09521484375,
+          "finite": true
+        },
+        "layer4_grad_as_stored_scaled": {
+          "has_grad": true,
+          "mean_abs": 92.8958511352539,
+          "max_abs": 10593.2353515625,
+          "finite": true,
+          "numel": 8393728
+        },
+        "layer4_grad_manually_unscaled": {
+          "finite": true,
+          "mean_abs": 0.0014174781972542405,
+          "max_abs": 0.16163994371891022
+        },
+        "scaler_scale_value": 65536.0
+      },
+      "amp_batch1": {
+        "input": {
+          "finite": true,
+          "min": -2.1179039478302,
+          "max": 2.517995834350586,
+          "abs_max": 2.517995834350586,
+          "mean": 0.47120025753974915
+        },
+        "batch_size": 1,
+        "use_amp": true,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.006591796875,
+          "max": 3.298828125,
+          "abs_max": 3.298828125,
+          "mean": 0.8934929370880127
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.9404296875,
+          "max": 0.9501953125,
+          "abs_max": 0.9501953125,
+          "mean": 0.010436974465847015
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.2291259765625,
+          "max": 0.55029296875,
+          "abs_max": 0.55029296875,
+          "mean": 0.20700664818286896
+        },
+        "loss": {
+          "value": 2.048828125,
+          "finite": true
+        },
+        "layer4_grad_as_stored_scaled": {
+          "has_grad": true,
+          "mean_abs": NaN,
+          "max_abs": NaN,
+          "finite": false,
+          "numel": 8393728
+        },
+        "layer4_grad_manually_unscaled": {
+          "finite": false,
+          "mean_abs": NaN,
+          "max_abs": NaN
+        },
+        "scaler_scale_value": 65536.0
+      },
+      "fp32_batch1": {
+        "input": {
+          "finite": true,
+          "min": -2.1179039478302,
+          "max": 2.517995834350586,
+          "abs_max": 2.517995834350586,
+          "mean": 0.47120025753974915
+        },
+        "batch_size": 1,
+        "use_amp": false,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0063577862456440926,
+          "max": 3.29833722114563,
+          "abs_max": 3.29833722114563,
+          "mean": 0.8934907913208008
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.9404869079589844,
+          "max": 0.9502280950546265,
+          "abs_max": 0.9502280950546265,
+          "mean": 0.01037113182246685
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.2075100839138031,
+          "max": 0.8697942495346069,
+          "abs_max": 0.8697942495346069,
+          "mean": 0.27172785997390747
+        },
+        "loss": {
+          "value": 2.3206992149353027,
+          "finite": true
+        },
+        "layer4_grad_fp32": {
+          "has_grad": true,
+          "mean_abs": 0.001786626293323934,
+          "max_abs": 0.22513632476329803,
+          "finite": true,
+          "numel": 8393728
+        }
+      }
+    },
+    {
+      "seed": 102,
+      "amp_batch4": {
+        "input": {
+          "finite": true,
+          "min": -2.1179039478302,
+          "max": 2.640000104904175,
+          "abs_max": 2.640000104904175,
+          "mean": 0.31041252613067627
+        },
+        "batch_size": 4,
+        "use_amp": true,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0,
+          "max": 4.33984375,
+          "abs_max": 4.33984375,
+          "mean": 0.8742676973342896
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.98876953125,
+          "max": 0.994140625,
+          "abs_max": 0.994140625,
+          "mean": 0.041899390518665314
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.5830078125,
+          "max": 0.68359375,
+          "abs_max": 0.68359375,
+          "mean": 0.04221687465906143
+        },
+        "loss": {
+          "value": 2.25830078125,
+          "finite": true
+        },
+        "layer4_grad_as_stored_scaled": {
+          "has_grad": true,
+          "mean_abs": 103.99873352050781,
+          "max_abs": 9980.275390625,
+          "finite": true,
+          "numel": 8393728
+        },
+        "layer4_grad_manually_unscaled": {
+          "finite": true,
+          "mean_abs": 0.0015868947375565767,
+          "max_abs": 0.15228691697120667
+        },
+        "scaler_scale_value": 65536.0
+      },
+      "amp_batch1": {
+        "input": {
+          "finite": true,
+          "min": -2.1179039478302,
+          "max": 2.640000104904175,
+          "abs_max": 2.640000104904175,
+          "mean": 0.457675576210022
+        },
+        "batch_size": 1,
+        "use_amp": true,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0,
+          "max": 3.419921875,
+          "abs_max": 3.419921875,
+          "mean": 0.8668379783630371
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.97412109375,
+          "max": 0.96044921875,
+          "abs_max": 0.97412109375,
+          "mean": 0.04520198702812195
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.289306640625,
+          "max": 0.61181640625,
+          "abs_max": 0.61181640625,
+          "mean": 0.08213043212890625
+        },
+        "loss": {
+          "value": 2.552734375,
+          "finite": true
+        },
+        "layer4_grad_as_stored_scaled": {
+          "has_grad": true,
+          "mean_abs": NaN,
+          "max_abs": NaN,
+          "finite": false,
+          "numel": 8393728
+        },
+        "layer4_grad_manually_unscaled": {
+          "finite": false,
+          "mean_abs": NaN,
+          "max_abs": NaN
+        },
+        "scaler_scale_value": 65536.0
+      },
+      "fp32_batch1": {
+        "input": {
+          "finite": true,
+          "min": -2.1179039478302,
+          "max": 2.640000104904175,
+          "abs_max": 2.640000104904175,
+          "mean": 0.457675576210022
+        },
+        "batch_size": 1,
+        "use_amp": false,
+        "encoder_output": {
+          "finite": true,
+          "min": 0.0,
+          "max": 3.41774320602417,
+          "abs_max": 3.41774320602417,
+          "mean": 0.8668686151504517
+        },
+        "gru_pooled_output": {
+          "finite": true,
+          "min": -0.9742979407310486,
+          "max": 0.9604803919792175,
+          "abs_max": 0.9742979407310486,
+          "mean": 0.04520188271999359
+        },
+        "logits": {
+          "finite": true,
+          "min": -0.7358735799789429,
+          "max": 0.5321946144104004,
+          "abs_max": 0.7358735799789429,
+          "mean": 0.01976257562637329
+        },
+        "loss": {
+          "value": 2.647143602371216,
+          "finite": true
+        },
+        "layer4_grad_fp32": {
+          "has_grad": true,
+          "mean_abs": 0.002233317354694009,
+          "max_abs": 0.31342974305152893,
+          "finite": true,
+          "numel": 8393728
+        }
+      }
+    }
+  ]
+}

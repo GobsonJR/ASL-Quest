@@ -1,0 +1,121 @@
+{
+  "train_first_393_eval_tf": {
+    "n": 393,
+    "loss": 4.216077712352646,
+    "top1": 0.038167938590049744,
+    "top5": 0.18575063613231552,
+    "unique_predicted_classes": 16,
+    "prediction_entropy_bits": 3.0265718554519885,
+    "max_entropy_bits_uniform_100": 6.643856189774725,
+    "collapse_ratio_top1": 0.2544529262086514,
+    "collapse_ratio_top3": 0.6335877862595419,
+    "top20_predicted": [
+      {
+        "class_idx": 31,
+        "gloss": "BOWL",
+        "pred_count": 100,
+        "true_count": 2
+      },
+      {
+        "class_idx": 46,
+        "gloss": "CANDY2",
+        "pred_count": 81,
+        "true_count": 3
+      },
+      {
+        "class_idx": 16,
+        "gloss": "BACKPACK1",
+        "pred_count": 68,
+        "true_count": 6
+      },
+      {
+        "class_idx": 17,
+        "gloss": "BASEBALLCAP",
+        "pred_count": 34,
+        "true_count": 3
+      },
+      {
+        "class_idx": 63,
+        "gloss": "DEMAND1",
+        "pred_count": 31,
+        "true_count": 5
+      },
+      {
+        "class_idx": 83,
+        "gloss": "MOVIE1",
+        "pred_count": 24,
+        "true_count": 4
+      },
+      {
+        "class_idx": 71,
+        "gloss": "ELEVATOR1",
+        "pred_count": 19,
+        "true_count": 4
+      },
+      {
+        "class_idx": 86,
+        "gloss": "PARTY1",
+        "pred_count": 11,
+        "true_count": 5
+      },
+      {
+        "class_idx": 24,
+        "gloss": "BEHAVIOR",
+        "pred_count": 8,
+        "true_count": 3
+      },
+      {
+        "class_idx": 36,
+        "gloss": "BREAKFAST1",
+        "pred_count": 5,
+        "true_count": 7
+      },
+      {
+        "class_idx": 52,
+        "gloss": "CHAIN",
+        "pred_count": 4,
+        "true_count": 3
+      },
+      {
+        "class_idx": 62,
+        "gloss": "DECIDE1",
+        "pred_count": 3,
+        "true_count": 5
+      },
+      {
+        "class_idx": 97,
+        "gloss": "TWINS1",
+        "pred_count": 2,
+        "true_count": 6
+      },
+      {
+        "class_idx": 18,
+        "gloss": "BASEMENT",
+        "pred_count": 1,
+        "true_count": 2
+      },
+      {
+        "class_idx": 6,
+        "gloss": "ALLOFSUDDEN",
+        "pred_count": 1,
+        "true_count": 4
+      },
+      {
+        "class_idx": 58,
+        "gloss": "CLOUD1",
+        "pred_count": 1,
+        "true_count": 3
+      }
+    ],
+    "true_class_count": 100,
+    "true_entropy_bits": 6.541495274435707,
+    "never_predicted_count": 84
+  },
+  "val_full_eval_tf": {
+    "n": 393,
+    "top1": 0.015267175622284412,
+    "top5": 0.05343511450381679
+  },
+  "plausible_that_crop_scale_alone_explains_failure": false,
+  "reason": "scale=(0.85,1.0) is mild. Independent per-frame RandomResizedCrop is a larger issue than CenterCrop vs RandomResizedCrop magnitude."
+}

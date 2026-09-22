@@ -1,0 +1,382 @@
+{
+  "BOOK": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\BOOK_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "27449508901283615-BOOK.mp4",
+        "participant_id": "P50",
+        "frame_count": 89,
+        "sampled_indices": [
+          0,
+          44,
+          88
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "7210851228367339-BOOK.mp4",
+        "participant_id": "P21",
+        "frame_count": 55,
+        "sampled_indices": [
+          0,
+          27,
+          54
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "21368910008549435-BOOK.mp4",
+        "participant_id": "P48",
+        "frame_count": 74,
+        "sampled_indices": [
+          0,
+          37,
+          73
+        ]
+      }
+    ]
+  },
+  "EAT1": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\EAT1_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "33555147348315106-EAT.mp4",
+        "participant_id": "P40",
+        "frame_count": 81,
+        "sampled_indices": [
+          0,
+          40,
+          80
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "744008724339543-EAT.mp4",
+        "participant_id": "P5",
+        "frame_count": 75,
+        "sampled_indices": [
+          0,
+          37,
+          74
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "7640667133656183-EAT.mp4",
+        "participant_id": "P6",
+        "frame_count": 39,
+        "sampled_indices": [
+          0,
+          19,
+          38
+        ]
+      }
+    ]
+  },
+  "HELLO": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\HELLO_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "9008261925178431-HELLO.mp4",
+        "participant_id": "P50",
+        "frame_count": 65,
+        "sampled_indices": [
+          0,
+          32,
+          64
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "05614933522741539-HELLO.mp4",
+        "participant_id": "P12",
+        "frame_count": 54,
+        "sampled_indices": [
+          0,
+          27,
+          53
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "3283413810240037-HELLO.mp4",
+        "participant_id": "P49",
+        "frame_count": 47,
+        "sampled_indices": [
+          0,
+          23,
+          46
+        ]
+      }
+    ]
+  },
+  "HELP": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\HELP_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "6967335705063062-HELP.mp4",
+        "participant_id": "P16",
+        "frame_count": 90,
+        "sampled_indices": [
+          0,
+          45,
+          89
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "8534077485600235-HELP.mp4",
+        "participant_id": "P5",
+        "frame_count": 89,
+        "sampled_indices": [
+          0,
+          44,
+          88
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "9702910950898831-HELP.mp4",
+        "participant_id": "P6",
+        "frame_count": 52,
+        "sampled_indices": [
+          0,
+          26,
+          51
+        ]
+      }
+    ]
+  },
+  "MOTHER": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\MOTHER_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "1825200902929398-MOTHER.mp4",
+        "participant_id": "P29",
+        "frame_count": 40,
+        "sampled_indices": [
+          0,
+          20,
+          39
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "29045877663385156-MOTHER.mp4",
+        "participant_id": "P39",
+        "frame_count": 119,
+        "sampled_indices": [
+          0,
+          59,
+          118
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "14661507159729847-MOTHER.mp4",
+        "participant_id": "P35",
+        "frame_count": 59,
+        "sampled_indices": [
+          0,
+          29,
+          58
+        ]
+      }
+    ]
+  },
+  "NO": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\NO_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "370678413428154-NO.mp4",
+        "participant_id": "P14",
+        "frame_count": 53,
+        "sampled_indices": [
+          0,
+          26,
+          52
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "8323715285073319-NO.mp4",
+        "participant_id": "P21",
+        "frame_count": 59,
+        "sampled_indices": [
+          0,
+          29,
+          58
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "6645554412949413-NO.mp4",
+        "participant_id": "P22",
+        "frame_count": 33,
+        "sampled_indices": [
+          0,
+          16,
+          32
+        ]
+      }
+    ]
+  },
+  "PLEASE": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\PLEASE_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "18053723532999788-PLEASE.mp4",
+        "participant_id": "P30",
+        "frame_count": 97,
+        "sampled_indices": [
+          0,
+          48,
+          96
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "4096147054343935-PLEASE.mp4",
+        "participant_id": "P12",
+        "frame_count": 56,
+        "sampled_indices": [
+          0,
+          28,
+          55
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "5042323343464843-PLEASE.mp4",
+        "participant_id": "P49",
+        "frame_count": 22,
+        "sampled_indices": [
+          0,
+          11,
+          21
+        ]
+      }
+    ]
+  },
+  "THANKYOU": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\THANKYOU_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "15769775934939156-THANK YOU.mp4",
+        "participant_id": "P37",
+        "frame_count": 51,
+        "sampled_indices": [
+          0,
+          25,
+          50
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "0006320057552187119-THANK YOU.mp4",
+        "participant_id": "P21",
+        "frame_count": 46,
+        "sampled_indices": [
+          0,
+          23,
+          45
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "6788237257016723-THANK YOU.mp4",
+        "participant_id": "P9",
+        "frame_count": 88,
+        "sampled_indices": [
+          0,
+          44,
+          87
+        ]
+      }
+    ]
+  },
+  "WATER": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\WATER_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "6099837370552477-WATER.mp4",
+        "participant_id": "P29",
+        "frame_count": 44,
+        "sampled_indices": [
+          0,
+          22,
+          43
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "7530258985595248-WATER.mp4",
+        "participant_id": "P5",
+        "frame_count": 101,
+        "sampled_indices": [
+          0,
+          50,
+          100
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "6252432727581858-WATER.mp4",
+        "participant_id": "P22",
+        "frame_count": 40,
+        "sampled_indices": [
+          0,
+          20,
+          39
+        ]
+      }
+    ]
+  },
+  "YES": {
+    "contact_sheet": "outputs\\asl_citizen_native_10\\diagnostics\\phase5_generalization\\visual_audit\\YES_contact_sheet.png",
+    "videos": [
+      {
+        "split": "train",
+        "video_file": "050364485120873326-YES.mp4",
+        "participant_id": "P33",
+        "frame_count": 265,
+        "sampled_indices": [
+          0,
+          132,
+          264
+        ]
+      },
+      {
+        "split": "val",
+        "video_file": "26056519285644875-YES.mp4",
+        "participant_id": "P39",
+        "frame_count": 107,
+        "sampled_indices": [
+          0,
+          53,
+          106
+        ]
+      },
+      {
+        "split": "test",
+        "video_file": "029563612799205163-YES.mp4",
+        "participant_id": "P35",
+        "frame_count": 75,
+        "sampled_indices": [
+          0,
+          37,
+          74
+        ]
+      }
+    ]
+  }
+}

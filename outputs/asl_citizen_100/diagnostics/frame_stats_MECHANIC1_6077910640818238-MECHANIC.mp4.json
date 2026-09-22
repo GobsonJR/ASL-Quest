@@ -1,0 +1,43 @@
+{
+  "video_file": "6077910640818238-MECHANIC.mp4",
+  "gloss": "MECHANIC1",
+  "frame_count": 75,
+  "indices": [
+    0,
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    39,
+    44,
+    49,
+    54,
+    59,
+    64,
+    69,
+    74
+  ],
+  "mean_abs_diff_between_consecutive_raw_frames": [
+    0.033097196370363235,
+    0.07104308158159256,
+    0.08327113091945648,
+    0.05461963638663292,
+    0.046779584139585495,
+    0.02772635407745838,
+    0.024669216945767403,
+    0.04328792169690132,
+    0.08325675129890442,
+    0.05005500465631485,
+    0.07094630599021912,
+    0.044068675488233566,
+    0.05387521907687187,
+    0.04376263543963432,
+    0.04191426932811737
+  ],
+  "all_frames_identical": false,
+  "contact_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_MECHANIC1_6077910640818238-MECHANIC.png",
+  "raw_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\raw_MECHANIC1_6077910640818238-MECHANIC.png"
+}

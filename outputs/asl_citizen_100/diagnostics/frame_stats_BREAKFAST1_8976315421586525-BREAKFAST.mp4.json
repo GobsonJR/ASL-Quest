@@ -1,0 +1,43 @@
+{
+  "video_file": "8976315421586525-BREAKFAST.mp4",
+  "gloss": "BREAKFAST1",
+  "frame_count": 75,
+  "indices": [
+    0,
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    39,
+    44,
+    49,
+    54,
+    59,
+    64,
+    69,
+    74
+  ],
+  "mean_abs_diff_between_consecutive_raw_frames": [
+    0.0007507276604883373,
+    0.004746264312416315,
+    0.013314086943864822,
+    0.01988403871655464,
+    0.03447796776890755,
+    0.024304276332259178,
+    0.02057306095957756,
+    0.016750477254390717,
+    0.019548973068594933,
+    0.018085207790136337,
+    0.019736172631382942,
+    0.03395590931177139,
+    0.019733833149075508,
+    0.01151716522872448,
+    0.014097282662987709
+  ],
+  "all_frames_identical": false,
+  "contact_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_BREAKFAST1_8976315421586525-BREAKFAST.png",
+  "raw_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\raw_BREAKFAST1_8976315421586525-BREAKFAST.png"
+}

@@ -1,0 +1,43 @@
+{
+  "video_file": "16510476271950658-RESEARCH.mp4",
+  "gloss": "RESEARCH1",
+  "frame_count": 43,
+  "indices": [
+    0,
+    3,
+    6,
+    8,
+    11,
+    14,
+    17,
+    20,
+    22,
+    25,
+    28,
+    31,
+    34,
+    36,
+    39,
+    42
+  ],
+  "mean_abs_diff_between_consecutive_raw_frames": [
+    0.017296910285949707,
+    0.026587285101413727,
+    0.02383091300725937,
+    0.023512782528996468,
+    0.01918773353099823,
+    0.016728099435567856,
+    0.012929999269545078,
+    0.014511339366436005,
+    0.016831988468766212,
+    0.022527169436216354,
+    0.02629600279033184,
+    0.022104740142822266,
+    0.008097229525446892,
+    0.011957279406487942,
+    0.009852223098278046
+  ],
+  "all_frames_identical": false,
+  "contact_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_RESEARCH1_16510476271950658-RESEARCH.png",
+  "raw_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\raw_RESEARCH1_16510476271950658-RESEARCH.png"
+}

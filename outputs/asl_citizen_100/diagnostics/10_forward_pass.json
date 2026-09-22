@@ -1,0 +1,11 @@
+{
+  "logits_shape": [
+    2,
+    100
+  ],
+  "params": {
+    "total": 11793572,
+    "trainable": 617060,
+    "frozen": 11176512
+  }
+}

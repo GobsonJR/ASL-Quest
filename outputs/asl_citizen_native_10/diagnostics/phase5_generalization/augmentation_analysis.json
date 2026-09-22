@@ -1,0 +1,45 @@
+{
+  "train_transform": {
+    "resize": [
+      256,
+      256
+    ],
+    "random_resized_crop_scale": [
+      0.85,
+      1.0
+    ],
+    "random_resized_crop_ratio": [
+      0.9,
+      1.1
+    ],
+    "crop_area_retained_fraction_range": [
+      0.85,
+      1.0
+    ],
+    "temporal_jitter_frames": 2,
+    "consistent_clip_transform": true
+  },
+  "eval_transform": {
+    "resize": [
+      240,
+      240
+    ],
+    "center_crop_output": 224,
+    "temporal_jitter_frames": 0
+  },
+  "tiny_overfit_transform_config": {
+    "frozen": {
+      "deterministic_eval_transforms": true,
+      "temporal_jitter": false,
+      "best_train_accuracy": 0.96
+    },
+    "layer4": {
+      "deterministic_eval_transforms": true,
+      "temporal_jitter": false,
+      "best_train_accuracy": 0.98
+    }
+  },
+  "mean_native10_train_frame_spacing_at_16_samples": 5.429,
+  "jitter_fraction_of_mean_spacing": 0.368,
+  "evidence_summary": "Tiny-overfit used eval_spatial_transforms (deterministic center-crop, no RandomResizedCrop) and jitter_frames=0 for BOTH backbone modes, and reached 96-98% train accuracy on a 50-clip subset. Real training uses RandomResizedCrop (crop area 85-100% of a 256x256 resize, so at most ~15% area loss and mild 0.9-1.1 aspect distortion) plus +/-2 frame temporal jitter. The +/-2 frame jitter is 0.368 of the mean spacing between the 16 uniformly sampled frames in native_10 train clips, which is non-trivial (jitter is a meaningful fraction of the natural spacing) but the spatial crop is mild. This is evidence that augmentation differs meaningfully between tiny-overfit and real training, but the magnitude of spatial cropping alone is unlikely to fully explain a drop from ~96% to ~13% generalization; it is a contributing-but-unproven factor, not an established sole cause."
+}

@@ -1,0 +1,6 @@
+{
+  "num_classes": 100,
+  "indices_0_99": true,
+  "inverse_ok": true,
+  "ckpt_matches_file": true
+}

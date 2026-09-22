@@ -1,0 +1,126 @@
+test_accuracy_calculation (test_analytics.AnalyticsTests.test_accuracy_calculation) ... ok
+test_daily_activity_aggregation (test_analytics.AnalyticsTests.test_daily_activity_aggregation) ... ok
+test_dashboard_endpoint (test_analytics.AnalyticsTests.test_dashboard_endpoint) ... ok
+test_empty_user (test_analytics.AnalyticsTests.test_empty_user) ... ok
+test_heatmap_aggregation (test_analytics.AnalyticsTests.test_heatmap_aggregation) ... ok
+test_letter_statistics (test_analytics.AnalyticsTests.test_letter_statistics) ... ok
+test_mastery_funnel (test_analytics.AnalyticsTests.test_mastery_funnel) ... ok
+test_overview_statistics (test_analytics.AnalyticsTests.test_overview_statistics) ... ok
+test_practice_history_pagination (test_analytics.AnalyticsTests.test_practice_history_pagination) ... ok
+test_response_time_analytics (test_analytics.AnalyticsTests.test_response_time_analytics) ... ok
+test_user_isolation (test_analytics.AnalyticsTests.test_user_isolation) ... ok
+test_backbone_modes_trainability (test_asl_citizen.ASLCitizenPipelineTests.test_backbone_modes_trainability) ... ok
+test_backward_pass (test_asl_citizen.ASLCitizenPipelineTests.test_backward_pass) ... ok
+test_batch_shape (test_asl_citizen.ASLCitizenPipelineTests.test_batch_shape) ... ok
+test_checkpoint_save_load (test_asl_citizen.ASLCitizenPipelineTests.test_checkpoint_save_load) ... ok
+test_class_mapping_consistency (test_asl_citizen.ASLCitizenPipelineTests.test_class_mapping_consistency) ... ok
+test_class_mapping_json_sorted_deterministic (test_asl_citizen.ASLCitizenPipelineTests.test_class_mapping_json_sorted_deterministic) ... ok
+test_dataset_length (test_asl_citizen.ASLCitizenPipelineTests.test_dataset_length) ... ok
+test_leakage_check_function (test_asl_citizen.ASLCitizenPipelineTests.test_leakage_check_function) ... ok
+test_manifest_files_exist (test_asl_citizen.ASLCitizenPipelineTests.test_manifest_files_exist) ... ok
+test_manifest_generation_counts (test_asl_citizen.ASLCitizenPipelineTests.test_manifest_generation_counts) ... ok
+test_model_forward_pass (test_asl_citizen.ASLCitizenPipelineTests.test_model_forward_pass) ... ok
+test_no_class_missing_from_split (test_asl_citizen.ASLCitizenPipelineTests.test_no_class_missing_from_split) ... ok
+test_one_sample_loading_and_shape (test_asl_citizen.ASLCitizenPipelineTests.test_one_sample_loading_and_shape) ... ok
+test_signer_split_integrity (test_asl_citizen.ASLCitizenPipelineTests.test_signer_split_integrity) ... ok
+test_tiny_classifier_has_ten_outputs (test_asl_citizen.ASLCitizenPipelineTests.test_tiny_classifier_has_ten_outputs) ... ok
+test_training_history_appends_each_epoch (test_asl_citizen.ASLCitizenPipelineTests.test_training_history_appends_each_epoch) ... ok
+test_uniform_sampling_short_video (test_asl_citizen.ASLCitizenPipelineTests.test_uniform_sampling_short_video) ... ok
+test_video_path_resolution (test_asl_citizen.ASLCitizenPipelineTests.test_video_path_resolution) ... ok
+test_achievements_retrieval (test_auth_db.AuthProgressTests.test_achievements_retrieval) ... ok
+test_authentication_required (test_auth_db.AuthProgressTests.test_authentication_required) ... ok
+test_challenge_progress (test_auth_db.AuthProgressTests.test_challenge_progress) ... ok
+test_duplicate_registration_rejected (test_auth_db.AuthProgressTests.test_duplicate_registration_rejected) ... ok
+test_invalid_password (test_auth_db.AuthProgressTests.test_invalid_password) ... ok
+test_letter_progress_endpoint (test_auth_db.AuthProgressTests.test_letter_progress_endpoint) ... ok
+test_local_migration_prefers_empty_server (test_auth_db.AuthProgressTests.test_local_migration_prefers_empty_server) ... ok
+test_login (test_auth_db.AuthProgressTests.test_login) ... ok
+test_me_endpoint (test_auth_db.AuthProgressTests.test_me_endpoint) ... ok
+test_practice_session_creation (test_auth_db.AuthProgressTests.test_practice_session_creation) ... ok
+test_progress_retrieval_and_update (test_auth_db.AuthProgressTests.test_progress_retrieval_and_update) ... ok
+test_user_isolation (test_auth_db.AuthProgressTests.test_user_isolation) ... ok
+test_user_registration (test_auth_db.AuthProgressTests.test_user_registration) ... ok
+test_baseline_has_no_down_revision (test_database_phase2.AlembicStructureTests.test_baseline_has_no_down_revision) ... ok
+test_migration_files_present (test_database_phase2.AlembicStructureTests.test_migration_files_present) ... ok
+test_revision_chain_order (test_database_phase2.AlembicStructureTests.test_revision_chain_order) ... ok
+test_single_linear_head (test_database_phase2.AlembicStructureTests.test_single_linear_head) ... ok
+test_database_url_env_var_takes_priority (test_database_phase2.DatabaseUrlConfigurationTests.test_database_url_env_var_takes_priority) ... ok
+test_database_url_takes_priority_over_legacy_var (test_database_phase2.DatabaseUrlConfigurationTests.test_database_url_takes_priority_over_legacy_var) ... ok
+test_defaults_to_local_sqlite_when_nothing_set (test_database_phase2.DatabaseUrlConfigurationTests.test_defaults_to_local_sqlite_when_nothing_set) ... ok
+test_legacy_env_var_used_when_database_url_unset (test_database_phase2.DatabaseUrlConfigurationTests.test_legacy_env_var_used_when_database_url_unset) ... ok
+test_upgrade_preserves_existing_rows (test_database_phase2.ExistingDataPreservationTests.test_upgrade_preserves_existing_rows) ... ok
+test_downgrade_to_baseline_removes_only_new_tables (test_database_phase2.FreshDatabaseMigrationTests.test_downgrade_to_baseline_removes_only_new_tables) ... ok
+test_upgrade_head_creates_all_tables_and_seeds_words (test_database_phase2.FreshDatabaseMigrationTests.test_upgrade_head_creates_all_tables_and_seeds_words) ... ok
+test_upgrade_is_idempotent (test_database_phase2.FreshDatabaseMigrationTests.test_upgrade_is_idempotent) ... ok
+test_migrate_schema_does_not_create_new_tables (test_database_phase2.LegacyCreateAllRestrictionTests.test_migrate_schema_does_not_create_new_tables) ... ok
+test_chatbot_conversation_thread (test_database_phase2.NewModelCreationTests.test_chatbot_conversation_thread) ... ok
+test_foreign_keys_declared_correctly (test_database_phase2.NewModelCreationTests.test_foreign_keys_declared_correctly) ... ok
+test_native_sign_full_relationship_graph (test_database_phase2.NewModelCreationTests.test_native_sign_full_relationship_graph) ... ok
+test_user_preference_one_to_one (test_database_phase2.NewModelCreationTests.test_user_preference_one_to_one) ... ok
+test_duplicate_gloss_rejected (test_database_phase2.UniqueConstraintTests.test_duplicate_gloss_rejected) ... ok
+test_duplicate_model_version_rejected (test_database_phase2.UniqueConstraintTests.test_duplicate_model_version_rejected) ... ok
+test_duplicate_native_sign_progress_rejected (test_database_phase2.UniqueConstraintTests.test_duplicate_native_sign_progress_rejected) ... ok
+test_duplicate_word_id_rejected (test_database_phase2.UniqueConstraintTests.test_duplicate_word_id_rejected) ... ok
+test_catalog_fields_match (test_database_phase2.WordCatalogMappingTests.test_catalog_fields_match) ... ok
+test_every_catalog_id_present_as_word_row (test_database_phase2.WordCatalogMappingTests.test_every_catalog_id_present_as_word_row) ... ok
+test_preexisting_word_progress_resolves_by_id_equality (test_database_phase2.WordCatalogMappingTests.test_preexisting_word_progress_resolves_by_id_equality)
+Simulates a WordProgress row that existed before Phase 2 (word_id is a ... ok
+test_admin_bootstrap_and_access (test_phase4.Phase4Tests.test_admin_bootstrap_and_access) ... ok
+test_admin_users_search (test_phase4.Phase4Tests.test_admin_users_search) ... ok
+test_change_password (test_phase4.Phase4Tests.test_change_password) ... ok
+test_delete_account (test_phase4.Phase4Tests.test_delete_account) ... ok
+test_export_contains_only_user_data (test_phase4.Phase4Tests.test_export_contains_only_user_data) ... ok
+test_practice_session_user_isolation (test_phase4.Phase4Tests.test_practice_session_user_isolation) ... ok
+test_preferences_update (test_phase4.Phase4Tests.test_preferences_update) ... ok
+test_profile_requires_auth (test_phase4.Phase4Tests.test_profile_requires_auth) ... ok
+test_profile_returns_real_fields (test_phase4.Phase4Tests.test_profile_returns_real_fields) ... ok
+test_recommendations_empty_user (test_phase4.Phase4Tests.test_recommendations_empty_user) ... ok
+test_student_cannot_access_admin (test_phase4.Phase4Tests.test_student_cannot_access_admin) ... ok
+test_admin_word_aggregates (test_phase5.Phase5WordTests.test_admin_word_aggregates) ... ok
+test_catalog_includes_core_demo_words (test_phase5.Phase5WordTests.test_catalog_includes_core_demo_words) ... ok
+test_catalog_is_a_to_z_only (test_phase5.Phase5WordTests.test_catalog_is_a_to_z_only) ... ok
+test_daily_words_are_user_deterministic (test_phase5.Phase5WordTests.test_daily_words_are_user_deterministic) ... ok
+test_duplicate_completion_is_separate_attempt_not_letter_xp (test_phase5.Phase5WordTests.test_duplicate_completion_is_separate_attempt_not_letter_xp) ... ok
+test_export_includes_word_data_without_secrets (test_phase5.Phase5WordTests.test_export_includes_word_data_without_secrets) ... ok
+test_incomplete_word_session_awards_no_xp (test_phase5.Phase5WordTests.test_incomplete_word_session_awards_no_xp) ... ok
+test_list_and_get_word (test_phase5.Phase5WordTests.test_list_and_get_word) ... ok
+test_perfect_and_challenge_xp_reasons (test_phase5.Phase5WordTests.test_perfect_and_challenge_xp_reasons) ... ok
+test_recommendations_deterministic (test_phase5.Phase5WordTests.test_recommendations_deterministic) ... ok
+test_unknown_word_404 (test_phase5.Phase5WordTests.test_unknown_word_404) ... ok
+test_user_isolation (test_phase5.Phase5WordTests.test_user_isolation) ... ok
+test_word_analytics_from_database (test_phase5.Phase5WordTests.test_word_analytics_from_database) ... ok
+test_word_challenge_and_daily_words (test_phase5.Phase5WordTests.test_word_challenge_and_daily_words) ... ok
+test_word_session_completion_and_xp (test_phase5.Phase5WordTests.test_word_session_completion_and_xp) ... ok
+test_word_starter_achievement (test_phase5.Phase5WordTests.test_word_starter_achievement) ... ok
+test_words_require_auth (test_phase5.Phase5WordTests.test_words_require_auth) ... ok
+test_backend_health_and_prediction (test_project.ProjectSmokeTests.test_backend_health_and_prediction) ... WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1789499436.477018     556 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1789499443.014483     556 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+WARNING: Logging before InitGoogle() is written to STDERR
+W0000 00:00:1789499450.816183   18844 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1789499450.838163   18844 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+ok
+test_checkpoint_loads_with_class_mapping (test_project.ProjectSmokeTests.test_checkpoint_loads_with_class_mapping) ... ok
+test_dataset_class_mapping_is_stable (test_project.ProjectSmokeTests.test_dataset_class_mapping_is_stable) ... ok
+test_no_hand_state_on_blank_image (test_project.ProjectSmokeTests.test_no_hand_state_on_blank_image) ... W0000 00:00:1789499453.585816   20440 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1789499453.607449   10872 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1789499453.637955    2236 landmark_projection_calculator.cc:81] Using NORM_RECT without IMAGE_DIMENSIONS is only supported for the square ROI. Provide IMAGE_DIMENSIONS or use PROJECTION_MATRIX.
+W0000 00:00:1789499454.101667    7352 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1789499454.122295    6268 inference_feedback_manager.cc:121] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+ok
+test_predictor_returns_one_image_prediction (test_project.ProjectSmokeTests.test_predictor_returns_one_image_prediction) ... ok
+test_preprocessing_has_no_horizontal_flip (test_project.ProjectSmokeTests.test_preprocessing_has_no_horizontal_flip) ... ok
+test_temporal_smoother_resets_on_low_confidence (test_project.ProjectSmokeTests.test_temporal_smoother_resets_on_low_confidence) ... ok
+
+----------------------------------------------------------------------
+Ran 101 tests in 126.226s
+
+OK
+Loaded model from D:\SIGN LANGUAGE\models\best_model.pth on cuda
+Loaded model from D:\SIGN LANGUAGE\models\best_model.pth on cuda
+sys:1: ResourceWarning: unclosed file <_io.BufferedRandom name='C:\\Users\\f4own\\AppData\\Local\\Temp\\tmp5ofpo6t_.db'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedRandom name='C:\\Users\\f4own\\AppData\\Local\\Temp\\tmp7t29fcmc.db'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedRandom name='C:\\Users\\f4own\\AppData\\Local\\Temp\\tmpnl2ahq1t.db'>
+sys:1: ResourceWarning: unclosed file <_io.BufferedRandom name='C:\\Users\\f4own\\AppData\\Local\\Temp\\tmpnuyzev7p.db'>

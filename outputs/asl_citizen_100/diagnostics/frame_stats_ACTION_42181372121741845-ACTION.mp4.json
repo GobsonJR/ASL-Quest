@@ -1,0 +1,43 @@
+{
+  "video_file": "42181372121741845-ACTION.mp4",
+  "gloss": "ACTION",
+  "frame_count": 69,
+  "indices": [
+    0,
+    5,
+    9,
+    14,
+    18,
+    23,
+    27,
+    32,
+    36,
+    41,
+    45,
+    50,
+    54,
+    59,
+    63,
+    68
+  ],
+  "mean_abs_diff_between_consecutive_raw_frames": [
+    0.0021611263509839773,
+    0.010855106636881828,
+    0.054446376860141754,
+    0.05140511691570282,
+    0.04692276567220688,
+    0.03865813463926315,
+    0.06028172746300697,
+    0.020011717453598976,
+    0.03677484765648842,
+    0.010098826140165329,
+    0.0129118412733078,
+    0.01079525426030159,
+    0.011625254526734352,
+    0.007646949030458927,
+    0.007019625045359135
+  ],
+  "all_frames_identical": false,
+  "contact_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_ACTION_42181372121741845-ACTION.png",
+  "raw_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\raw_ACTION_42181372121741845-ACTION.png"
+}

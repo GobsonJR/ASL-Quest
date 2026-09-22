@@ -1,0 +1,61 @@
+{
+  "official_split_files": {
+    "train": "D:\\ASL_Citizen\\ASL_Citizen\\splits\\train.csv",
+    "val": "D:\\ASL_Citizen\\ASL_Citizen\\splits\\val.csv",
+    "test": "D:\\ASL_Citizen\\ASL_Citizen\\splits\\test.csv"
+  },
+  "train_videos": 40154,
+  "val_videos": 10304,
+  "test_videos": 32941,
+  "total_videos": 83399,
+  "train_classes": 2731,
+  "val_classes": 2731,
+  "test_classes": 2731,
+  "total_distinct_classes": 2731,
+  "train_participants": 35,
+  "val_participants": 6,
+  "test_participants": 11,
+  "label_mapping": {
+    "sign_label_field": "Gloss",
+    "signer_id_field": "Participant ID",
+    "video_id_source": "numeric prefix before first '-' in Video file",
+    "asl_lex_field": "ASL-LEX Code",
+    "example_rows": [
+      {
+        "split": "train",
+        "participant_id": "P1",
+        "video_file": "15890366051589533-APPLE.mp4",
+        "gloss": "APPLE",
+        "asl_lex_code": "A_03_054"
+      },
+      {
+        "split": "train",
+        "participant_id": "P1",
+        "video_file": "35618482303951104-IMPOSSIBLE.mp4",
+        "gloss": "IMPOSSIBLE",
+        "asl_lex_code": "B_01_032"
+      },
+      {
+        "split": "train",
+        "participant_id": "P1",
+        "video_file": "6958143575951994-PARK.mp4",
+        "gloss": "PARK",
+        "asl_lex_code": "E_03_028"
+      },
+      {
+        "split": "train",
+        "participant_id": "P1",
+        "video_file": "8006032738002744-SOCCER 2.mp4",
+        "gloss": "SOCCER2",
+        "asl_lex_code": "F_03_032"
+      },
+      {
+        "split": "train",
+        "participant_id": "P1",
+        "video_file": "37542279833186454-STINK.mp4",
+        "gloss": "STINK",
+        "asl_lex_code": "H_01_064"
+      }
+    ]
+  }
+}

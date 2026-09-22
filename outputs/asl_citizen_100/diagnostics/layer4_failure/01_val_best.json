@@ -1,0 +1,121 @@
+{
+  "checkpoint": "best",
+  "epoch": 3,
+  "split": "val",
+  "n": 393,
+  "loss": 4.82755985454142,
+  "top1": 0.015267175622284412,
+  "top5": 0.05343511450381679,
+  "unique_predicted_classes": 17,
+  "prediction_entropy_bits": 3.1219749287340233,
+  "max_entropy_bits_uniform_100": 6.643856189774725,
+  "collapse_ratio_top1": 0.24681933842239187,
+  "collapse_ratio_top3": 0.6183206106870229,
+  "top20_predicted": [
+    {
+      "class_idx": 17,
+      "gloss": "BASEBALLCAP",
+      "pred_count": 97,
+      "true_count": 5
+    },
+    {
+      "class_idx": 63,
+      "gloss": "DEMAND1",
+      "pred_count": 76,
+      "true_count": 4
+    },
+    {
+      "class_idx": 31,
+      "gloss": "BOWL",
+      "pred_count": 70,
+      "true_count": 4
+    },
+    {
+      "class_idx": 46,
+      "gloss": "CANDY2",
+      "pred_count": 36,
+      "true_count": 3
+    },
+    {
+      "class_idx": 16,
+      "gloss": "BACKPACK1",
+      "pred_count": 23,
+      "true_count": 3
+    },
+    {
+      "class_idx": 86,
+      "gloss": "PARTY1",
+      "pred_count": 22,
+      "true_count": 4
+    },
+    {
+      "class_idx": 24,
+      "gloss": "BEHAVIOR",
+      "pred_count": 20,
+      "true_count": 3
+    },
+    {
+      "class_idx": 71,
+      "gloss": "ELEVATOR1",
+      "pred_count": 12,
+      "true_count": 5
+    },
+    {
+      "class_idx": 36,
+      "gloss": "BREAKFAST1",
+      "pred_count": 12,
+      "true_count": 3
+    },
+    {
+      "class_idx": 52,
+      "gloss": "CHAIN",
+      "pred_count": 8,
+      "true_count": 4
+    },
+    {
+      "class_idx": 82,
+      "gloss": "MICROSCOPE1",
+      "pred_count": 7,
+      "true_count": 4
+    },
+    {
+      "class_idx": 94,
+      "gloss": "TAKEOFF1",
+      "pred_count": 5,
+      "true_count": 5
+    },
+    {
+      "class_idx": 62,
+      "gloss": "DECIDE1",
+      "pred_count": 1,
+      "true_count": 3
+    },
+    {
+      "class_idx": 15,
+      "gloss": "BACKOUT",
+      "pred_count": 1,
+      "true_count": 4
+    },
+    {
+      "class_idx": 80,
+      "gloss": "LUNCH1",
+      "pred_count": 1,
+      "true_count": 5
+    },
+    {
+      "class_idx": 83,
+      "gloss": "MOVIE1",
+      "pred_count": 1,
+      "true_count": 4
+    },
+    {
+      "class_idx": 14,
+      "gloss": "AXE1",
+      "pred_count": 1,
+      "true_count": 4
+    }
+  ],
+  "true_class_count": 100,
+  "true_entropy_bits": 6.607875178734659,
+  "never_predicted_count": 83
+}

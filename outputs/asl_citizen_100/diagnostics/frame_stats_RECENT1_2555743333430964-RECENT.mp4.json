@@ -1,0 +1,43 @@
+{
+  "video_file": "2555743333430964-RECENT.mp4",
+  "gloss": "RECENT1",
+  "frame_count": 92,
+  "indices": [
+    0,
+    6,
+    12,
+    18,
+    24,
+    30,
+    36,
+    42,
+    49,
+    55,
+    61,
+    67,
+    73,
+    79,
+    85,
+    91
+  ],
+  "mean_abs_diff_between_consecutive_raw_frames": [
+    0.0014904045965522528,
+    0.010386490263044834,
+    0.032423000782728195,
+    0.0401223786175251,
+    0.04039524123072624,
+    0.012794789858162403,
+    0.012281002476811409,
+    0.01522594690322876,
+    0.03662039712071419,
+    0.0353691503405571,
+    0.02129480428993702,
+    0.017838936299085617,
+    0.0085316626355052,
+    0.00617652153596282,
+    0.006051726173609495
+  ],
+  "all_frames_identical": false,
+  "contact_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\contact_RECENT1_2555743333430964-RECENT.png",
+  "raw_sheet": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\diagnostics\\raw_RECENT1_2555743333430964-RECENT.png"
+}

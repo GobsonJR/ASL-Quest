@@ -1,0 +1,22 @@
+{
+  "dry_run": true,
+  "batch_shape": [
+    4,
+    16,
+    3,
+    224,
+    224
+  ],
+  "train_loss": 4.64111328125,
+  "train_accuracy": 0.0,
+  "train_top5": 0.125,
+  "val_loss": 4.6650390625,
+  "val_accuracy": 0.0,
+  "val_top5": 0.0,
+  "trainable_parameters": 617060,
+  "frozen_parameters": 11176512,
+  "total_parameters": 11793572,
+  "gpu_memory_peak_mb": 392.3,
+  "checkpoint_saved": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\dry_run_test.pth",
+  "device": "cuda"
+}

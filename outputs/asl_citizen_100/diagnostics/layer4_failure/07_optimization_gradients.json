@@ -1,0 +1,60 @@
+{
+  "trainability": {
+    "backbone_train_mode": "layer4",
+    "pretrained_loaded": false,
+    "stem_trainable": false,
+    "layer1_trainable": false,
+    "layer2_trainable": false,
+    "layer3_trainable": false,
+    "layer4_trainable": true,
+    "gru_trainable": true,
+    "classifier_trainable": true,
+    "total": 11793572,
+    "trainable": 9010788,
+    "frozen": 2782784
+  },
+  "optimizer_groups_reconstructed": [
+    {
+      "lr": 0.0001,
+      "weight_decay": 0.0001,
+      "n_tensors": 15
+    },
+    {
+      "lr": 0.001,
+      "weight_decay": 0.0001,
+      "n_tensors": 6
+    }
+  ],
+  "scheduler_in_train_py": false,
+  "grad_clip_in_train_py": false,
+  "amp_used_in_train_py": true,
+  "loss": 3.9984679222106934,
+  "gradient_flow": {
+    "layer4": {
+      "has_grad": true,
+      "mean_abs": 0.0012516190763562918,
+      "max_abs": 0.4410627484321594,
+      "finite": true,
+      "numel": 8393728
+    },
+    "gru": {
+      "has_grad": true,
+      "mean_abs": 0.0006788079626858234,
+      "max_abs": 0.07985617220401764,
+      "finite": true,
+      "numel": 591360
+    },
+    "classifier": {
+      "has_grad": true,
+      "mean_abs": 0.006286550313234329,
+      "max_abs": 0.3400469124317169,
+      "finite": true,
+      "numel": 25700
+    },
+    "frozen_layer1_requires_grad": false,
+    "layer4_requires_grad": true,
+    "gru_requires_grad": true,
+    "classifier_requires_grad": true
+  },
+  "layer1_unexpected_nonzero_grad": false
+}

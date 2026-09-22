@@ -1,0 +1,43 @@
+{
+  "phase": "7E",
+  "gate": "tiny 10-class overfit >=95% train accuracy",
+  "same_50_samples": true,
+  "preprocessing": "Resize + CenterCrop + ImageNet normalize; no flip; no jitter",
+  "comparison": [
+    {
+      "configuration": "frozen",
+      "final_train_accuracy": 0.96,
+      "best_train_accuracy": 0.96,
+      "final_loss": 0.2205,
+      "epochs_ran": 21,
+      "gate_passed": true
+    },
+    {
+      "configuration": "layer4",
+      "final_train_accuracy": 1.0,
+      "best_train_accuracy": 1.0,
+      "final_loss": 0.1106,
+      "epochs_ran": 9,
+      "gate_passed": true,
+      "strong_success": true
+    },
+    {
+      "configuration": "full",
+      "final_train_accuracy": 0.98,
+      "best_train_accuracy": 0.98,
+      "final_loss": 0.2748,
+      "epochs_ran": 6,
+      "gate_passed": true,
+      "strong_success": true
+    }
+  ],
+  "recommended_next_100_class": {
+    "backbone_mode": "layer4",
+    "head_lr": 1e-3,
+    "backbone_lr": 1e-4,
+    "optimizer": "AdamW",
+    "num_frames": 16,
+    "batch_size": 4,
+    "note": "Do not launch until explicitly requested."
+  }
+}

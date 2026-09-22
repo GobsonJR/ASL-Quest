@@ -1,0 +1,208 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --color-ink: #0a0f0d;
+  --color-panel: #121a17;
+  --color-panel-soft: #17221d;
+  --color-line: #2a3b34;
+  --color-line-soft: #223028;
+  --color-mist: #b8c9c0;
+  --color-muted: #8fa399;
+  --color-accent: #d7f36a;
+  --color-accent-dim: #a8c94a;
+  --color-warm: #f3c16b;
+  --color-success: #6ee7a8;
+  --color-danger: #f87171;
+  --radius-panel: 1rem;
+  --radius-control: 0.75rem;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(1200px 600px at 10% -8%, rgba(45, 90, 65, 0.22) 0%, transparent 50%),
+    radial-gradient(800px 400px at 100% 0%, rgba(90, 60, 20, 0.12) 0%, transparent 40%),
+    var(--color-ink);
+  color: #eef4f0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+.input-field {
+  width: 100%;
+  border-radius: var(--radius-control);
+  border: 1px solid var(--color-line-soft);
+  background: var(--color-panel-soft);
+  padding: 0.625rem 1rem;
+  color: #eef4f0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  transition: border-color 0.15s ease;
+}
+
+.input-field:focus {
+  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-line));
+  outline: none;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+/* Page transitions */
+.page-enter {
+  animation: page-enter 0.4s ease-out both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pop {
+  animation: pop 0.35s ease-out;
+}
+
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.9);
+  }
+  15% {
+    opacity: 1;
+    transform: translateY(0) scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-48px) scale(1);
+  }
+}
+
+.animate-float-up {
+  animation: float-up 1.2s ease-out forwards;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(215, 243, 106, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 24px 4px rgba(215, 243, 106, 0.2);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-bar {
+  background: linear-gradient(
+    90deg,
+    var(--color-accent) 0%,
+    #e8ff9a 50%,
+    var(--color-accent) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes success-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+.success-ring {
+  animation: success-ring 0.6s ease-out forwards;
+}
+
+.glass-panel {
+  background: rgba(18, 26, 23, 0.72);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(42, 59, 52, 0.8);
+}
+
+.card-hover {
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.card-hover:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 20%, var(--color-line));
+}
+
+html.reduce-motion .page-enter,
+html.reduce-motion .animate-pop,
+html.reduce-motion .animate-float-up,
+html.reduce-motion .animate-pulse-glow,
+html.reduce-motion .shimmer-bar,
+html.reduce-motion .success-ring,
+html.reduce-motion .card-hover:hover {
+  animation: none;
+  transform: none;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  .animate-pop,
+  .animate-float-up,
+  .animate-pulse-glow,
+  .shimmer-bar,
+  .success-ring,
+  .card-hover:hover {
+    animation: none;
+    transform: none;
+    transition: none;
+  }
+}

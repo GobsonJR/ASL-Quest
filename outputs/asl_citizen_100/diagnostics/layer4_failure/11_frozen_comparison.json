@@ -1,0 +1,181 @@
+{
+  "frozen_best_checkpoint_still_on_disk": false,
+  "reason": "BEST/LAST paths were reused by the layer4 run (now ~119MB with optimizer). Previous frozen files were ~52MB. dry_run_test.pth remains but is a 2-batch dry-run, not the frozen 100-class model.",
+  "preserved_frozen_metrics_from_json": {
+    "checkpoint_meta": {
+      "training_history_exists": false,
+      "missing_metrics_note": "train.py writes training_history.json only after ALL epochs finish. Per-epoch train_loss/train_acc are NOT stored in checkpoints.",
+      "checkpoints": {
+        "best": {
+          "epoch": 4,
+          "val_accuracy": 0.015267175622284412,
+          "val_top5_accuracy": 0.06870229007633588,
+          "full_config": {
+            "dataset_root": "D:\\ASL_Citizen\\ASL_Citizen",
+            "video_root": "D:\\ASL_Citizen\\ASL_Citizen\\videos",
+            "data_dir": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100",
+            "train_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\train.csv",
+            "val_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\val.csv",
+            "test_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\test.csv",
+            "num_classes": 100,
+            "num_frames": 16,
+            "image_size": 224,
+            "batch_size": 4,
+            "num_workers": 2,
+            "learning_rate": 0.001,
+            "weight_decay": 0.0001,
+            "num_epochs": 20,
+            "hidden_size": 256,
+            "num_layers": 1,
+            "dropout": 0.3,
+            "seed": 42,
+            "freeze_backbone": true,
+            "imagenet_mean": [
+              0.485,
+              0.456,
+              0.406
+            ],
+            "imagenet_std": [
+              0.229,
+              0.224,
+              0.225
+            ]
+          }
+        },
+        "last": {
+          "epoch": 9,
+          "val_accuracy": 0.010178117081522942,
+          "val_top5_accuracy": 0.05597964376590331,
+          "full_config": {
+            "dataset_root": "D:\\ASL_Citizen\\ASL_Citizen",
+            "video_root": "D:\\ASL_Citizen\\ASL_Citizen\\videos",
+            "data_dir": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100",
+            "train_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\train.csv",
+            "val_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\val.csv",
+            "test_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\test.csv",
+            "num_classes": 100,
+            "num_frames": 16,
+            "image_size": 224,
+            "batch_size": 4,
+            "num_workers": 2,
+            "learning_rate": 0.001,
+            "weight_decay": 0.0001,
+            "num_epochs": 20,
+            "hidden_size": 256,
+            "num_layers": 1,
+            "dropout": 0.3,
+            "seed": 42,
+            "freeze_backbone": true,
+            "imagenet_mean": [
+              0.485,
+              0.456,
+              0.406
+            ],
+            "imagenet_std": [
+              0.229,
+              0.224,
+              0.225
+            ]
+          }
+        }
+      }
+    },
+    "evaluation_test": {
+      "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_best.pth",
+      "split": "test",
+      "samples": 1444,
+      "top1_accuracy": 0.008310249075293541,
+      "top5_accuracy": 0.05193905817174515,
+      "num_classes": 100
+    },
+    "prediction_best_subset": {
+      "checkpoint": "asl_citizen_100_resnet18_gru_best.pth",
+      "split": "test",
+      "samples": 250,
+      "strict_ok": true,
+      "missing_keys": [],
+      "unexpected_keys": [],
+      "top1": 0.00800000037997961,
+      "top5": 0.072,
+      "unique_predicted_classes": 2,
+      "most_frequent": {
+        "idx": 33,
+        "gloss": "BOY",
+        "count": 247
+      },
+      "top10": [
+        {
+          "idx": 33,
+          "gloss": "BOY",
+          "count": 247
+        },
+        {
+          "idx": 98,
+          "gloss": "TYPE1",
+          "count": 3
+        }
+      ],
+      "distribution": {
+        "33": 247,
+        "98": 3
+      }
+    },
+    "prediction_last_subset": {
+      "checkpoint": "asl_citizen_100_resnet18_gru_last.pth",
+      "split": "test",
+      "samples": 250,
+      "strict_ok": true,
+      "missing_keys": [],
+      "unexpected_keys": [],
+      "top1": 0.012000000104308128,
+      "top5": 0.06,
+      "unique_predicted_classes": 5,
+      "most_frequent": {
+        "idx": 19,
+        "gloss": "BASKET1",
+        "count": 136
+      },
+      "top10": [
+        {
+          "idx": 19,
+          "gloss": "BASKET1",
+          "count": 136
+        },
+        {
+          "idx": 93,
+          "gloss": "SPECIAL1",
+          "count": 111
+        },
+        {
+          "idx": 64,
+          "gloss": "DEVELOP1",
+          "count": 1
+        },
+        {
+          "idx": 77,
+          "gloss": "HURDLE/TRIP1",
+          "count": 1
+        },
+        {
+          "idx": 3,
+          "gloss": "ADVERTISE",
+          "count": 1
+        }
+      ],
+      "distribution": {
+        "19": 136,
+        "93": 111,
+        "3": 1,
+        "64": 1,
+        "77": 1
+      }
+    }
+  },
+  "dry_run_test.pth": {
+    "exists": true,
+    "epoch": 0,
+    "freeze_backbone": true,
+    "backbone_train_mode": null,
+    "note": "Not a trained 100-class frozen run."
+  }
+}

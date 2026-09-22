@@ -1,0 +1,1583 @@
+{
+  "num_classes": 100,
+  "selection_rule": "top N glosses by total video count; ties broken alphabetically",
+  "mapping_rule": "class indices assigned by alphabetical gloss order among selected classes",
+  "selections": [
+    {
+      "rank": 1,
+      "gloss": "DOG1",
+      "total": 45,
+      "train": 24,
+      "val": 4,
+      "test": 17
+    },
+    {
+      "rank": 2,
+      "gloss": "BASKETBALL1",
+      "total": 44,
+      "train": 19,
+      "val": 5,
+      "test": 20
+    },
+    {
+      "rank": 3,
+      "gloss": "WHATFOR1",
+      "total": 43,
+      "train": 20,
+      "val": 5,
+      "test": 18
+    },
+    {
+      "rank": 4,
+      "gloss": "BELT1",
+      "total": 40,
+      "train": 19,
+      "val": 3,
+      "test": 18
+    },
+    {
+      "rank": 5,
+      "gloss": "BEE1",
+      "total": 39,
+      "train": 19,
+      "val": 6,
+      "test": 14
+    },
+    {
+      "rank": 6,
+      "gloss": "BITE1",
+      "total": 39,
+      "train": 21,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 7,
+      "gloss": "BREAKFAST1",
+      "total": 39,
+      "train": 21,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 8,
+      "gloss": "CHRISTMAS1",
+      "total": 39,
+      "train": 19,
+      "val": 3,
+      "test": 17
+    },
+    {
+      "rank": 9,
+      "gloss": "DARK1",
+      "total": 39,
+      "train": 21,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 10,
+      "gloss": "DEAF1",
+      "total": 39,
+      "train": 20,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 11,
+      "gloss": "DEMAND1",
+      "total": 39,
+      "train": 21,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 12,
+      "gloss": "EAT1",
+      "total": 39,
+      "train": 18,
+      "val": 4,
+      "test": 17
+    },
+    {
+      "rank": 13,
+      "gloss": "ELEVATOR1",
+      "total": 39,
+      "train": 19,
+      "val": 5,
+      "test": 15
+    },
+    {
+      "rank": 14,
+      "gloss": "FINE1",
+      "total": 39,
+      "train": 19,
+      "val": 4,
+      "test": 16
+    },
+    {
+      "rank": 15,
+      "gloss": "FOREIGNER1",
+      "total": 39,
+      "train": 18,
+      "val": 4,
+      "test": 17
+    },
+    {
+      "rank": 16,
+      "gloss": "HOSPITAL1",
+      "total": 39,
+      "train": 18,
+      "val": 4,
+      "test": 17
+    },
+    {
+      "rank": 17,
+      "gloss": "MECHANIC1",
+      "total": 39,
+      "train": 20,
+      "val": 3,
+      "test": 16
+    },
+    {
+      "rank": 18,
+      "gloss": "MOVIE1",
+      "total": 39,
+      "train": 18,
+      "val": 4,
+      "test": 17
+    },
+    {
+      "rank": 19,
+      "gloss": "NIGHT1",
+      "total": 39,
+      "train": 17,
+      "val": 5,
+      "test": 17
+    },
+    {
+      "rank": 20,
+      "gloss": "PARTY1",
+      "total": 39,
+      "train": 20,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 21,
+      "gloss": "PATIENT2",
+      "total": 39,
+      "train": 19,
+      "val": 4,
+      "test": 16
+    },
+    {
+      "rank": 22,
+      "gloss": "ROCKINGCHAIR1",
+      "total": 39,
+      "train": 20,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 23,
+      "gloss": "SHAVE1",
+      "total": 39,
+      "train": 19,
+      "val": 5,
+      "test": 15
+    },
+    {
+      "rank": 24,
+      "gloss": "AXE1",
+      "total": 38,
+      "train": 19,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 25,
+      "gloss": "BELIEVE1",
+      "total": 38,
+      "train": 16,
+      "val": 6,
+      "test": 16
+    },
+    {
+      "rank": 26,
+      "gloss": "DECIDE1",
+      "total": 38,
+      "train": 20,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 27,
+      "gloss": "DOWNSIZE1",
+      "total": 38,
+      "train": 18,
+      "val": 4,
+      "test": 16
+    },
+    {
+      "rank": 28,
+      "gloss": "DRAG1",
+      "total": 38,
+      "train": 18,
+      "val": 3,
+      "test": 17
+    },
+    {
+      "rank": 29,
+      "gloss": "EDIT1",
+      "total": 38,
+      "train": 19,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 30,
+      "gloss": "HURDLE/TRIP1",
+      "total": 38,
+      "train": 22,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 31,
+      "gloss": "LETTUCE1",
+      "total": 38,
+      "train": 17,
+      "val": 5,
+      "test": 16
+    },
+    {
+      "rank": 32,
+      "gloss": "LUNCH1",
+      "total": 38,
+      "train": 19,
+      "val": 5,
+      "test": 14
+    },
+    {
+      "rank": 33,
+      "gloss": "MICROSCOPE1",
+      "total": 38,
+      "train": 18,
+      "val": 4,
+      "test": 16
+    },
+    {
+      "rank": 34,
+      "gloss": "NOON1",
+      "total": 38,
+      "train": 19,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 35,
+      "gloss": "RECENT1",
+      "total": 38,
+      "train": 17,
+      "val": 4,
+      "test": 17
+    },
+    {
+      "rank": 36,
+      "gloss": "RESEARCH1",
+      "total": 38,
+      "train": 17,
+      "val": 5,
+      "test": 16
+    },
+    {
+      "rank": 37,
+      "gloss": "RIVER1",
+      "total": 38,
+      "train": 19,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 38,
+      "gloss": "TYPE1",
+      "total": 38,
+      "train": 17,
+      "val": 5,
+      "test": 16
+    },
+    {
+      "rank": 39,
+      "gloss": "BACKPACK1",
+      "total": 37,
+      "train": 19,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 40,
+      "gloss": "CALENDAR1",
+      "total": 37,
+      "train": 17,
+      "val": 4,
+      "test": 16
+    },
+    {
+      "rank": 41,
+      "gloss": "CANCEL1",
+      "total": 37,
+      "train": 15,
+      "val": 6,
+      "test": 16
+    },
+    {
+      "rank": 42,
+      "gloss": "CANCER1",
+      "total": 37,
+      "train": 18,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 43,
+      "gloss": "CLOUD1",
+      "total": 37,
+      "train": 15,
+      "val": 5,
+      "test": 17
+    },
+    {
+      "rank": 44,
+      "gloss": "CONFUSED1",
+      "total": 37,
+      "train": 18,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 45,
+      "gloss": "DINNER1",
+      "total": 37,
+      "train": 18,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 46,
+      "gloss": "GUESS1",
+      "total": 37,
+      "train": 18,
+      "val": 5,
+      "test": 14
+    },
+    {
+      "rank": 47,
+      "gloss": "HALLOWEEN1",
+      "total": 37,
+      "train": 19,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 48,
+      "gloss": "LOCK1",
+      "total": 37,
+      "train": 18,
+      "val": 5,
+      "test": 14
+    },
+    {
+      "rank": 49,
+      "gloss": "SPECIAL1",
+      "total": 37,
+      "train": 17,
+      "val": 5,
+      "test": 15
+    },
+    {
+      "rank": 50,
+      "gloss": "THIRD1",
+      "total": 37,
+      "train": 17,
+      "val": 6,
+      "test": 14
+    },
+    {
+      "rank": 51,
+      "gloss": "TWINS1",
+      "total": 37,
+      "train": 18,
+      "val": 4,
+      "test": 15
+    },
+    {
+      "rank": 52,
+      "gloss": "DEVELOP1",
+      "total": 36,
+      "train": 19,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 53,
+      "gloss": "TAKEOFF1",
+      "total": 36,
+      "train": 15,
+      "val": 5,
+      "test": 16
+    },
+    {
+      "rank": 54,
+      "gloss": "THEY1",
+      "total": 36,
+      "train": 18,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 55,
+      "gloss": "5DOLLARS",
+      "total": 32,
+      "train": 16,
+      "val": 4,
+      "test": 12
+    },
+    {
+      "rank": 56,
+      "gloss": "ABOUT1",
+      "total": 32,
+      "train": 13,
+      "val": 7,
+      "test": 12
+    },
+    {
+      "rank": 57,
+      "gloss": "ACTION",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 58,
+      "gloss": "ADVERTISE",
+      "total": 32,
+      "train": 17,
+      "val": 3,
+      "test": 12
+    },
+    {
+      "rank": 59,
+      "gloss": "AFTER",
+      "total": 32,
+      "train": 15,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 60,
+      "gloss": "ALARM",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 61,
+      "gloss": "ALLOFSUDDEN",
+      "total": 32,
+      "train": 17,
+      "val": 3,
+      "test": 12
+    },
+    {
+      "rank": 62,
+      "gloss": "ALPHABET",
+      "total": 32,
+      "train": 15,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 63,
+      "gloss": "AND",
+      "total": 32,
+      "train": 15,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 64,
+      "gloss": "ANGRY",
+      "total": 32,
+      "train": 14,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 65,
+      "gloss": "ANYONE",
+      "total": 32,
+      "train": 17,
+      "val": 3,
+      "test": 12
+    },
+    {
+      "rank": 66,
+      "gloss": "APPEAR",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 67,
+      "gloss": "APPLE",
+      "total": 32,
+      "train": 17,
+      "val": 4,
+      "test": 11
+    },
+    {
+      "rank": 68,
+      "gloss": "AUTISM1",
+      "total": 32,
+      "train": 17,
+      "val": 5,
+      "test": 10
+    },
+    {
+      "rank": 69,
+      "gloss": "BACKOUT",
+      "total": 32,
+      "train": 16,
+      "val": 4,
+      "test": 12
+    },
+    {
+      "rank": 70,
+      "gloss": "BASEBALLCAP",
+      "total": 32,
+      "train": 17,
+      "val": 5,
+      "test": 10
+    },
+    {
+      "rank": 71,
+      "gloss": "BASEMENT",
+      "total": 32,
+      "train": 15,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 72,
+      "gloss": "BASKET1",
+      "total": 32,
+      "train": 16,
+      "val": 4,
+      "test": 12
+    },
+    {
+      "rank": 73,
+      "gloss": "BATH",
+      "total": 32,
+      "train": 14,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 74,
+      "gloss": "BECAUSE",
+      "total": 32,
+      "train": 14,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 75,
+      "gloss": "BEHAVIOR",
+      "total": 32,
+      "train": 16,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 76,
+      "gloss": "BLOOD",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 77,
+      "gloss": "BORROW",
+      "total": 32,
+      "train": 15,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 78,
+      "gloss": "BOTTLE",
+      "total": 32,
+      "train": 16,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 79,
+      "gloss": "BOWL",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 80,
+      "gloss": "BOXING",
+      "total": 32,
+      "train": 16,
+      "val": 4,
+      "test": 12
+    },
+    {
+      "rank": 81,
+      "gloss": "BOY",
+      "total": 32,
+      "train": 14,
+      "val": 6,
+      "test": 12
+    },
+    {
+      "rank": 82,
+      "gloss": "BRAIDS",
+      "total": 32,
+      "train": 16,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 83,
+      "gloss": "BRAVE",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 84,
+      "gloss": "BRIDGE1",
+      "total": 32,
+      "train": 14,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 85,
+      "gloss": "BROTHER",
+      "total": 32,
+      "train": 16,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 86,
+      "gloss": "BUTTERFLY",
+      "total": 32,
+      "train": 14,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 87,
+      "gloss": "CABINET",
+      "total": 32,
+      "train": 14,
+      "val": 3,
+      "test": 15
+    },
+    {
+      "rank": 88,
+      "gloss": "CALLTTY",
+      "total": 32,
+      "train": 15,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 89,
+      "gloss": "CANCELLATION",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 90,
+      "gloss": "CANDY2",
+      "total": 32,
+      "train": 16,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 91,
+      "gloss": "CAPTURE",
+      "total": 32,
+      "train": 17,
+      "val": 3,
+      "test": 12
+    },
+    {
+      "rank": 92,
+      "gloss": "CASTLE4",
+      "total": 32,
+      "train": 16,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 93,
+      "gloss": "CATEGORY",
+      "total": 32,
+      "train": 16,
+      "val": 3,
+      "test": 13
+    },
+    {
+      "rank": 94,
+      "gloss": "CATHOLIC",
+      "total": 32,
+      "train": 15,
+      "val": 4,
+      "test": 13
+    },
+    {
+      "rank": 95,
+      "gloss": "CEMETERY",
+      "total": 32,
+      "train": 17,
+      "val": 3,
+      "test": 12
+    },
+    {
+      "rank": 96,
+      "gloss": "CHAIN",
+      "total": 32,
+      "train": 16,
+      "val": 4,
+      "test": 12
+    },
+    {
+      "rank": 97,
+      "gloss": "CHANNEL",
+      "total": 32,
+      "train": 14,
+      "val": 4,
+      "test": 14
+    },
+    {
+      "rank": 98,
+      "gloss": "CHARACTER",
+      "total": 32,
+      "train": 15,
+      "val": 3,
+      "test": 14
+    },
+    {
+      "rank": 99,
+      "gloss": "CHASE",
+      "total": 32,
+      "train": 16,
+      "val": 4,
+      "test": 12
+    },
+    {
+      "rank": 100,
+      "gloss": "CHEEK",
+      "total": 32,
+      "train": 17,
+      "val": 4,
+      "test": 11
+    }
+  ],
+  "split_counts": {
+    "train": 1707,
+    "val": 393,
+    "test": 1444,
+    "total": 3544
+  },
+  "leakage_check": {
+    "signer_independent": true,
+    "train_participants": [
+      "P1",
+      "P10",
+      "P11",
+      "P14",
+      "P16",
+      "P2",
+      "P20",
+      "P23",
+      "P24",
+      "P25",
+      "P27",
+      "P28",
+      "P29",
+      "P3",
+      "P30",
+      "P31",
+      "P32",
+      "P33",
+      "P34",
+      "P36",
+      "P37",
+      "P38",
+      "P4",
+      "P40",
+      "P41",
+      "P43",
+      "P46",
+      "P50",
+      "P51",
+      "P52",
+      "P7"
+    ],
+    "val_participants": [
+      "P12",
+      "P21",
+      "P26",
+      "P39",
+      "P5"
+    ],
+    "test_participants": [
+      "P15",
+      "P17",
+      "P18",
+      "P22",
+      "P35",
+      "P42",
+      "P47",
+      "P48",
+      "P49",
+      "P6",
+      "P9"
+    ],
+    "train_val_overlap": [],
+    "train_test_overlap": [],
+    "val_test_overlap": [],
+    "cross_split_duplicate_filenames": []
+  },
+  "class_balance": {
+    "num_classes": 100,
+    "per_class": [
+      {
+        "gloss": "5DOLLARS",
+        "train": 16,
+        "val": 4,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "ABOUT1",
+        "train": 13,
+        "val": 7,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "ACTION",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "ADVERTISE",
+        "train": 17,
+        "val": 3,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "AFTER",
+        "train": 15,
+        "val": 3,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "ALARM",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "ALLOFSUDDEN",
+        "train": 17,
+        "val": 3,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "ALPHABET",
+        "train": 15,
+        "val": 3,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "AND",
+        "train": 15,
+        "val": 3,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "ANGRY",
+        "train": 14,
+        "val": 3,
+        "test": 15,
+        "total": 32
+      },
+      {
+        "gloss": "ANYONE",
+        "train": 17,
+        "val": 3,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "APPEAR",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "APPLE",
+        "train": 17,
+        "val": 4,
+        "test": 11,
+        "total": 32
+      },
+      {
+        "gloss": "AUTISM1",
+        "train": 17,
+        "val": 5,
+        "test": 10,
+        "total": 32
+      },
+      {
+        "gloss": "AXE1",
+        "train": 19,
+        "val": 4,
+        "test": 15,
+        "total": 38
+      },
+      {
+        "gloss": "BACKOUT",
+        "train": 16,
+        "val": 4,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "BACKPACK1",
+        "train": 19,
+        "val": 3,
+        "test": 15,
+        "total": 37
+      },
+      {
+        "gloss": "BASEBALLCAP",
+        "train": 17,
+        "val": 5,
+        "test": 10,
+        "total": 32
+      },
+      {
+        "gloss": "BASEMENT",
+        "train": 15,
+        "val": 3,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "BASKET1",
+        "train": 16,
+        "val": 4,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "BASKETBALL1",
+        "train": 19,
+        "val": 5,
+        "test": 20,
+        "total": 44
+      },
+      {
+        "gloss": "BATH",
+        "train": 14,
+        "val": 3,
+        "test": 15,
+        "total": 32
+      },
+      {
+        "gloss": "BECAUSE",
+        "train": 14,
+        "val": 3,
+        "test": 15,
+        "total": 32
+      },
+      {
+        "gloss": "BEE1",
+        "train": 19,
+        "val": 6,
+        "test": 14,
+        "total": 39
+      },
+      {
+        "gloss": "BEHAVIOR",
+        "train": 16,
+        "val": 3,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "BELIEVE1",
+        "train": 16,
+        "val": 6,
+        "test": 16,
+        "total": 38
+      },
+      {
+        "gloss": "BELT1",
+        "train": 19,
+        "val": 3,
+        "test": 18,
+        "total": 40
+      },
+      {
+        "gloss": "BITE1",
+        "train": 21,
+        "val": 4,
+        "test": 14,
+        "total": 39
+      },
+      {
+        "gloss": "BLOOD",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "BORROW",
+        "train": 15,
+        "val": 3,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "BOTTLE",
+        "train": 16,
+        "val": 3,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "BOWL",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "BOXING",
+        "train": 16,
+        "val": 4,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "BOY",
+        "train": 14,
+        "val": 6,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "BRAIDS",
+        "train": 16,
+        "val": 3,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "BRAVE",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "BREAKFAST1",
+        "train": 21,
+        "val": 3,
+        "test": 15,
+        "total": 39
+      },
+      {
+        "gloss": "BRIDGE1",
+        "train": 14,
+        "val": 3,
+        "test": 15,
+        "total": 32
+      },
+      {
+        "gloss": "BROTHER",
+        "train": 16,
+        "val": 3,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "BUTTERFLY",
+        "train": 14,
+        "val": 3,
+        "test": 15,
+        "total": 32
+      },
+      {
+        "gloss": "CABINET",
+        "train": 14,
+        "val": 3,
+        "test": 15,
+        "total": 32
+      },
+      {
+        "gloss": "CALENDAR1",
+        "train": 17,
+        "val": 4,
+        "test": 16,
+        "total": 37
+      },
+      {
+        "gloss": "CALLTTY",
+        "train": 15,
+        "val": 3,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "CANCEL1",
+        "train": 15,
+        "val": 6,
+        "test": 16,
+        "total": 37
+      },
+      {
+        "gloss": "CANCELLATION",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "CANCER1",
+        "train": 18,
+        "val": 4,
+        "test": 15,
+        "total": 37
+      },
+      {
+        "gloss": "CANDY2",
+        "train": 16,
+        "val": 3,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "CAPTURE",
+        "train": 17,
+        "val": 3,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "CASTLE4",
+        "train": 16,
+        "val": 3,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "CATEGORY",
+        "train": 16,
+        "val": 3,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "CATHOLIC",
+        "train": 15,
+        "val": 4,
+        "test": 13,
+        "total": 32
+      },
+      {
+        "gloss": "CEMETERY",
+        "train": 17,
+        "val": 3,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "CHAIN",
+        "train": 16,
+        "val": 4,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "CHANNEL",
+        "train": 14,
+        "val": 4,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "CHARACTER",
+        "train": 15,
+        "val": 3,
+        "test": 14,
+        "total": 32
+      },
+      {
+        "gloss": "CHASE",
+        "train": 16,
+        "val": 4,
+        "test": 12,
+        "total": 32
+      },
+      {
+        "gloss": "CHEEK",
+        "train": 17,
+        "val": 4,
+        "test": 11,
+        "total": 32
+      },
+      {
+        "gloss": "CHRISTMAS1",
+        "train": 19,
+        "val": 3,
+        "test": 17,
+        "total": 39
+      },
+      {
+        "gloss": "CLOUD1",
+        "train": 15,
+        "val": 5,
+        "test": 17,
+        "total": 37
+      },
+      {
+        "gloss": "CONFUSED1",
+        "train": 18,
+        "val": 4,
+        "test": 15,
+        "total": 37
+      },
+      {
+        "gloss": "DARK1",
+        "train": 21,
+        "val": 3,
+        "test": 15,
+        "total": 39
+      },
+      {
+        "gloss": "DEAF1",
+        "train": 20,
+        "val": 4,
+        "test": 15,
+        "total": 39
+      },
+      {
+        "gloss": "DECIDE1",
+        "train": 20,
+        "val": 3,
+        "test": 15,
+        "total": 38
+      },
+      {
+        "gloss": "DEMAND1",
+        "train": 21,
+        "val": 4,
+        "test": 14,
+        "total": 39
+      },
+      {
+        "gloss": "DEVELOP1",
+        "train": 19,
+        "val": 3,
+        "test": 14,
+        "total": 36
+      },
+      {
+        "gloss": "DINNER1",
+        "train": 18,
+        "val": 4,
+        "test": 15,
+        "total": 37
+      },
+      {
+        "gloss": "DOG1",
+        "train": 24,
+        "val": 4,
+        "test": 17,
+        "total": 45
+      },
+      {
+        "gloss": "DOWNSIZE1",
+        "train": 18,
+        "val": 4,
+        "test": 16,
+        "total": 38
+      },
+      {
+        "gloss": "DRAG1",
+        "train": 18,
+        "val": 3,
+        "test": 17,
+        "total": 38
+      },
+      {
+        "gloss": "EAT1",
+        "train": 18,
+        "val": 4,
+        "test": 17,
+        "total": 39
+      },
+      {
+        "gloss": "EDIT1",
+        "train": 19,
+        "val": 4,
+        "test": 15,
+        "total": 38
+      },
+      {
+        "gloss": "ELEVATOR1",
+        "train": 19,
+        "val": 5,
+        "test": 15,
+        "total": 39
+      },
+      {
+        "gloss": "FINE1",
+        "train": 19,
+        "val": 4,
+        "test": 16,
+        "total": 39
+      },
+      {
+        "gloss": "FOREIGNER1",
+        "train": 18,
+        "val": 4,
+        "test": 17,
+        "total": 39
+      },
+      {
+        "gloss": "GUESS1",
+        "train": 18,
+        "val": 5,
+        "test": 14,
+        "total": 37
+      },
+      {
+        "gloss": "HALLOWEEN1",
+        "train": 19,
+        "val": 4,
+        "test": 14,
+        "total": 37
+      },
+      {
+        "gloss": "HOSPITAL1",
+        "train": 18,
+        "val": 4,
+        "test": 17,
+        "total": 39
+      },
+      {
+        "gloss": "HURDLE/TRIP1",
+        "train": 22,
+        "val": 3,
+        "test": 13,
+        "total": 38
+      },
+      {
+        "gloss": "LETTUCE1",
+        "train": 17,
+        "val": 5,
+        "test": 16,
+        "total": 38
+      },
+      {
+        "gloss": "LOCK1",
+        "train": 18,
+        "val": 5,
+        "test": 14,
+        "total": 37
+      },
+      {
+        "gloss": "LUNCH1",
+        "train": 19,
+        "val": 5,
+        "test": 14,
+        "total": 38
+      },
+      {
+        "gloss": "MECHANIC1",
+        "train": 20,
+        "val": 3,
+        "test": 16,
+        "total": 39
+      },
+      {
+        "gloss": "MICROSCOPE1",
+        "train": 18,
+        "val": 4,
+        "test": 16,
+        "total": 38
+      },
+      {
+        "gloss": "MOVIE1",
+        "train": 18,
+        "val": 4,
+        "test": 17,
+        "total": 39
+      },
+      {
+        "gloss": "NIGHT1",
+        "train": 17,
+        "val": 5,
+        "test": 17,
+        "total": 39
+      },
+      {
+        "gloss": "NOON1",
+        "train": 19,
+        "val": 4,
+        "test": 15,
+        "total": 38
+      },
+      {
+        "gloss": "PARTY1",
+        "train": 20,
+        "val": 4,
+        "test": 15,
+        "total": 39
+      },
+      {
+        "gloss": "PATIENT2",
+        "train": 19,
+        "val": 4,
+        "test": 16,
+        "total": 39
+      },
+      {
+        "gloss": "RECENT1",
+        "train": 17,
+        "val": 4,
+        "test": 17,
+        "total": 38
+      },
+      {
+        "gloss": "RESEARCH1",
+        "train": 17,
+        "val": 5,
+        "test": 16,
+        "total": 38
+      },
+      {
+        "gloss": "RIVER1",
+        "train": 19,
+        "val": 4,
+        "test": 15,
+        "total": 38
+      },
+      {
+        "gloss": "ROCKINGCHAIR1",
+        "train": 20,
+        "val": 4,
+        "test": 15,
+        "total": 39
+      },
+      {
+        "gloss": "SHAVE1",
+        "train": 19,
+        "val": 5,
+        "test": 15,
+        "total": 39
+      },
+      {
+        "gloss": "SPECIAL1",
+        "train": 17,
+        "val": 5,
+        "test": 15,
+        "total": 37
+      },
+      {
+        "gloss": "TAKEOFF1",
+        "train": 15,
+        "val": 5,
+        "test": 16,
+        "total": 36
+      },
+      {
+        "gloss": "THEY1",
+        "train": 18,
+        "val": 3,
+        "test": 15,
+        "total": 36
+      },
+      {
+        "gloss": "THIRD1",
+        "train": 17,
+        "val": 6,
+        "test": 14,
+        "total": 37
+      },
+      {
+        "gloss": "TWINS1",
+        "train": 18,
+        "val": 4,
+        "test": 15,
+        "total": 37
+      },
+      {
+        "gloss": "TYPE1",
+        "train": 17,
+        "val": 5,
+        "test": 16,
+        "total": 38
+      },
+      {
+        "gloss": "WHATFOR1",
+        "train": 20,
+        "val": 5,
+        "test": 18,
+        "total": 43
+      }
+    ],
+    "min_total": 32,
+    "max_total": 45,
+    "mean_total": 35.44,
+    "median_total": 37.0,
+    "classes_missing_any_split": []
+  }
+}

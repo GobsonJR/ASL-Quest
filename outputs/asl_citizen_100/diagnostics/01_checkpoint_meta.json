@@ -1,0 +1,78 @@
+{
+  "training_history_exists": false,
+  "missing_metrics_note": "train.py writes training_history.json only after ALL epochs finish. Per-epoch train_loss/train_acc are NOT stored in checkpoints.",
+  "checkpoints": {
+    "best": {
+      "epoch": 4,
+      "val_accuracy": 0.015267175622284412,
+      "val_top5_accuracy": 0.06870229007633588,
+      "full_config": {
+        "dataset_root": "D:\\ASL_Citizen\\ASL_Citizen",
+        "video_root": "D:\\ASL_Citizen\\ASL_Citizen\\videos",
+        "data_dir": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100",
+        "train_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\train.csv",
+        "val_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\val.csv",
+        "test_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\test.csv",
+        "num_classes": 100,
+        "num_frames": 16,
+        "image_size": 224,
+        "batch_size": 4,
+        "num_workers": 2,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "num_epochs": 20,
+        "hidden_size": 256,
+        "num_layers": 1,
+        "dropout": 0.3,
+        "seed": 42,
+        "freeze_backbone": true,
+        "imagenet_mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "imagenet_std": [
+          0.229,
+          0.224,
+          0.225
+        ]
+      }
+    },
+    "last": {
+      "epoch": 9,
+      "val_accuracy": 0.010178117081522942,
+      "val_top5_accuracy": 0.05597964376590331,
+      "full_config": {
+        "dataset_root": "D:\\ASL_Citizen\\ASL_Citizen",
+        "video_root": "D:\\ASL_Citizen\\ASL_Citizen\\videos",
+        "data_dir": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100",
+        "train_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\train.csv",
+        "val_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\val.csv",
+        "test_manifest": "D:\\SIGN LANGUAGE\\data\\asl_citizen_100\\test.csv",
+        "num_classes": 100,
+        "num_frames": 16,
+        "image_size": 224,
+        "batch_size": 4,
+        "num_workers": 2,
+        "learning_rate": 0.001,
+        "weight_decay": 0.0001,
+        "num_epochs": 20,
+        "hidden_size": 256,
+        "num_layers": 1,
+        "dropout": 0.3,
+        "seed": 42,
+        "freeze_backbone": true,
+        "imagenet_mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "imagenet_std": [
+          0.229,
+          0.224,
+          0.225
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,430 @@
+{
+  "experiment_name": "asl_citizen_native_10",
+  "backbone_mode": "frozen",
+  "num_classes": 10,
+  "glosses": [
+    "BOOK",
+    "EAT1",
+    "HELLO",
+    "HELP",
+    "MOTHER",
+    "NO",
+    "PLEASE",
+    "THANKYOU",
+    "WATER",
+    "YES"
+  ],
+  "num_samples": 50,
+  "videos_per_class": 5,
+  "epochs_requested": 40,
+  "epochs_ran": 19,
+  "stopped_early_at_95": true,
+  "batch_size": 4,
+  "head_lr": 0.001,
+  "backbone_lr": 0.0001,
+  "dropout": 0.0,
+  "deterministic_eval_transforms": true,
+  "temporal_jitter": false,
+  "num_frames": 16,
+  "device": "cuda",
+  "trainability": {
+    "backbone_train_mode": "frozen",
+    "pretrained_loaded": true,
+    "stem_trainable": false,
+    "layer1_trainable": false,
+    "layer2_trainable": false,
+    "layer3_trainable": false,
+    "layer4_trainable": false,
+    "gru_trainable": true,
+    "classifier_trainable": true,
+    "total": 11770442,
+    "trainable": 593930,
+    "frozen": 11176512
+  },
+  "gradient_flow": {
+    "layer4": {
+      "has_grad": false,
+      "mean_abs": 0.0,
+      "finite": true,
+      "numel": 0
+    },
+    "gru": {
+      "has_grad": true,
+      "mean_abs": 0.002042467938736081,
+      "max_abs": 0.1853388547897339,
+      "finite": true,
+      "numel": 591360
+    },
+    "classifier": {
+      "has_grad": true,
+      "mean_abs": 0.05937232822179794,
+      "max_abs": 0.36784008145332336,
+      "finite": true,
+      "numel": 2570
+    },
+    "frozen_layer1_requires_grad": false,
+    "layer4_requires_grad": false,
+    "gru_requires_grad": true,
+    "classifier_requires_grad": true
+  },
+  "history": [
+    {
+      "epoch": 1,
+      "loss": 2.7368079471588134,
+      "accuracy": 0.04,
+      "unique_predicted_classes": 8,
+      "prediction_distribution": {
+        "0": 2,
+        "1": 4,
+        "2": 1,
+        "3": 2,
+        "4": 2,
+        "5": 19,
+        "6": 10,
+        "9": 10
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 2,
+      "loss": 2.393862705230713,
+      "accuracy": 0.24,
+      "unique_predicted_classes": 6,
+      "prediction_distribution": {
+        "0": 4,
+        "2": 13,
+        "4": 12,
+        "5": 1,
+        "7": 13,
+        "8": 7
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 3,
+      "loss": 2.0328298234939575,
+      "accuracy": 0.38,
+      "unique_predicted_classes": 9,
+      "prediction_distribution": {
+        "0": 2,
+        "1": 13,
+        "2": 1,
+        "3": 7,
+        "4": 4,
+        "6": 5,
+        "7": 6,
+        "8": 2,
+        "9": 10
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 4,
+      "loss": 1.7850426864624023,
+      "accuracy": 0.42,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 5,
+        "1": 12,
+        "2": 2,
+        "3": 8,
+        "4": 2,
+        "5": 6,
+        "6": 4,
+        "7": 5,
+        "8": 4,
+        "9": 2
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 5,
+      "loss": 1.607841272354126,
+      "accuracy": 0.58,
+      "unique_predicted_classes": 9,
+      "prediction_distribution": {
+        "1": 7,
+        "2": 8,
+        "3": 1,
+        "4": 1,
+        "5": 4,
+        "6": 8,
+        "7": 10,
+        "8": 7,
+        "9": 4
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 6,
+      "loss": 1.3704839992523192,
+      "accuracy": 0.62,
+      "unique_predicted_classes": 9,
+      "prediction_distribution": {
+        "0": 1,
+        "1": 12,
+        "2": 6,
+        "3": 3,
+        "5": 3,
+        "6": 8,
+        "7": 8,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 7,
+      "loss": 1.213900020122528,
+      "accuracy": 0.64,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 1,
+        "1": 9,
+        "2": 6,
+        "3": 2,
+        "4": 9,
+        "5": 4,
+        "6": 3,
+        "7": 5,
+        "8": 6,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 8,
+      "loss": 1.157194232940674,
+      "accuracy": 0.66,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 7,
+        "1": 3,
+        "2": 8,
+        "3": 2,
+        "4": 1,
+        "5": 5,
+        "6": 5,
+        "7": 6,
+        "8": 8,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 9,
+      "loss": 0.9282956075668335,
+      "accuracy": 0.72,
+      "unique_predicted_classes": 9,
+      "prediction_distribution": {
+        "0": 9,
+        "1": 8,
+        "2": 2,
+        "3": 5,
+        "5": 3,
+        "6": 7,
+        "7": 7,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 10,
+      "loss": 0.86260995388031,
+      "accuracy": 0.7,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 8,
+        "1": 8,
+        "2": 5,
+        "3": 3,
+        "4": 1,
+        "5": 8,
+        "6": 6,
+        "7": 2,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 11,
+      "loss": 0.6984591174125672,
+      "accuracy": 0.8,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 3,
+        "1": 8,
+        "2": 4,
+        "3": 3,
+        "4": 4,
+        "5": 2,
+        "6": 6,
+        "7": 8,
+        "8": 7,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 12,
+      "loss": 0.6191080117225647,
+      "accuracy": 0.86,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 6,
+        "1": 6,
+        "2": 4,
+        "3": 3,
+        "4": 8,
+        "5": 5,
+        "6": 4,
+        "7": 5,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 13,
+      "loss": 0.5714915573596955,
+      "accuracy": 0.82,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 7,
+        "1": 5,
+        "2": 6,
+        "3": 7,
+        "4": 1,
+        "5": 4,
+        "6": 4,
+        "7": 6,
+        "8": 5,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 14,
+      "loss": 0.3910986065864563,
+      "accuracy": 0.86,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 6,
+        "1": 6,
+        "2": 4,
+        "3": 4,
+        "4": 3,
+        "5": 5,
+        "6": 8,
+        "7": 5,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 15,
+      "loss": 0.316844824552536,
+      "accuracy": 0.94,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 6,
+        "1": 4,
+        "2": 6,
+        "3": 5,
+        "4": 3,
+        "5": 5,
+        "6": 5,
+        "7": 5,
+        "8": 6,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 16,
+      "loss": 0.3271421492099762,
+      "accuracy": 0.9,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 5,
+        "1": 5,
+        "2": 5,
+        "3": 5,
+        "4": 4,
+        "5": 5,
+        "6": 5,
+        "7": 5,
+        "8": 5,
+        "9": 6
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 17,
+      "loss": 0.2599969208240509,
+      "accuracy": 0.92,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 4,
+        "1": 6,
+        "2": 4,
+        "3": 6,
+        "4": 5,
+        "5": 5,
+        "6": 6,
+        "7": 5,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 18,
+      "loss": 0.31667071223258975,
+      "accuracy": 0.92,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 5,
+        "1": 6,
+        "2": 5,
+        "3": 4,
+        "4": 3,
+        "5": 5,
+        "6": 7,
+        "7": 5,
+        "8": 5,
+        "9": 5
+      },
+      "collapse_warning": false
+    },
+    {
+      "epoch": 19,
+      "loss": 0.21151916414499283,
+      "accuracy": 0.96,
+      "unique_predicted_classes": 10,
+      "prediction_distribution": {
+        "0": 5,
+        "1": 6,
+        "2": 5,
+        "3": 5,
+        "4": 6,
+        "5": 5,
+        "6": 4,
+        "7": 5,
+        "8": 4,
+        "9": 5
+      },
+      "collapse_warning": false
+    }
+  ],
+  "final_train_accuracy": 0.96,
+  "best_train_accuracy": 0.96,
+  "final_loss": 0.21151916414499283,
+  "gate_passed": true,
+  "strong_success": false,
+  "checkpoint_path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\diagnostics\\tiny_overfit_frozen_model.pth",
+  "timestamp": "2026-09-16T02:03:24.511300+00:00"
+}

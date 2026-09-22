@@ -1,0 +1,8 @@
+{
+  "checkpoint": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_100\\checkpoints\\asl_citizen_100_resnet18_gru_best.pth",
+  "split": "test",
+  "samples": 1444,
+  "top1_accuracy": 0.008310249075293541,
+  "top5_accuracy": 0.05193905817174515,
+  "num_classes": 100
+}
