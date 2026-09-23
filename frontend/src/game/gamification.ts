@@ -352,6 +352,29 @@ export function applyWordCompletionXp(state: GameState, amount: number, badgeNam
   return evaluateBadges(next);
 }
 
+// Native sign practice is one self-contained attempt (no letter-by-letter structure),
+// so — unlike recordWordLetterCorrect/recordCorrectSign — this single function covers
+// what those split across "per-letter" (streak/attempts) and "per-completion" (XP/badges)
+// calls. correct/xpAwarded/badges all come from the server (POST /native/predict), which
+// already determined correctness and computed XP — this never re-derives or trusts a
+// client-side guess. Any attempt (correct or not) still counts as practice for the
+// streak, matching every existing practice path.
+export function recordNativeSignAttempt(
+  state: GameState,
+  correct: boolean,
+  xpAwarded: number,
+  badgeNames: Array<{ id: string; name: string }> = []
+): GameState {
+  let next = updateStreak({ ...state, totalAttempts: state.totalAttempts + 1 });
+  if (correct) {
+    next = { ...next, xp: next.xp + xpAwarded, totalCorrect: next.totalCorrect + 1 };
+  }
+  for (const badge of badgeNames) {
+    next = unlockBadge(next, badge.id, badge.name);
+  }
+  return next;
+}
+
 export function completeWordChallenge(state: GameState): GameState {
   return {
     ...state,

@@ -2,6 +2,14 @@ import { authHeaders } from "../auth/token";
 
 const API = "/api";
 
+export type NativeSignReference = {
+  available: boolean;
+  video_url: string | null;
+  thumbnail_url: string | null;
+  source_type: string | null;
+  license_note: string | null;
+};
+
 export type NativeSign = {
   id: number;
   gloss: string;
@@ -14,6 +22,7 @@ export type NativeSign = {
   dataset_available: boolean;
   model_available: boolean;
   active: boolean;
+  reference: NativeSignReference;
 };
 
 export type NativeTopKItem = {
@@ -32,10 +41,14 @@ export type NativePrediction = {
   correct: boolean | null;
 };
 
+export type NativeAchievement = { id: string; name: string };
+
 export type NativePracticeResult = NativePrediction & {
   expected_sign: { id: number; gloss: string; display_name: string };
   session_id: number;
   response_time: number;
+  xp_earned: number;
+  new_achievements: NativeAchievement[];
 };
 
 export type NativeSignProgressEntry = {

@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.database import init_db
-from backend.routers import achievements, analytics, auth, admin, challenges, ml, practice, progress, recommendations, users, words
+from backend.routers import achievements, analytics, auth, admin, challenges, ml, native, practice, progress, recommendations, users, words
 from backend.services.progress import seed_achievements
 from backend.settings import CORS_ORIGINS
 from src.config import BEST_MODEL_PATH, LEGACY_MODEL_PATH
@@ -42,6 +42,7 @@ app.include_router(users.router)
 app.include_router(recommendations.router)
 app.include_router(admin.router)
 app.include_router(words.router)
+app.include_router(native.router)
 
 
 @app.on_event("startup")

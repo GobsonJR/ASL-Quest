@@ -26,6 +26,9 @@ ACHIEVEMENT_SEED = [
     ("word_explorer", "Word Explorer", "Complete words from 3 categories.", "word_categories_completed >= 3"),
     ("word_master", "Word Master", "Master 10 words.", "words_mastered >= 10"),
     ("vocabulary_builder", "Vocabulary Builder", "Complete 25 words.", "word_completions >= 25"),
+    ("native_first_sign", "First Native Sign", "Correctly recognize your first native ASL sign.", "native_signs_correct >= 1"),
+    ("native_explorer", "Native Sign Explorer", "Correctly sign native words from 3 categories.", "native_categories_correct >= 3"),
+    ("native_master", "Native Sign Master", "Master every native sign in the catalog.", "native_signs_mastered >= native_total_signs"),
 ]
 
 

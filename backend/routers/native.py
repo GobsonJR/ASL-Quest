@@ -6,11 +6,21 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from backend.database import get_db
-from backend.models import NativeSign, NativeSignProgress, NativeSignSession, SignPrediction, User
+from backend.models import (
+    Achievement,
+    NativeSign,
+    NativeSignProgress,
+    NativeSignSession,
+    SignPrediction,
+    User,
+    UserAchievement,
+    XpEvent,
+)
 from backend.security import get_current_user
+from backend.services.progress import ensure_user_progress, level_from_xp, seed_achievements
 from src.i3d_transfer.predict import predict_video
 
 router = APIRouter(prefix="/native", tags=["native"])
@@ -30,13 +40,60 @@ ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".mov", ".avi", ".mkv", ".webm"}
 # (frontend/src/game/constants.ts::MASTERED_CORRECT). Not a new/invented threshold.
 MASTERY_COMPLETE_THRESHOLD = 100.0
 
+# Reuses the project's existing "base XP for one correct practice attempt" convention
+# (frontend/src/game/constants.ts::XP_CORRECT = 20) rather than inventing a new number.
+# One native practice attempt is a single self-contained unit (no letter-by-letter or
+# multi-step structure), so it maps directly to that single-attempt XP value rather
+# than Word Spelling's multi-part completion bonuses.
+NATIVE_XP_CORRECT = 20
+
+# Reference rows whose source_type is one of these are treated as an approved, externally
+# hosted demonstration that is safe to link/embed directly (we never host or redistribute
+# the file ourselves). Anything else — notably "asl_citizen", whose license_note explicitly
+# forbids redistribution — is reported as present-but-not-displayable rather than exposed
+# as a playable URL, per the no-redistribution rule for that dataset.
+APPROVED_REFERENCE_SOURCE_TYPES = {"url", "external_url", "youtube", "vimeo"}
+
+
+def _is_http_url(value: str | None) -> bool:
+    return bool(value) and value.strip().lower().startswith(("http://", "https://"))
+
+
+def _serialize_reference(sign: NativeSign) -> dict:
+    reference = next(iter(sorted(sign.references_, key=lambda r: (not r.is_primary, r.id))), None)
+    if (
+        reference is not None
+        and reference.source_type in APPROVED_REFERENCE_SOURCE_TYPES
+        and _is_http_url(reference.source_identifier)
+    ):
+        return {
+            "available": True,
+            "video_url": reference.source_identifier,
+            "thumbnail_url": reference.thumbnail_path if _is_http_url(reference.thumbnail_path) else None,
+            "source_type": reference.source_type,
+            "license_note": reference.license_note,
+        }
+    return {
+        "available": False,
+        "video_url": None,
+        "thumbnail_url": None,
+        "source_type": reference.source_type if reference else None,
+        "license_note": reference.license_note if reference else None,
+    }
+
 
 @router.get("/signs")
 def list_native_signs(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> dict:
-    signs = db.query(NativeSign).filter(NativeSign.active.is_(True)).order_by(NativeSign.gloss).all()
+    signs = (
+        db.query(NativeSign)
+        .options(selectinload(NativeSign.references_))
+        .filter(NativeSign.active.is_(True))
+        .order_by(NativeSign.gloss)
+        .all()
+    )
     return {
         "items": [
             {
@@ -51,6 +108,7 @@ def list_native_signs(
                 "dataset_available": sign.dataset_available,
                 "model_available": sign.model_available,
                 "active": sign.active,
+                "reference": _serialize_reference(sign),
             }
             for sign in signs
         ]
@@ -148,6 +206,49 @@ def _get_or_create_progress(db: Session, user_id: int, native_sign_id: int) -> N
     return progress
 
 
+def _native_achievement_context(db: Session, user_id: int) -> dict:
+    rows = db.query(NativeSignProgress).filter(NativeSignProgress.user_id == user_id).all()
+    correct_rows = [row for row in rows if row.correct_attempts > 0]
+    correct_sign_ids = {row.native_sign_id for row in correct_rows}
+    categories = set()
+    if correct_sign_ids:
+        signs = db.query(NativeSign).filter(NativeSign.id.in_(correct_sign_ids)).all()
+        categories = {sign.category for sign in signs if sign.category}
+    total_active_signs = db.query(NativeSign).filter(NativeSign.active.is_(True)).count()
+    return {
+        "native_signs_correct": len(correct_sign_ids),
+        "native_categories_correct": len(categories),
+        "native_signs_mastered": sum(1 for row in rows if row.mastery >= MASTERY_COMPLETE_THRESHOLD),
+        "native_total_signs": total_active_signs,
+    }
+
+
+def _evaluate_native_achievements(db: Session, user: User) -> list[dict]:
+    """Mirrors backend/services/words.py::evaluate_word_achievements exactly —
+    same seed/existing/rules/newly-unlocked pattern, applied to native progress."""
+    seed_achievements(db)
+    achievements = {item.slug: item for item in db.query(Achievement).all()}
+    existing = {
+        link.achievement.slug
+        for link in db.query(UserAchievement).join(Achievement).filter(UserAchievement.user_id == user.id).all()
+    }
+    ctx = _native_achievement_context(db, user.id)
+    rules = {
+        "native_first_sign": ctx["native_signs_correct"] >= 1,
+        "native_explorer": ctx["native_categories_correct"] >= 3,
+        "native_master": ctx["native_total_signs"] > 0 and ctx["native_signs_mastered"] >= ctx["native_total_signs"],
+    }
+    newly: list[dict] = []
+    for slug, passed in rules.items():
+        if not passed or slug in existing or slug not in achievements:
+            continue
+        db.add(UserAchievement(user_id=user.id, achievement_id=achievements[slug].id))
+        newly.append({"id": slug, "name": achievements[slug].name})
+    if newly:
+        db.commit()
+    return newly
+
+
 @router.post("/predict")
 async def predict_native_sign(
     file: UploadFile = File(...),
@@ -233,6 +334,8 @@ async def predict_native_sign(
         correct = result["prediction"].strip().upper() == expected_label.strip().upper()
 
     session_id = None
+    xp_earned = 0
+    new_achievements: list[dict] = []
     if expected_sign is not None:
         practice_session = NativeSignSession(
             user_id=current_user.id,
@@ -266,6 +369,20 @@ async def predict_native_sign(
             progress.best_response_time = latency_ms
         progress.last_practiced = completed_at
 
+        # XP is awarded atomically, server-side, only for a genuinely correct attempt —
+        # never for high confidence alone, and never trusting a client-submitted flag.
+        # Mirrors backend/services/words.py::record_word_session's pattern (atomic
+        # UserProgress.xp increment + XpEvent row), not A-Z's client-push model, since
+        # native correctness — like word completion — is already determined server-side.
+        if correct:
+            xp_earned = NATIVE_XP_CORRECT
+            user_progress = ensure_user_progress(db, current_user)
+            user_progress.xp += xp_earned
+            user_progress.level = level_from_xp(user_progress.xp)
+            db.add(XpEvent(user_id=current_user.id, amount=xp_earned, reason="native_sign_correct"))
+
+        new_achievements = _evaluate_native_achievements(db, current_user)
+
     prediction_row = SignPrediction(
         user_id=current_user.id,
         session_id=session_id,
@@ -298,4 +415,6 @@ async def predict_native_sign(
         }
         response["session_id"] = session_id
         response["response_time"] = latency_ms
+        response["xp_earned"] = xp_earned
+        response["new_achievements"] = new_achievements
     return response

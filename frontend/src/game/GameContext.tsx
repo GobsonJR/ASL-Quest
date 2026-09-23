@@ -10,6 +10,7 @@ import {
   recordWordLetterIncorrect,
   applyWordCompletionXp,
   completeWordChallenge,
+  recordNativeSignAttempt,
   resetSpeedChallenge,
   startSession,
 } from "./gamification";
@@ -38,6 +39,7 @@ type GameContextValue = {
   startPractice: (letter?: string | null, mode?: ChallengeMode) => void;
   startWordPractice: (wordId: string, mode?: ChallengeMode, queue?: string[]) => void;
   startNativeSignPractice: (signId: number) => void;
+  applyNativeSignResult: (correct: boolean, xpAwarded: number, badges: Array<{ id: string; name: string }>) => void;
   beginSession: () => void;
   nextPracticeLetter: () => string;
   markCorrect: (letter: string, elapsedMs: number) => PracticeOutcome;
@@ -132,6 +134,13 @@ export function GameProvider({ children }: { children: ReactNode }) {
       startNativeSignPractice: (signId) => {
         setPracticeNativeSignId(signId);
         setPage("native-practice");
+      },
+      // Correctness and XP are already determined server-side (POST /native/predict) —
+      // this only reflects that server-confirmed result into local state, exactly like
+      // applyWordXp does for word completions. Any attempt still updates the shared
+      // streak (see recordNativeSignAttempt), but XP/totalCorrect only change if correct.
+      applyNativeSignResult: (correct, xpAwarded, badges) => {
+        setState((current) => recordNativeSignAttempt(current, correct, xpAwarded, badges));
       },
       beginSession: () => setState((current) => startSession(current)),
       nextPracticeLetter: () => pickPracticeLetter(state, practiceLetter),

@@ -27,7 +27,7 @@
       "val_accuracy": 0.3077,
       "val_top5": 0.7179,
       "val_unique_predicted_classes": 9,
-      "timestamp": "2026-09-22T12:49:37.997354+00:00"
+      "timestamp": "2026-09-23T00:35:04.410268+00:00"
     },
     {
       "epoch": 2,
@@ -38,7 +38,7 @@
       "val_accuracy": 0.5128,
       "val_top5": 0.9487,
       "val_unique_predicted_classes": 9,
-      "timestamp": "2026-09-22T12:49:38.005749+00:00"
+      "timestamp": "2026-09-23T00:35:04.416810+00:00"
     },
     {
       "epoch": 3,
@@ -49,7 +49,7 @@
       "val_accuracy": 0.6667,
       "val_top5": 0.9744,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.007753+00:00"
+      "timestamp": "2026-09-23T00:35:04.420895+00:00"
     },
     {
       "epoch": 4,
@@ -60,7 +60,7 @@
       "val_accuracy": 0.7692,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.015874+00:00"
+      "timestamp": "2026-09-23T00:35:04.420895+00:00"
     },
     {
       "epoch": 5,
@@ -71,7 +71,7 @@
       "val_accuracy": 0.8462,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.015874+00:00"
+      "timestamp": "2026-09-23T00:35:04.427097+00:00"
     },
     {
       "epoch": 6,
@@ -82,7 +82,7 @@
       "val_accuracy": 0.9231,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.015874+00:00"
+      "timestamp": "2026-09-23T00:35:04.427097+00:00"
     },
     {
       "epoch": 7,
@@ -93,7 +93,7 @@
       "val_accuracy": 0.9231,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.024070+00:00"
+      "timestamp": "2026-09-23T00:35:04.427097+00:00"
     },
     {
       "epoch": 8,
@@ -104,7 +104,7 @@
       "val_accuracy": 0.9487,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.031116+00:00"
+      "timestamp": "2026-09-23T00:35:04.427097+00:00"
     },
     {
       "epoch": 9,
@@ -115,7 +115,7 @@
       "val_accuracy": 0.9744,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.032330+00:00"
+      "timestamp": "2026-09-23T00:35:04.427097+00:00"
     },
     {
       "epoch": 10,
@@ -126,7 +126,7 @@
       "val_accuracy": 0.9744,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.040785+00:00"
+      "timestamp": "2026-09-23T00:35:04.439021+00:00"
     },
     {
       "epoch": 11,
@@ -137,7 +137,7 @@
       "val_accuracy": 0.9744,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.046717+00:00"
+      "timestamp": "2026-09-23T00:35:04.441436+00:00"
     },
     {
       "epoch": 12,
@@ -148,7 +148,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.048882+00:00"
+      "timestamp": "2026-09-23T00:35:04.443175+00:00"
     },
     {
       "epoch": 13,
@@ -159,7 +159,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.057199+00:00"
+      "timestamp": "2026-09-23T00:35:04.443175+00:00"
     },
     {
       "epoch": 14,
@@ -170,7 +170,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.065067+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 15,
@@ -181,7 +181,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.068368+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 16,
@@ -192,7 +192,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.073200+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 17,
@@ -203,7 +203,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.075215+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 18,
@@ -214,7 +214,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.081249+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 19,
@@ -225,7 +225,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.084992+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 20,
@@ -236,7 +236,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.089674+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 21,
@@ -247,7 +247,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.091787+00:00"
+      "timestamp": "2026-09-23T00:35:04.448623+00:00"
     },
     {
       "epoch": 22,
@@ -258,7 +258,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.097757+00:00"
+      "timestamp": "2026-09-23T00:35:04.459596+00:00"
     },
     {
       "epoch": 23,
@@ -269,7 +269,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.100429+00:00"
+      "timestamp": "2026-09-23T00:35:04.459596+00:00"
     },
     {
       "epoch": 24,
@@ -280,7 +280,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.104459+00:00"
+      "timestamp": "2026-09-23T00:35:04.459596+00:00"
     },
     {
       "epoch": 25,
@@ -291,7 +291,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.106205+00:00"
+      "timestamp": "2026-09-23T00:35:04.459596+00:00"
     },
     {
       "epoch": 26,
@@ -302,7 +302,7 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.111718+00:00"
+      "timestamp": "2026-09-23T00:35:04.466255+00:00"
     },
     {
       "epoch": 27,
@@ -313,10 +313,10 @@
       "val_accuracy": 1.0,
       "val_top5": 1.0,
       "val_unique_predicted_classes": 10,
-      "timestamp": "2026-09-22T12:49:38.114526+00:00"
+      "timestamp": "2026-09-23T00:35:04.467293+00:00"
     }
   ],
   "best_checkpoint_path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\experiments\\i3d_frozen\\checkpoints\\head_best.pt",
   "last_checkpoint_path": "D:\\SIGN LANGUAGE\\outputs\\asl_citizen_native_10\\experiments\\i3d_frozen\\checkpoints\\head_last.pt",
-  "timestamp": "2026-09-22T12:49:38.118553+00:00"
+  "timestamp": "2026-09-23T00:35:04.468722+00:00"
 }

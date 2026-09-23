@@ -56,6 +56,9 @@ export const BADGES: BadgeDefinition[] = [
   { id: "word_explorer", icon: "🌍", title: "Word Explorer", description: "Complete words from 3 categories" },
   { id: "word_master", icon: "👑", title: "Word Master", description: "Master 10 words" },
   { id: "vocabulary_builder", icon: "🧠", title: "Vocabulary Builder", description: "Complete 25 words" },
+  { id: "native_first_sign", icon: "🤟", title: "First Native Sign", description: "Correctly recognize your first native ASL sign" },
+  { id: "native_explorer", icon: "🗺️", title: "Native Sign Explorer", description: "Correctly sign native words from 3 categories" },
+  { id: "native_master", icon: "💎", title: "Native Sign Master", description: "Master every native sign in the catalog" },
 ];
 
 export type ChallengeDefinition = {

@@ -25,6 +25,7 @@ import { ActivityHeatmap, DateRangeFilter, HeatmapRangeFilter, LineChart } from 
 import { LetterDetailModal } from "../analytics/components/LetterDetailModal";
 import { LETTERS } from "../game/constants";
 import { useGame } from "../game/GameContext";
+import { getNativeProgress, type NativeProgress } from "../native/api";
 
 type SortMode = "alpha" | "accuracy_desc" | "accuracy_asc" | "attempts_desc";
 
@@ -45,6 +46,7 @@ export function ProgressPage() {
   const [history, setHistory] = useState<Awaited<ReturnType<typeof fetchPracticeHistory>> | null>(null);
   const [selectedWordId, setSelectedWordId] = useState<string | null>(null);
   const [wordDetail, setWordDetail] = useState<WordItem | null>(null);
+  const [nativeProgress, setNativeProgress] = useState<NativeProgress | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -69,6 +71,15 @@ export function ProgressPage() {
     if (!selectedWordId) return;
     fetchWord(selectedWordId).then(setWordDetail).catch(() => setWordDetail(null));
   }, [selectedWordId]);
+
+  useEffect(() => {
+    // Native progress is a separate, independent fetch (not part of the analytics
+    // dashboard payload) and never blocks the rest of this page — if it fails, the
+    // section below simply doesn't render, same as the pattern in NativeSignsPage.
+    getNativeProgress()
+      .then(setNativeProgress)
+      .catch(() => setNativeProgress(null));
+  }, []);
 
   useEffect(() => {
     if (!selectedLetter) return;
@@ -200,6 +211,46 @@ export function ProgressPage() {
               ))}
             </div>
           </Card>
+        </>
+      )}
+
+      {nativeProgress && nativeProgress.total_signs > 0 && (
+        <>
+          <Divider />
+          <SectionHeader
+            title="Native signs"
+            description="Isolated native ASL sign recognition — a separate skill from A-Z and Word Spelling."
+          />
+          <StatGroup
+            items={[
+              { label: "Signs started", value: `${nativeProgress.started_signs} / ${nativeProgress.total_signs}` },
+              { label: "Signs mastered", value: `${nativeProgress.mastered_signs} / ${nativeProgress.total_signs}` },
+              { label: "Overall mastery", value: `${nativeProgress.overall_mastery}%` },
+            ]}
+          />
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {nativeProgress.signs
+              .filter((entry) => entry.attempts > 0)
+              .map((entry) => (
+                <div
+                  key={entry.sign_id}
+                  className="rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold">{entry.display_name}</span>
+                    <span className="text-[var(--color-muted)]">{entry.mastery}%</span>
+                  </div>
+                  <p className="mt-0.5 text-xs text-[var(--color-muted)]">
+                    {entry.correct} / {entry.attempts} correct
+                  </p>
+                </div>
+              ))}
+          </div>
+          {nativeProgress.started_signs === 0 && (
+            <p className="text-sm text-[var(--color-mist)]">
+              Practice a native sign to start building your native-sign progress.
+            </p>
+          )}
         </>
       )}
 

@@ -33,8 +33,19 @@ os.environ["ASL_QUEST_SECRET_KEY"] = "native-test-secret"
 from backend import models  # noqa: E402,F401  (registers all ORM tables on Base.metadata)
 from backend.database import Base, SessionLocal, engine  # noqa: E402
 from backend.main import app  # noqa: E402
-from backend.models import NativeSign, NativeSignProgress, NativeSignSession, SignPrediction  # noqa: E402
+from backend.models import (  # noqa: E402
+    NativeSign,
+    NativeSignProgress,
+    NativeSignSession,
+    SignPrediction,
+    UserAchievement,
+    UserProgress,
+    XpEvent,
+)
 from backend.services.progress import seed_achievements  # noqa: E402
+
+
+_TEST_SIGN_CATEGORIES = {"BOOK": "Everyday", "HELLO": "Greetings", "WATER": "Family"}
 
 
 def _seed_native_signs() -> None:
@@ -42,15 +53,17 @@ def _seed_native_signs() -> None:
     scripts/seed_native_signs_native_10.py reads, so this test can't be
     broken by unrelated changes to data/asl_citizen_native_10/). Includes one
     inactive sign so inactive-handling can be tested consistently with
-    GET /native/signs (which already filters to active-only)."""
+    GET /native/signs (which already filters to active-only). The 3 active
+    signs use 3 distinct categories so the native_explorer achievement
+    (3 categories) is genuinely reachable/testable, not just first/master."""
     with SessionLocal() as db:
-        for gloss in ("BOOK", "HELLO", "WATER"):
+        for gloss, category in _TEST_SIGN_CATEGORIES.items():
             db.add(
                 NativeSign(
                     gloss=gloss,
                     display_name=gloss.title(),
                     meaning=f"Meaning of {gloss}.",
-                    category="Everyday",
+                    category=category,
                     difficulty="Easy",
                     description=f"The sign for {gloss}.",
                     example_text=f"Example with {gloss}.",
@@ -487,6 +500,153 @@ class NativeRouterTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         with SessionLocal() as db:
             self.assertEqual(db.query(NativeSignSession).count(), 0)
+
+    # --- Gamification: XP ------------------------------------------------------
+
+    def _user_id(self, token: str) -> int:
+        return self.client.get("/auth/me", headers={"Authorization": f"Bearer {token}"}).json()["id"]
+
+    def _user_xp(self, user_id: int) -> int:
+        with SessionLocal() as db:
+            progress = db.query(UserProgress).filter(UserProgress.user_id == user_id).first()
+            return progress.xp if progress else 0
+
+    def test_correct_practice_awards_xp_exactly_once(self) -> None:
+        token = self.register("native_xp_correct")
+        user_id = self._user_id(token)
+        book_id = _sign_id("BOOK")
+
+        response = self._practice(token, book_id, "BOOK")
+        payload = response.json()
+        self.assertEqual(payload["xp_earned"], 20)  # reuses XP_CORRECT's existing 20 convention
+        self.assertEqual(self._user_xp(user_id), 20)
+
+        with SessionLocal() as db:
+            events = db.query(XpEvent).filter(XpEvent.user_id == user_id).all()
+            self.assertEqual(len(events), 1)
+            self.assertEqual(events[0].amount, 20)
+            self.assertEqual(events[0].reason, "native_sign_correct")
+
+    def test_incorrect_practice_awards_no_xp(self) -> None:
+        token = self.register("native_xp_incorrect")
+        user_id = self._user_id(token)
+        book_id = _sign_id("BOOK")
+
+        response = self._practice(token, book_id, "WATER")
+        payload = response.json()
+        self.assertEqual(payload["xp_earned"], 0)
+        self.assertEqual(self._user_xp(user_id), 0)
+        with SessionLocal() as db:
+            self.assertEqual(db.query(XpEvent).filter(XpEvent.user_id == user_id).count(), 0)
+
+    def test_repeated_practice_accumulates_xp_only_for_correct(self) -> None:
+        token = self.register("native_xp_repeated")
+        user_id = self._user_id(token)
+        book_id = _sign_id("BOOK")
+
+        self._practice(token, book_id, "BOOK")   # +20
+        self._practice(token, book_id, "WATER")  # +0
+        self._practice(token, book_id, "BOOK")   # +20
+
+        self.assertEqual(self._user_xp(user_id), 40)
+        with SessionLocal() as db:
+            self.assertEqual(db.query(XpEvent).filter(XpEvent.user_id == user_id).count(), 2)
+
+    def test_xp_isolated_per_user(self) -> None:
+        token_a = self.register("native_xp_user_a")
+        token_b = self.register("native_xp_user_b")
+        user_b_id = self._user_id(token_b)
+        book_id = _sign_id("BOOK")
+
+        self._practice(token_a, book_id, "BOOK")
+
+        self.assertEqual(self._user_xp(user_b_id), 0)
+
+    # --- Gamification: achievements --------------------------------------------
+
+    def _unlocked_slugs(self, user_id: int) -> set[str]:
+        with SessionLocal() as db:
+            links = db.query(UserAchievement).filter(UserAchievement.user_id == user_id).all()
+            return {link.achievement.slug for link in links}
+
+    def test_first_native_sign_achievement_unlocks_on_real_criteria(self) -> None:
+        token = self.register("native_achv_first")
+        user_id = self._user_id(token)
+        book_id = _sign_id("BOOK")
+
+        self.assertNotIn("native_first_sign", self._unlocked_slugs(user_id))
+
+        response = self._practice(token, book_id, "BOOK")
+        payload = response.json()
+        self.assertIn({"id": "native_first_sign", "name": "First Native Sign"}, payload["new_achievements"])
+        self.assertIn("native_first_sign", self._unlocked_slugs(user_id))
+        # Not yet earned: explorer needs 3 categories, master needs all 3 signs mastered
+        self.assertNotIn("native_explorer", self._unlocked_slugs(user_id))
+        self.assertNotIn("native_master", self._unlocked_slugs(user_id))
+
+    def test_achievement_does_not_duplicate_on_repeated_practice(self) -> None:
+        token = self.register("native_achv_noduplicate")
+        user_id = self._user_id(token)
+        book_id = _sign_id("BOOK")
+
+        first = self._practice(token, book_id, "BOOK")
+        self.assertIn({"id": "native_first_sign", "name": "First Native Sign"}, first.json()["new_achievements"])
+
+        second = self._practice(token, book_id, "BOOK")
+        self.assertNotIn(
+            "native_first_sign", [item["id"] for item in second.json()["new_achievements"]]
+        )
+        with SessionLocal() as db:
+            count = (
+                db.query(UserAchievement)
+                .join(UserAchievement.achievement)
+                .filter(UserAchievement.user_id == user_id, UserAchievement.achievement.has(slug="native_first_sign"))
+                .count()
+            )
+            self.assertEqual(count, 1)
+
+    def test_native_explorer_requires_three_categories(self) -> None:
+        token = self.register("native_achv_explorer")
+        user_id = self._user_id(token)
+        book_id = _sign_id("BOOK")
+        hello_id = _sign_id("HELLO")
+        water_id = _sign_id("WATER")
+
+        self._practice(token, book_id, "BOOK")
+        self.assertNotIn("native_explorer", self._unlocked_slugs(user_id))
+        self._practice(token, hello_id, "HELLO")
+        self.assertNotIn("native_explorer", self._unlocked_slugs(user_id))
+        response = self._practice(token, water_id, "WATER")
+        self.assertIn("native_explorer", self._unlocked_slugs(user_id))
+        self.assertIn(
+            {"id": "native_explorer", "name": "Native Sign Explorer"}, response.json()["new_achievements"]
+        )
+
+    def test_native_master_requires_all_signs_mastered(self) -> None:
+        token = self.register("native_achv_master")
+        user_id = self._user_id(token)
+        book_id = _sign_id("BOOK")
+        hello_id = _sign_id("HELLO")
+        water_id = _sign_id("WATER")
+
+        self._practice(token, book_id, "BOOK")
+        self._practice(token, hello_id, "HELLO")
+        self.assertNotIn("native_master", self._unlocked_slugs(user_id))
+        response = self._practice(token, water_id, "WATER")  # all 3 active test signs now mastered (100%)
+        self.assertIn("native_master", self._unlocked_slugs(user_id))
+        self.assertIn(
+            {"id": "native_master", "name": "Native Sign Master"}, response.json()["new_achievements"]
+        )
+
+    def test_achievement_isolated_per_user(self) -> None:
+        token_a = self.register("native_achv_user_a")
+        token_b = self.register("native_achv_user_b")
+        user_b_id = self._user_id(token_b)
+        book_id = _sign_id("BOOK")
+
+        self._practice(token_a, book_id, "BOOK")
+
+        self.assertEqual(self._unlocked_slugs(user_b_id), set())
 
 
 if __name__ == "__main__":
