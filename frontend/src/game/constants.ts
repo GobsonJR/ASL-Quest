@@ -26,6 +26,8 @@ export type NavPage =
   | "learn"
   | "words"
   | "practice"
+  | "native"
+  | "native-practice"
   | "challenges"
   | "progress"
   | "achievements"

@@ -32,10 +32,12 @@ type GameContextValue = {
   practiceWordId: string | null;
   wordQueue: string[];
   challengeMode: ChallengeMode;
+  practiceNativeSignId: number | null;
   ready: boolean;
   navigate: (page: NavPage) => void;
   startPractice: (letter?: string | null, mode?: ChallengeMode) => void;
   startWordPractice: (wordId: string, mode?: ChallengeMode, queue?: string[]) => void;
+  startNativeSignPractice: (signId: number) => void;
   beginSession: () => void;
   nextPracticeLetter: () => string;
   markCorrect: (letter: string, elapsedMs: number) => PracticeOutcome;
@@ -60,6 +62,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [practiceWordId, setPracticeWordId] = useState<string | null>(null);
   const [wordQueue, setWordQueue] = useState<string[]>([]);
   const [challengeMode, setChallengeMode] = useState<ChallengeMode>("none");
+  const [practiceNativeSignId, setPracticeNativeSignId] = useState<number | null>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -104,6 +107,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       practiceWordId,
       wordQueue,
       challengeMode,
+      practiceNativeSignId,
       ready,
       navigate: setPage,
       startPractice: (letter = null, mode = "none") => {
@@ -120,6 +124,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
         setWordQueue(queue);
         setChallengeMode(mode);
         setPage("practice");
+      },
+      // Deliberately separate from startPractice/startWordPractice above: native sign
+      // practice is its own system (server-verified correctness, not client-computed
+      // XP), so it gets its own transient nav state and page rather than overloading
+      // practiceKind/practiceWordId's A-Z/Word Spelling dispatch logic.
+      startNativeSignPractice: (signId) => {
+        setPracticeNativeSignId(signId);
+        setPage("native-practice");
       },
       beginSession: () => setState((current) => startSession(current)),
       nextPracticeLetter: () => pickPracticeLetter(state, practiceLetter),

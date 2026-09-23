@@ -9,6 +9,8 @@ import { LoginPage, RegisterPage } from "./pages/AuthPages";
 import { ChallengesPage } from "./pages/ChallengesPage";
 import { HomePage } from "./pages/HomePage";
 import { LearnPage } from "./pages/LearnPage";
+import { NativeSignsPage } from "./native/NativeSignsPage";
+import { NativeSignPracticePage } from "./native/NativeSignPracticePage";
 import { PracticePage } from "./pages/PracticePage";
 import { WordPracticePage } from "./pages/WordPracticePage";
 import { WordsPage } from "./pages/WordsPage";
@@ -86,6 +88,8 @@ function AuthenticatedApp() {
           ) : (
             <PracticePage ready={ready} backendError={healthError} />
           ))}
+        {page === "native" && <NativeSignsPage />}
+        {page === "native-practice" && <NativeSignPracticePage />}
         {page === "challenges" && <ChallengesPage />}
         {page === "progress" && <ProgressPage />}
         {page === "achievements" && <AchievementsPage />}

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { useAuth } from "../auth/AuthContext";
 import type { NavPage } from "../game/constants";
 import { useGame } from "../game/GameContext";
@@ -8,6 +8,7 @@ const NAV: Array<{ id: NavPage; label: string; adminOnly?: boolean }> = [
   { id: "learn", label: "Learn" },
   { id: "words", label: "Words" },
   { id: "practice", label: "Practice" },
+  { id: "native", label: "Native Signs" },
   { id: "challenges", label: "Challenges" },
   { id: "progress", label: "Progress" },
   { id: "achievements", label: "Badges" },
@@ -18,6 +19,7 @@ const NAV: Array<{ id: NavPage; label: string; adminOnly?: boolean }> = [
 function isNavActive(id: NavPage, page: NavPage, practiceKind: string): boolean {
   if (id === "words") return page === "words" || (page === "practice" && practiceKind === "word");
   if (id === "practice") return page === "practice" && practiceKind !== "word";
+  if (id === "native") return page === "native" || page === "native-practice";
   return page === id;
 }
 
@@ -273,17 +275,20 @@ export function Card({
   className = "",
   hover = false,
   padding = true,
+  style,
 }: {
   children: ReactNode;
   className?: string;
   hover?: boolean;
   padding?: boolean;
+  style?: CSSProperties;
 }) {
   return (
     <section
       className={`rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-[var(--color-panel)]/90 ${
         padding ? "p-5 md:p-6" : ""
       } ${hover ? "card-hover" : ""} ${className}`}
+      style={style}
     >
       {children}
     </section>
