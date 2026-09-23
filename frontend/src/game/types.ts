@@ -44,6 +44,18 @@ export type GameState = {
 
 export type MasteryTier = "Beginner" | "Learning" | "Mastered";
 
+// Duolingo-style sequential view over the existing per-letter mastery data
+// (see getLearningPathNodes in gamification.ts) -- a UI derivation only, not
+// a new piece of progress state.
+export type LearningPathNodeStatus = "completed" | "current" | "locked";
+
+export type LearningPathNode = {
+  letter: string;
+  status: LearningPathNodeStatus;
+  correct: number;
+  masteryPercent: number;
+};
+
 export type PracticeOutcome = {
   xpGained: number;
   leveledUp: boolean;

@@ -1,17 +1,19 @@
-import { useState } from "react";
 import {
-  MasteryBadge,
+  Card,
   PageHeader,
   PageLayout,
-  Panel,
   PrimaryButton,
-  SecondaryButton,
+  ProgressBar,
   SectionHeader,
+  SectionLabel,
 } from "../components/AppShell";
+import { AlphabetLearningPath } from "../components/AlphabetLearningPath";
 import { LetterMasteryBar } from "../components/LetterMasteryBar";
+import { useToast } from "../components/Toast";
 import { LETTERS } from "../game/constants";
 import { useGame } from "../game/GameContext";
-import { getLetterStatus, getMasteryPercent } from "../game/gamification";
+import { getLearningPathNodes, lettersMasteredCount } from "../game/gamification";
+import { referenceImageAlt, referenceImageSrc } from "./alphabetFeedback";
 
 const SIGN_HINTS: Record<string, string> = {
   A: "Make a fist with thumb alongside.",
@@ -44,11 +46,17 @@ const SIGN_HINTS: Record<string, string> = {
 
 export function LearnPage() {
   const { state, startPractice, navigate } = useGame();
-  const [selected, setSelected] = useState<string>("A");
+  const { push } = useToast();
 
-  const stats = state.letterStats[selected];
-  const status = getLetterStatus(stats.correct);
-  const percent = getMasteryPercent(stats.correct);
+  const nodes = getLearningPathNodes(state);
+  const currentNode = nodes.find((node) => node.status === "current");
+  const masteredCount = lettersMasteredCount(state);
+  const allCompleted = masteredCount >= LETTERS.length;
+  const progressPercent = (masteredCount / LETTERS.length) * 100;
+
+  function handleLocked(letter: string, previousLetter: string) {
+    push(`Complete ${previousLetter} first to unlock ${letter}.`, "info");
+  }
 
   return (
     <PageLayout>
@@ -75,86 +83,78 @@ export function LearnPage() {
       <PageHeader
         eyebrow="Learn"
         title="Master the A–Z alphabet"
-        description="Track progress for each letter. Static signs only — dynamic J and Z motion is not supported."
+        description="Work through the alphabet in order, one handshape at a time. Static signs only — dynamic J and Z motion is not supported."
       />
-          <div className="grid gap-8 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-            <Panel className="space-y-5 xl:sticky xl:top-28 xl:self-start">
-              <div className="flex items-start gap-4">
-                <div className="grid h-24 w-24 shrink-0 place-items-center rounded-[var(--radius-panel)] border border-[var(--color-line-soft)] bg-[var(--color-ink)] font-display text-5xl text-[var(--color-accent)]">
-                  {selected}
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <div className="space-y-6 xl:sticky xl:top-28 xl:self-start">
+          {allCompleted ? (
+            <Card className="space-y-4 text-center">
+              <p className="text-3xl" aria-hidden="true">
+                🎉
+              </p>
+              <h2 className="font-display text-2xl md:text-3xl">Alphabet complete!</h2>
+              <p className="text-sm text-[var(--color-mist)]">
+                You've completed all {LETTERS.length} ASL letters. Keep any of them sharp any time.
+              </p>
+              {state.unlockedBadges.includes("alphabet_master") && (
+                <p className="text-sm font-medium text-[var(--color-warm)]">🏅 Alphabet Master badge unlocked</p>
+              )}
+              <PrimaryButton onClick={() => startPractice()}>Practice Any Letter</PrimaryButton>
+            </Card>
+          ) : (
+            currentNode && (
+              <Card className="space-y-4">
+                <SectionLabel>👋 Continue learning</SectionLabel>
+                <div className="flex items-start gap-4">
+                  <div className="w-24 shrink-0 overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white p-2">
+                    <img
+                      src={referenceImageSrc(currentNode.letter)}
+                      alt={referenceImageAlt(currentNode.letter)}
+                      className="h-auto w-full"
+                      width={80}
+                      height={105}
+                    />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-display text-2xl">Letter {currentNode.letter}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-[var(--color-mist)]">
+                      {SIGN_HINTS[currentNode.letter] ?? `Learn the ${currentNode.letter} handshape.`}
+                    </p>
+                  </div>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <MasteryBadge status={status} />
-                  <h3 className="mt-2 font-display text-2xl">Letter {selected}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-[var(--color-mist)]">{SIGN_HINTS[selected]}</p>
-                </div>
-              </div>
 
-              <LetterMasteryBar correct={stats.correct} />
+                <LetterMasteryBar correct={currentNode.correct} />
 
-              <div className="flex gap-6 text-sm">
-                <div>
-                  <p className="text-[var(--color-muted)]">Correct</p>
-                  <p className="mt-0.5 text-lg font-semibold">{stats.correct}</p>
-                </div>
-                <div>
-                  <p className="text-[var(--color-muted)]">Mastery</p>
-                  <p className="mt-0.5 text-lg font-semibold">{Math.round(percent)}%</p>
-                </div>
-              </div>
+                <PrimaryButton className="w-full" onClick={() => startPractice(currentNode.letter)}>
+                  Continue →
+                </PrimaryButton>
+              </Card>
+            )
+          )}
 
-              <div className="flex flex-wrap gap-3">
-                <PrimaryButton onClick={() => startPractice(selected)}>Practice {selected}</PrimaryButton>
-                <SecondaryButton
-                  onClick={() => {
-                    const idx = LETTERS.indexOf(selected);
-                    setSelected(LETTERS[(idx + 1) % LETTERS.length]);
-                  }}
-                  ariaLabel="Next letter"
-                >
-                  Next letter
-                </SecondaryButton>
-              </div>
-            </Panel>
+          <Card className="space-y-3">
+            <SectionLabel>Alphabet progress</SectionLabel>
+            <p className="text-sm text-[var(--color-mist)]">
+              {masteredCount} / {LETTERS.length} letters completed
+            </p>
+            <ProgressBar percent={progressPercent} showPercent={false} />
+            <p className="text-sm text-[var(--color-mist)]">🔥 {state.streak}-day streak</p>
+          </Card>
+        </div>
 
-            <section>
-              <SectionHeader title="Alphabet map" description="Tap a letter to see details and practice." />
-              <div className="mt-4 grid grid-cols-4 gap-2 sm:grid-cols-6 md:grid-cols-7 xl:grid-cols-6">
-                {LETTERS.map((letter) => {
-                  const letterStats = state.letterStats[letter];
-                  const letterStatus = getLetterStatus(letterStats.correct);
-                  const letterPercent = getMasteryPercent(letterStats.correct);
-                  const active = selected === letter;
-                  const mastered = letterStatus === "MASTERED";
-
-                  return (
-                    <button
-                      key={letter}
-                      type="button"
-                      className={`rounded-[var(--radius-control)] border px-2 py-2.5 text-left transition ${
-                        active
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10"
-                          : mastered
-                            ? "border-[var(--color-success)]/20 bg-[var(--color-panel-soft)]/50"
-                            : "border-[var(--color-line-soft)] bg-[var(--color-panel-soft)]/40 hover:border-[var(--color-line)]"
-                      }`}
-                      onClick={() => setSelected(letter)}
-                      aria-label={`Letter ${letter}, ${letterStatus}, ${Math.round(letterPercent)} percent mastery`}
-                      aria-pressed={active}
-                    >
-                      <span className="font-display text-xl text-[var(--color-accent)]">{letter}</span>
-                      <div className="mt-2 h-1 overflow-hidden rounded-full bg-[var(--color-ink)]">
-                        <div
-                          className="h-full rounded-full bg-[var(--color-accent)] transition-all"
-                          style={{ width: `${letterPercent}%` }}
-                        />
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
-          </div>
+        <section>
+          <SectionHeader
+            title="Learning path"
+            description="Complete a letter to unlock the next. Completed letters stay open for a revisit any time."
+          />
+          <AlphabetLearningPath
+            nodes={nodes}
+            onPractice={(letter) => startPractice(letter)}
+            onLocked={handleLocked}
+          />
+        </section>
+      </div>
     </PageLayout>
   );
 }

@@ -14,7 +14,7 @@ import {
   XP_PERFECT_DAILY,
   XP_SPEED_CHALLENGE,
 } from "./constants";
-import type { GameState, MasteryTier, PracticeOutcome } from "./types";
+import type { GameState, LearningPathNode, MasteryTier, PracticeOutcome } from "./types";
 
 export function getLevel(xp: number): number {
   return Math.floor(xp / XP_PER_LEVEL) + 1;
@@ -87,6 +87,30 @@ export function getBadgeProgress(
 
 export function getMasteryPercent(correct: number): number {
   return Math.min(100, (correct / MASTERED_CORRECT) * 100);
+}
+
+// Powers the A-Z Learning Path (AlphabetLearningPath): a letter is
+// "completed" once it hits the same MASTERED_CORRECT bar used everywhere
+// else (getMasteryTier/getLetterStatus), the first non-mastered letter in
+// A-Z order is "current", and everything after it is "locked" *in this path
+// view only* -- pickPracticeLetter, markCorrect/markIncorrect and the rest of
+// free practice are completely unaffected, and completed/current letters
+// stay fully practiceable (see PracticePage/startPractice). No new progress
+// state; this only re-reads state.letterStats.
+export function getLearningPathNodes(state: GameState): LearningPathNode[] {
+  let currentAssigned = false;
+  return LETTERS.map((letter) => {
+    const correct = state.letterStats[letter]?.correct ?? 0;
+    const masteryPercent = getMasteryPercent(correct);
+    if (correct >= MASTERED_CORRECT) {
+      return { letter, status: "completed" as const, correct, masteryPercent };
+    }
+    if (!currentAssigned) {
+      currentAssigned = true;
+      return { letter, status: "current" as const, correct, masteryPercent };
+    }
+    return { letter, status: "locked" as const, correct, masteryPercent };
+  });
 }
 
 export function lettersLearnedCount(state: GameState): number {
