@@ -15,6 +15,7 @@ const NAV: Array<{ id: NavPage; label: string; adminOnly?: boolean }> = [
   { id: "assistant", label: "Assistant" },
   { id: "profile", label: "Profile" },
   { id: "admin", label: "Admin", adminOnly: true },
+  { id: "mentor-dashboard", label: "Mentor", adminOnly: true },
 ];
 
 function isNavActive(id: NavPage, page: NavPage, practiceKind: string): boolean {

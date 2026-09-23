@@ -34,7 +34,8 @@ export type NavPage =
   | "assistant"
   | "profile"
   | "settings"
-  | "admin";
+  | "admin"
+  | "mentor-dashboard";
 
 export type BadgeDefinition = {
   id: string;

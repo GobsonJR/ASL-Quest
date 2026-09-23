@@ -18,6 +18,7 @@ import { WordsPage } from "./pages/WordsPage";
 import { ProgressPage } from "./pages/ProgressPage";
 import { ToastProvider, useToast } from "./components/Toast";
 import { AdminPage } from "./pages/AdminPage";
+import { MentorDashboard } from "./admin/MentorDashboard";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
 
@@ -98,6 +99,7 @@ function AuthenticatedApp() {
         {page === "profile" && <ProfilePage />}
         {page === "settings" && <SettingsPage />}
         {page === "admin" && <AdminPage />}
+        {page === "mentor-dashboard" && <MentorDashboard />}
       </AppShell>
     </>
   );

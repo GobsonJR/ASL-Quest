@@ -7,34 +7,13 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
-from backend.models import LetterProgress, PracticeSession, User, UserProgress, XpEvent
+from backend.models import PracticeSession, User, UserProgress
 from backend.security import get_current_admin
-from backend.services.progress import LETTERS
+from backend.services.admin_stats import get_admin_letters_stats, get_admin_overview
+from backend.services.mentor_dashboard import get_mentor_dashboard
 from backend.services.words import get_admin_word_stats
 
 router = APIRouter(prefix="/admin", tags=["admin"])
-
-
-def get_admin_overview(db: Session) -> dict:
-    total_users = db.query(User).count()
-    total_sessions = db.query(PracticeSession).count()
-    total_xp = db.query(func.sum(XpEvent.amount)).scalar() or 0
-    total_attempts = db.query(PracticeSession).count()
-    total_correct = db.query(PracticeSession).filter(PracticeSession.correct.is_(True)).count()
-    accuracy = round((total_correct / total_attempts) * 100, 1) if total_attempts else None
-    active_users = db.query(PracticeSession.user_id).distinct().count()
-    word_stats = get_admin_word_stats(db)
-    return {
-        "total_users": total_users,
-        "active_users": active_users,
-        "total_practice_sessions": total_sessions,
-        "total_xp_awarded": int(total_xp),
-        "average_accuracy": accuracy,
-        "total_letter_attempts": total_attempts,
-        "total_word_practice_sessions": word_stats["total_word_practice_sessions"],
-        "words_completed": word_stats["words_completed"],
-        "average_word_accuracy": word_stats["average_word_accuracy"],
-    }
 
 
 @router.get("/overview")
@@ -58,17 +37,7 @@ def admin_activity(_: User = Depends(get_current_admin), db: Session = Depends(g
 
 @router.get("/letters")
 def admin_letters(_: User = Depends(get_current_admin), db: Session = Depends(get_db)):
-    popular = []
-    difficult = []
-    for letter in LETTERS:
-        attempts = db.query(PracticeSession).filter(PracticeSession.letter == letter).count()
-        correct = db.query(PracticeSession).filter(PracticeSession.letter == letter, PracticeSession.correct.is_(True)).count()
-        accuracy = round((correct / attempts) * 100, 1) if attempts else None
-        item = {"letter": letter, "attempts": attempts, "accuracy": accuracy}
-        popular.append(item)
-    popular.sort(key=lambda item: item["attempts"], reverse=True)
-    difficult = sorted([item for item in popular if item["accuracy"] is not None], key=lambda item: item["accuracy"])
-    return {"popular": popular[:10], "difficult": difficult[:10]}
+    return get_admin_letters_stats(db)
 
 
 @router.get("/words")
@@ -129,3 +98,8 @@ def admin_recent_activity(_: User = Depends(get_current_admin), db: Session = De
             for row in rows
         ]
     }
+
+
+@router.get("/mentor-dashboard")
+def admin_mentor_dashboard(_: User = Depends(get_current_admin), db: Session = Depends(get_db)):
+    return get_mentor_dashboard(db)
