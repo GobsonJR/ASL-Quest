@@ -7,7 +7,8 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT / "data"
 DEFAULT_DATABASE_PATH = DATA_DIR / "asl_quest.db"
 
-SECRET_KEY = os.getenv("ASL_QUEST_SECRET_KEY", "dev-change-me-in-production")
+# `or` (not a getenv default) so a blank `KEY=` line in .env counts as unset.
+SECRET_KEY = os.getenv("ASL_QUEST_SECRET_KEY", "").strip() or "dev-change-me-in-production"
 
 # DATABASE_URL is the standard/recommended env var (e.g. postgresql+psycopg://user:pass@host/db).
 # ASL_QUEST_DATABASE_URL is kept as a legacy fallback for existing local setups.
@@ -17,7 +18,7 @@ DATABASE_URL = (
     or os.getenv("ASL_QUEST_DATABASE_URL")
     or f"sqlite:///{DEFAULT_DATABASE_PATH.as_posix()}"
 )
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ASL_QUEST_TOKEN_EXPIRE_MINUTES", "10080"))
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ASL_QUEST_TOKEN_EXPIRE_MINUTES", "").strip() or "10080")
 
 
 def get_bootstrap_admin_email() -> str:
@@ -47,9 +48,9 @@ def get_chatbot_api_base_url() -> str:
 
 CORS_ORIGINS = [
     origin.strip()
-    for origin in os.getenv(
-        "ASL_QUEST_CORS_ORIGINS",
-        "http://127.0.0.1:5173,http://localhost:5173",
+    for origin in (
+        os.getenv("ASL_QUEST_CORS_ORIGINS", "").strip()
+        or "http://127.0.0.1:5173,http://localhost:5173"
     ).split(",")
     if origin.strip()
 ]

@@ -208,8 +208,10 @@ Do not use `dataset/asl_alphabet_test` as a benchmark. It has only 28 images; `A
 From the project root:
 
 ```bat
-venv311\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+venv311\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file .env
 ```
+
+`--env-file .env` loads your local `.env` (e.g. `CHATBOT_API_KEY`); drop it if you have no `.env` file. `scripts\windows\start_backend.ps1` adds it automatically when `.env` exists.
 
 Health check: `http://127.0.0.1:8000/health`
 

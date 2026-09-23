@@ -13,4 +13,12 @@ if (-not (Test-Path $venvPython)) {
     exit 1
 }
 
-& $venvPython -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+# backend/settings.py only reads os.environ, so load .env (if present) into the
+# process environment via uvicorn's --env-file (python-dotenv ships with
+# uvicorn[standard]). Variables already set in the shell take precedence.
+$uvicornArgs = @("-m", "uvicorn", "backend.main:app", "--host", "127.0.0.1", "--port", "8000")
+if (Test-Path (Join-Path $RepoRoot ".env")) {
+    $uvicornArgs += @("--env-file", ".env")
+}
+
+& $venvPython @uvicornArgs
