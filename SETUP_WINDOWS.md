@@ -15,7 +15,7 @@ complements `README.md` (architecture/feature reference) and `DATABASE.md`
 | Native ASL Sign recognition | `models/pretrained/asl_citizen_i3d/ASL_citizen_I3D_weights.pt`, `outputs/asl_citizen_native_10/experiments/i3d_frozen/checkpoints/head_best.pt` |
 | Gamification / progress / achievements | Database only (auto-seeded) |
 | SQLite database-backed features | `data/asl_quest.db` (fresh or migrated) |
-| ASL-Quest project-only chatbot | Database tables (already in schema) + optional `CHATBOT_API_KEY` |
+| ASL-Quest project-only chatbot | Database tables (already in schema) + optional `OPENROUTER_API_KEY` |
 | Authentication | `ASL_QUEST_SECRET_KEY` (any laptop can generate its own) |
 | Frontend + backend | Node.js + Python 3.11, both on the same laptop |
 
@@ -127,8 +127,8 @@ Then edit `.env`:
 | `ASL_QUEST_TOKEN_EXPIRE_MINUTES` | No | Defaults to 10080 (7 days) |
 | `ASL_QUEST_BOOTSTRAP_ADMIN_EMAIL` | No | Email that gets the admin role on first login |
 | `ASL_QUEST_CORS_ORIGINS` | No | Defaults to the local Vite dev server origins |
-| `CHATBOT_API_KEY` | No | Without it, the Assistant page replies with a graceful setup message instead of answering |
-| `CHATBOT_MODEL` | No | Defaults to `claude-sonnet-5` |
+| `OPENROUTER_API_KEY` | No | Without it, the Assistant page replies with a graceful setup message instead of answering |
+| `CHATBOT_MODEL` | No | Defaults to `openrouter/free` |
 | `ASL_CITIZEN_DATASET_ROOT` | No | Only for retraining/auditing against the licensed ASL Citizen dataset — not needed to run the app |
 
 `.env` is git-ignored — never commit it. Run

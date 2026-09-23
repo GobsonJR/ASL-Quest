@@ -70,8 +70,8 @@ $envVars = @(
     @{ Name = "ASL_QUEST_TOKEN_EXPIRE_MINUTES"; Required = $false; Note = "unset = 10080 (7 days)" },
     @{ Name = "ASL_QUEST_BOOTSTRAP_ADMIN_EMAIL"; Required = $false; Note = "unset = no auto-admin bootstrap" },
     @{ Name = "ASL_QUEST_CORS_ORIGINS"; Required = $false; Note = "unset = http://127.0.0.1:5173,http://localhost:5173" },
-    @{ Name = "CHATBOT_API_KEY"; Required = $false; Note = "unset = assistant replies with a graceful setup message instead of answering" },
-    @{ Name = "CHATBOT_MODEL"; Required = $false; Note = "unset = claude-sonnet-5" }
+    @{ Name = "OPENROUTER_API_KEY"; Required = $false; Note = "unset = assistant replies with a graceful setup message instead of answering" },
+    @{ Name = "CHATBOT_MODEL"; Required = $false; Note = "unset = openrouter/free" }
 )
 foreach ($v in $envVars) {
     $value = [Environment]::GetEnvironmentVariable($v.Name)

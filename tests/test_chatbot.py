@@ -6,7 +6,7 @@ pattern in test_native.py / test_database_phase2.py. Nothing here touches
 data/asl_quest.db.
 
 The external LLM provider is always mocked (chatbot_llm.generate_reply is
-patched, or CHATBOT_API_KEY is left unset) -- this suite never makes a real
+patched, or OPENROUTER_API_KEY is left unset) -- this suite never makes a real
 network call.
 """
 
@@ -29,7 +29,7 @@ if str(ROOT) not in sys.path:
 TEST_DB = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
 os.environ["ASL_QUEST_DATABASE_URL"] = f"sqlite:///{TEST_DB.name}"
 os.environ["ASL_QUEST_SECRET_KEY"] = "chatbot-test-secret"
-os.environ.pop("CHATBOT_API_KEY", None)  # unconfigured unless a test opts in
+os.environ.pop("OPENROUTER_API_KEY", None)  # unconfigured unless a test opts in
 
 from backend import models  # noqa: E402,F401  (registers all ORM tables on Base.metadata)
 from backend.database import Base, SessionLocal, engine  # noqa: E402
@@ -233,7 +233,7 @@ class ChatbotRouterTests(unittest.TestCase):
     def test_missing_api_key_handled_gracefully_not_crashed(self) -> None:
         token = self.register("no_key_user")
         conv_id = self.create_conversation(token)
-        # CHATBOT_API_KEY is unset for the whole module (see top of file) — this
+        # OPENROUTER_API_KEY is unset for the whole module (see top of file) — this
         # exercises the real chatbot_llm.generate_reply path, not a mock.
         response = self.client.post(
             f"/chatbot/conversations/{conv_id}/messages",
@@ -244,7 +244,7 @@ class ChatbotRouterTests(unittest.TestCase):
         payload = response.json()["assistant_message"]
         self.assertEqual(payload["scope"], "in_scope")
         self.assertEqual(payload["provider_status"], "not_configured")
-        self.assertIn("CHATBOT_API_KEY", payload["content"])
+        self.assertIn("OPENROUTER_API_KEY", payload["content"])
         # Never silently answers with a fabricated/general-knowledge reply.
         self.assertNotIn("I3D was chosen", payload["content"])
 
@@ -266,7 +266,7 @@ class ChatbotRouterTests(unittest.TestCase):
     # --- No API key ever exposed -------------------------------------------------
 
     def test_api_key_never_exposed_in_response_or_db(self) -> None:
-        os.environ["CHATBOT_API_KEY"] = "sk-test-super-secret-value"
+        os.environ["OPENROUTER_API_KEY"] = "sk-test-super-secret-value"
         try:
             token = self.register("secret_user")
             conv_id = self.create_conversation(token)
@@ -283,7 +283,7 @@ class ChatbotRouterTests(unittest.TestCase):
                 self.assertNotIn("sk-test-super-secret-value", row.content)
                 self.assertNotIn("sk-test-super-secret-value", row.metadata_json)
         finally:
-            os.environ.pop("CHATBOT_API_KEY", None)
+            os.environ.pop("OPENROUTER_API_KEY", None)
 
     # --- AURA identity ------------------------------------------------------------
 
@@ -300,14 +300,14 @@ class ChatbotRouterTests(unittest.TestCase):
         self.assertEqual(response.json(), {"configured": False})
 
     def test_status_endpoint_reports_configured_without_leaking_key(self) -> None:
-        os.environ["CHATBOT_API_KEY"] = "sk-status-test-secret"
+        os.environ["OPENROUTER_API_KEY"] = "sk-status-test-secret"
         try:
             token = self.register("status_configured_user")
             response = self.client.get("/chatbot/status", headers=self.auth(token))
             self.assertEqual(response.json(), {"configured": True})
             self.assertNotIn("sk-status-test-secret", response.text)
         finally:
-            os.environ.pop("CHATBOT_API_KEY", None)
+            os.environ.pop("OPENROUTER_API_KEY", None)
 
     def test_status_endpoint_requires_auth(self) -> None:
         self.assertEqual(self.client.get("/chatbot/status").status_code, 401)
@@ -429,18 +429,22 @@ class ChatbotLLMProviderTests(unittest.TestCase):
     network call (httpx.post) is always mocked -- no real request is made."""
 
     def setUp(self) -> None:
-        os.environ["CHATBOT_API_KEY"] = "sk-llm-unit-test-key"
+        os.environ["OPENROUTER_API_KEY"] = "sk-llm-unit-test-key"
 
     def tearDown(self) -> None:
-        os.environ.pop("CHATBOT_API_KEY", None)
+        os.environ.pop("OPENROUTER_API_KEY", None)
+
+    OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
     def _ok_response(self, text: str = "A real answer.") -> httpx.Response:
-        response = httpx.Response(200, json={"content": [{"type": "text", "text": text}]})
-        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        response = httpx.Response(
+            200, json={"choices": [{"message": {"role": "assistant", "content": text}}]}
+        )
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
         return response
 
     def test_missing_api_key_raises_not_configured(self) -> None:
-        os.environ.pop("CHATBOT_API_KEY", None)
+        os.environ.pop("OPENROUTER_API_KEY", None)
         with self.assertRaises(chatbot_llm.ChatbotNotConfiguredError):
             chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
 
@@ -449,6 +453,45 @@ class ChatbotLLMProviderTests(unittest.TestCase):
             result = chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
         self.assertEqual(result, "Hello!")
 
+    def test_request_uses_openrouter_endpoint_bearer_auth_and_openai_shape(self) -> None:
+        # Locks in the exact OpenRouter request shape: OpenAI-compatible chat
+        # completions, system prompt folded into `messages`, Bearer auth (not
+        # Anthropic's x-api-key), and the configured model/base URL.
+        with patch(
+            "backend.services.chatbot_llm.httpx.post", return_value=self._ok_response("Hi there.")
+        ) as mocked:
+            chatbot_llm.generate_reply(
+                "You are AURA.", [{"role": "user", "content": "What is ASL-Quest?"}]
+            )
+        mocked.assert_called_once()
+        args, kwargs = mocked.call_args
+        self.assertEqual(args[0], self.OPENROUTER_URL)
+        self.assertEqual(kwargs["headers"]["Authorization"], "Bearer sk-llm-unit-test-key")
+        self.assertNotIn("x-api-key", kwargs["headers"])
+        self.assertEqual(
+            kwargs["json"]["messages"],
+            [
+                {"role": "system", "content": "You are AURA."},
+                {"role": "user", "content": "What is ASL-Quest?"},
+            ],
+        )
+        self.assertEqual(kwargs["json"]["model"], "openrouter/free")
+        self.assertNotIn("system", kwargs["json"])  # not a top-level field in this shape
+
+    def test_conversation_history_forwarded_after_system_message(self) -> None:
+        history = [
+            {"role": "user", "content": "How does I3D work?"},
+            {"role": "assistant", "content": "I3D is a video model..."},
+            {"role": "user", "content": "why?"},
+        ]
+        with patch(
+            "backend.services.chatbot_llm.httpx.post", return_value=self._ok_response("Because...")
+        ) as mocked:
+            chatbot_llm.generate_reply("system prompt", history)
+        sent_messages = mocked.call_args.kwargs["json"]["messages"]
+        self.assertEqual(sent_messages[0], {"role": "system", "content": "system prompt"})
+        self.assertEqual(sent_messages[1:], history)
+
     def test_timeout_raises_timeout_error(self) -> None:
         with patch("backend.services.chatbot_llm.httpx.post", side_effect=httpx.TimeoutException("timed out")):
             with self.assertRaises(chatbot_llm.ChatbotTimeoutError):
@@ -456,31 +499,48 @@ class ChatbotLLMProviderTests(unittest.TestCase):
 
     def test_rate_limit_status_raises_rate_limited_error(self) -> None:
         response = httpx.Response(429, json={"error": {"message": "rate limited"}})
-        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
         with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
             with self.assertRaises(chatbot_llm.ChatbotRateLimitedError):
                 chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
 
     def test_invalid_api_key_status_raises_provider_error(self) -> None:
-        response = httpx.Response(401, json={"error": {"message": "invalid x-api-key"}})
-        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        response = httpx.Response(401, json={"error": {"message": "invalid api key"}})
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
         with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
             with self.assertRaises(chatbot_llm.ChatbotProviderError) as ctx:
                 chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
         # The 401 body/detail is never surfaced -- only the status code.
-        self.assertNotIn("invalid x-api-key", str(ctx.exception))
+        self.assertNotIn("invalid api key", str(ctx.exception))
         self.assertNotIn("sk-llm-unit-test-key", str(ctx.exception))
+
+    def test_server_error_status_raises_provider_error(self) -> None:
+        response = httpx.Response(503, json={"error": {"message": "upstream model unavailable"}})
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
+        with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError) as ctx:
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+        self.assertNotIn("upstream model unavailable", str(ctx.exception))
 
     def test_malformed_json_raises_provider_error(self) -> None:
         response = httpx.Response(200, content=b"not json at all")
-        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
+        with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+
+    def test_missing_choices_raises_provider_error(self) -> None:
+        # Right shape of JSON, wrong/unexpected structure (e.g. an OpenRouter
+        # error payload returned with a 200 status).
+        response = httpx.Response(200, json={"id": "gen-1", "choices": []})
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
         with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
             with self.assertRaises(chatbot_llm.ChatbotProviderError):
                 chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
 
     def test_empty_content_raises_provider_error(self) -> None:
-        response = httpx.Response(200, json={"content": []})
-        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        response = httpx.Response(200, json={"choices": [{"message": {"role": "assistant", "content": ""}}]})
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
         with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
             with self.assertRaises(chatbot_llm.ChatbotProviderError):
                 chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
@@ -492,6 +552,17 @@ class ChatbotLLMProviderTests(unittest.TestCase):
             with self.assertRaises(chatbot_llm.ChatbotProviderError) as ctx:
                 chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
         self.assertNotIn("sk-llm-unit-test-key", str(ctx.exception))
+
+    def test_api_key_never_appears_in_request_url_or_json_body(self) -> None:
+        # The key must travel only in the Authorization header, never in the
+        # URL or JSON body (which are more likely to end up in logs/traces).
+        with patch(
+            "backend.services.chatbot_llm.httpx.post", return_value=self._ok_response("Hi.")
+        ) as mocked:
+            chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+        args, kwargs = mocked.call_args
+        self.assertNotIn("sk-llm-unit-test-key", args[0])
+        self.assertNotIn("sk-llm-unit-test-key", str(kwargs["json"]))
 
 
 if __name__ == "__main__":

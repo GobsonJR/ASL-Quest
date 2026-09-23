@@ -91,7 +91,7 @@ Then open `.env` and, at minimum, set `ASL_QUEST_SECRET_KEY` to any long
 random string (it signs your JWTs — your own value, not anyone else's).
 Everything else can stay blank for local dev; see the table in
 `SETUP_WINDOWS.md` § Step 5 for what each variable does. Leave
-`CHATBOT_API_KEY` blank unless you have your own key — the assistant
+`OPENROUTER_API_KEY` blank unless you have your own key — the assistant
 degrades gracefully to a setup message without one, it does not crash.
 **Never commit `.env`** — it's already in `.gitignore`; double-check
 `git status` never lists it.

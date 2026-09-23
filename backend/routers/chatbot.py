@@ -213,7 +213,7 @@ def send_message(
         except chatbot_llm.ChatbotNotConfiguredError:
             reply_text = (
                 "AURA isn't fully set up yet — an administrator needs to configure the "
-                "CHATBOT_API_KEY environment variable before I can answer questions. "
+                "OPENROUTER_API_KEY environment variable before I can answer questions. "
                 "See .env.example for details."
             )
             metadata = {"scope": "in_scope", "provider_status": "not_configured"}

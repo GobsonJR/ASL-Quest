@@ -1,5 +1,9 @@
 """LLM provider boundary for AURA, the ASL-Quest project assistant.
 
+Provider is OpenRouter (https://openrouter.ai), reached via its OpenAI-
+compatible chat completions endpoint — an OPENROUTER_API_KEY works with
+OpenRouter's free-tier models, so AURA can run without an Anthropic API key.
+
 No LLM SDK dependency exists anywhere in this project (checked
 requirements.txt), so this calls the provider's REST API directly over
 httpx — already a required dependency — rather than introducing a new one.
@@ -7,7 +11,7 @@ This module is the ONLY place that knows about the provider's HTTP shape;
 the router and knowledge layer only ever call generate_reply()/is_configured().
 
 Tests must never hit the network: they patch generate_reply (or the
-underlying httpx.post) instead of relying on a real CHATBOT_API_KEY.
+underlying httpx.post) instead of relying on a real OPENROUTER_API_KEY.
 
 Every exception here carries a message safe to log — none of them ever
 include the API key, and the router never forwards these messages verbatim
@@ -20,9 +24,13 @@ import httpx
 
 from backend.settings import get_chatbot_api_base_url, get_chatbot_api_key, get_chatbot_model
 
-ANTHROPIC_VERSION = "2023-06-01"
 MAX_TOKENS = 1024
 REQUEST_TIMEOUT_SECONDS = 30.0
+# Sent to OpenRouter per https://openrouter.ai/docs — attributes requests to this
+# project in OpenRouter's own dashboards/rankings. Not required for the API to
+# work, carries no secret, and OpenRouter never echoes it back to the caller.
+APP_REFERER = "https://github.com/GobsonJR/ASL-Quest"
+APP_TITLE = "AURA (ASL-Quest Assistant)"
 
 
 class ChatbotNotConfiguredError(RuntimeError):
@@ -51,30 +59,34 @@ def is_configured() -> bool:
 def generate_reply(system_prompt: str, history: list[dict[str, str]]) -> str:
     """Sends one request to the configured LLM provider and returns its text reply.
 
-    `history` is a list of {"role": "user"|"assistant", "content": str} dicts, the
-    same shape Anthropic's Messages API expects. Always raises one of the
-    exceptions above instead of ever returning a partial/garbage answer.
+    `history` is a list of {"role": "user"|"assistant", "content": str} dicts.
+    Always raises one of the exceptions above instead of ever returning a
+    partial/garbage answer.
     """
     api_key = get_chatbot_api_key()
     if not api_key:
         raise ChatbotNotConfiguredError(
-            "CHATBOT_API_KEY is not set. An administrator needs to configure it "
+            "OPENROUTER_API_KEY is not set. An administrator needs to configure it "
             "(see .env.example) before AURA can answer questions."
         )
+
+    # OpenAI-compatible chat completions shape: the system prompt is just the
+    # first message (role "system"), not a separate top-level field.
+    messages = [{"role": "system", "content": system_prompt}] + history
 
     try:
         response = httpx.post(
             get_chatbot_api_base_url(),
             headers={
-                "x-api-key": api_key,
-                "anthropic-version": ANTHROPIC_VERSION,
-                "content-type": "application/json",
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+                "HTTP-Referer": APP_REFERER,
+                "X-Title": APP_TITLE,
             },
             json={
                 "model": get_chatbot_model(),
                 "max_tokens": MAX_TOKENS,
-                "system": system_prompt,
-                "messages": history,
+                "messages": messages,
             },
             timeout=REQUEST_TIMEOUT_SECONDS,
         )
@@ -91,9 +103,10 @@ def generate_reply(system_prompt: str, history: list[dict[str, str]]) -> str:
     try:
         response.raise_for_status()
     except httpx.HTTPStatusError as exc:
-        # Covers an invalid/revoked API key (401/403) and any other non-2xx
-        # status. The status code alone is safe to log; the response body is
-        # deliberately not included in case a provider ever echoed headers back.
+        # Covers an invalid/revoked API key (401/403), OpenRouter/upstream 5xx,
+        # and any other non-2xx status. The status code alone is safe to log;
+        # the response body is deliberately not included in case a provider
+        # ever echoed headers back.
         raise ChatbotProviderError(
             f"AURA's provider returned HTTP {response.status_code}."
         ) from exc
@@ -103,9 +116,11 @@ def generate_reply(system_prompt: str, history: list[dict[str, str]]) -> str:
     except ValueError as exc:
         raise ChatbotProviderError("AURA's provider returned a malformed (non-JSON) response.") from exc
 
-    text = "".join(
-        block.get("text", "") for block in payload.get("content", []) if block.get("type") == "text"
-    ).strip()
+    try:
+        choices = payload["choices"]
+        text = (choices[0]["message"]["content"] or "").strip()
+    except (KeyError, IndexError, TypeError) as exc:
+        raise ChatbotProviderError("AURA's provider returned an unexpected response shape.") from exc
     if not text:
         raise ChatbotProviderError("AURA's provider returned an empty response.")
     return text

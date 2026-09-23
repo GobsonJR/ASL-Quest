@@ -31,19 +31,27 @@ BOOTSTRAP_ADMIN_EMAIL = get_bootstrap_admin_email()
 # Read fresh on every call (not cached at import time like the constants above) so
 # tests can toggle "configured" vs "not configured" within a single process via
 # os.environ, without needing to control backend.settings' import order.
+#
+# AURA's provider is OpenRouter (an OpenAI-compatible chat completions API),
+# hence OPENROUTER_API_KEY rather than a generic CHATBOT_* name for the secret
+# itself. The CHATBOT_* prefix is kept for the model/base-URL knobs, which stay
+# provider-shaped concepts either way.
 def get_chatbot_api_key() -> str:
-    return os.getenv("CHATBOT_API_KEY", "").strip()
+    return os.getenv("OPENROUTER_API_KEY", "").strip()
 
 
 def get_chatbot_model() -> str:
-    return os.getenv("CHATBOT_MODEL", "").strip() or "claude-sonnet-5"
+    return os.getenv("CHATBOT_MODEL", "").strip() or "openrouter/free"
 
 
 # Optional override for the provider's API endpoint (e.g. a corporate proxy or a
-# different Anthropic-compatible endpoint). Defaults to Anthropic's own Messages
-# API — most deployments never need to set this.
+# different OpenAI-compatible endpoint). Defaults to OpenRouter's own chat
+# completions API — most deployments never need to set this.
 def get_chatbot_api_base_url() -> str:
-    return os.getenv("CHATBOT_API_BASE_URL", "").strip() or "https://api.anthropic.com/v1/messages"
+    return (
+        os.getenv("CHATBOT_API_BASE_URL", "").strip()
+        or "https://openrouter.ai/api/v1/chat/completions"
+    )
 
 
 CORS_ORIGINS = [
