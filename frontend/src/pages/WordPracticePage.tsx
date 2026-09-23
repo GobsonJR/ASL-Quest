@@ -106,7 +106,10 @@ export function WordPracticePage({
     }
   }
 
-  function handleCorrect(elapsedMs: number) {
+  // Word Spelling is untouched: CameraPractice now also passes confidence and
+  // the wrong-guess letter (for the A-Z page's reference/feedback panel),
+  // but this page doesn't use either, so the extra params are ignored here.
+  function handleCorrect(elapsedMs: number, _confidence: number) {
     const nextLogs = [
       ...logs,
       { letter: currentLetter, prediction: currentLetter, correct: true, response_time: elapsedMs },
@@ -119,7 +122,7 @@ export function WordPracticePage({
     }
   }
 
-  function handleIncorrect() {
+  function handleIncorrect(_predicted: string) {
     setMistakes((value) => value + 1);
     setCameraStatus(`Try again — show ${currentLetter}`);
   }

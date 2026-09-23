@@ -9,10 +9,15 @@ type CameraPracticeProps = {
   active: boolean;
   ready: boolean;
   backendError: string | null;
-  onCorrect: (elapsedMs: number) => void;
-  onIncorrect: () => void;
+  onCorrect: (elapsedMs: number, confidence: number) => void;
+  onIncorrect: (predictedLetter: string) => void;
   onStatusChange?: (status: string) => void;
   incorrectHint?: string;
+  /** Bump this (e.g. on "Practice again") to reset the current attempt --
+   * votes, handled-correct/incorrect flags, status -- without tearing down
+   * and re-requesting the camera stream, exactly like a targetLetter change
+   * already does. */
+  attemptKey?: number;
 };
 
 export function CameraPractice({
@@ -24,6 +29,7 @@ export function CameraPractice({
   onIncorrect,
   onStatusChange,
   incorrectHint,
+  attemptKey = 0,
 }: CameraPracticeProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -56,15 +62,28 @@ export function CameraPractice({
       setRunning(true);
       void runPredictionLoop();
     }
-  }, [targetLetter]);
+  }, [targetLetter, attemptKey]);
 
   useEffect(() => {
+    // `cancelled` guards against a StrictMode dev-mode double-invoke (or any
+    // other fast unmount/remount): the effect runs, cleans up, and runs again
+    // before the first startCamera()'s getUserMedia/play() promises settle.
+    // Without this, the first (now-stale, and by then interrupted/rejected)
+    // invocation's catch block can call setError(...) *after* the second
+    // invocation already succeeded, stomping good state with a false
+    // "Camera unavailable" -- a real pre-existing race, not a StrictMode-only
+    // curiosity, since npm run dev (StrictMode-enabled) is how this app is
+    // actually developed and tested day to day.
+    let cancelled = false;
     if (active && ready) {
-      void startCamera();
+      void startCamera(() => cancelled);
     } else {
       stopCamera();
     }
-    return () => stopCamera();
+    return () => {
+      cancelled = true;
+      stopCamera();
+    };
   }, [active, ready]);
 
   function updateStatus(next: string, tone: typeof statusTone = "neutral") {
@@ -73,7 +92,7 @@ export function CameraPractice({
     onStatusChange?.(next);
   }
 
-  async function startCamera() {
+  async function startCamera(isCancelled: () => boolean) {
     if (!ready) {
       setError(backendError ?? "Practice is unavailable right now.");
       return;
@@ -84,11 +103,16 @@ export function CameraPractice({
         video: { facingMode: "user", width: 960, height: 720 },
         audio: false,
       });
+      if (isCancelled()) {
+        stream.getTracks().forEach((track) => track.stop());
+        return;
+      }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
       }
+      if (isCancelled()) return;
       runningRef.current = true;
       setRunning(true);
       setError(null);
@@ -96,10 +120,15 @@ export function CameraPractice({
       updateStatus("Show your hand", "accent");
       void runPredictionLoop();
     } catch {
+      // A cancelled attempt's play()/getUserMedia can reject (e.g.
+      // AbortError when cleanup already tore down the video/stream) purely
+      // because it was interrupted, not because the camera is actually
+      // unavailable -- don't show a false error for that.
+      if (isCancelled()) return;
       setError("Your camera isn't available right now. Check permissions and try again.");
       updateStatus("Camera permission needed", "warning");
     } finally {
-      setLoading(false);
+      if (!isCancelled()) setLoading(false);
     }
   }
 
@@ -181,16 +210,18 @@ export function CameraPractice({
           handledCorrect.current = true;
           runningRef.current = false;
           updateStatus("Perfect sign!", "success");
-          onCorrect(Date.now() - challengeStartedAt.current);
+          onCorrect(Date.now() - challengeStartedAt.current, prediction.confidence);
           continue;
         }
 
+        // Friendly, specific status ("Almost — you're showing S") instead of
+        // raw "Predicted: S" -- the fuller "you're showing X, we want Y"
+        // callout lives in PracticePage (built from the same stable letter
+        // via onIncorrect), this chip just stays short.
+        updateStatus(incorrectHint ?? `Almost — you're showing ${stable}`, "warning");
         if (!handledIncorrect.current) {
           handledIncorrect.current = true;
-          updateStatus(incorrectHint ?? `Try again — show ${targetLetter}`, "warning");
-          onIncorrect();
-        } else {
-          updateStatus(incorrectHint ?? `Try again — show ${targetLetter}`, "warning");
+          onIncorrect(stable);
         }
         votes.current = [];
       } catch (err) {

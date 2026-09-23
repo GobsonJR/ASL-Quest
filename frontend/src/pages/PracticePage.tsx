@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Card, EmptyState, Panel, PrimaryButton, SecondaryButton, StatusChip } from "../components/AppShell";
+import { Card, EmptyState, PrimaryButton, SecondaryButton, StatusChip } from "../components/AppShell";
+import { AlphabetReferencePanel } from "../components/AlphabetReferencePanel";
 import { CameraPractice } from "../components/CameraPractice";
 import { CelebrationOverlay, LevelUpOverlay } from "../components/CelebrationOverlay";
 import { useToast } from "../components/Toast";
 import { BADGES, DAILY_TARGET } from "../game/constants";
 import { useGame } from "../game/GameContext";
 import type { PracticeOutcome } from "../game/types";
+import { buildIncorrectFeedback, pickEncouragement } from "./alphabetFeedback";
 
 const CHALLENGE_LABELS = {
   none: "Free practice",
@@ -46,6 +48,18 @@ export function PracticePage({
   const [sessionStarted, setSessionStarted] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [cameraStatus, setCameraStatus] = useState("Show your hand");
+  // Set once per correct detection, from the same prediction the model used
+  // to confirm the sign -- shown as a small secondary line in the
+  // celebration, never as the primary success message.
+  const [confidence, setConfidence] = useState<number | null>(null);
+  const [encouragement, setEncouragement] = useState("");
+  // The last stable wrong letter the camera settled on (already
+  // temporally-smoothed/debounced upstream in CameraPractice), or null once
+  // it's been resolved. Drives the "Almost! You're showing X..." callout.
+  const [incorrectFeedback, setIncorrectFeedback] = useState<{ predicted: string } | null>(null);
+  // Bumped on "Practice again" to reset the current attempt (votes, handled
+  // flags) without tearing down the camera stream -- see CameraPractice.
+  const [attemptKey, setAttemptKey] = useState(0);
 
   useEffect(() => {
     if (!sessionStarted) {
@@ -58,12 +72,19 @@ export function PracticePage({
     setTargetLetter(practiceLetter ?? nextPracticeLetter());
     setPhase("playing");
     setOutcome(null);
+    setConfidence(null);
+    setIncorrectFeedback(null);
     setCameraStatus("Show your hand");
+    setAttemptKey((key) => key + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [practiceLetter, challengeMode]);
 
-  function handleCorrect(elapsedMs: number) {
+  function handleCorrect(elapsedMs: number, detectedConfidence: number) {
     const result = markCorrect(targetLetter, elapsedMs);
     setOutcome(result);
+    setConfidence(detectedConfidence);
+    setEncouragement(pickEncouragement(targetLetter));
+    setIncorrectFeedback(null);
     setPhase("success");
     push(`+${result.xpGained} XP`, "success");
     if (result.badgesUnlocked.length > 0) {
@@ -75,17 +96,41 @@ export function PracticePage({
     }
   }
 
+  function handleIncorrect(predictedLetter: string) {
+    markIncorrect(targetLetter, predictedLetter);
+    setIncorrectFeedback({ predicted: predictedLetter });
+  }
+
   function handleNext() {
     const next = nextPracticeLetter();
     setTargetLetter(next);
     setPhase("playing");
     setOutcome(null);
+    setConfidence(null);
+    setIncorrectFeedback(null);
     setShowLevelUp(false);
+    setCameraStatus("Show your hand");
+    setAttemptKey((key) => key + 1);
     startPractice(next, challengeMode);
+  }
+
+  // Same target letter, fresh attempt -- no XP/streak change, just resets the
+  // camera loop and clears any wrong-guess callout (item 9: "Practice Again
+  // should reset only the current attempt without incorrectly awarding
+  // another XP event").
+  function handlePracticeAgain() {
+    setPhase("playing");
+    setOutcome(null);
+    setConfidence(null);
+    setIncorrectFeedback(null);
+    setShowLevelUp(false);
+    setCameraStatus("Show your hand");
+    setAttemptKey((key) => key + 1);
   }
 
   const challengeLabel = CHALLENGE_LABELS[challengeMode];
   const dailyProgress = `${state.dailyChallenge.progress} / ${DAILY_TARGET}`;
+  const feedback = incorrectFeedback ? buildIncorrectFeedback(targetLetter, incorrectFeedback.predicted) : null;
 
   return (
     <>
@@ -112,40 +157,12 @@ export function PracticePage({
           </span>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
-          <div className="order-2 space-y-4 xl:order-1">
-            <Panel className="text-center">
-              <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">Sign this letter</p>
-              <div className="relative mx-auto mt-4 grid h-32 w-32 place-items-center rounded-[var(--radius-panel)] border border-[var(--color-line-soft)] bg-[var(--color-ink)] md:h-40 md:w-40">
-                <span className="font-display text-6xl text-[var(--color-accent)] md:text-7xl">{targetLetter}</span>
-                {phase === "success" && (
-                  <span className="success-ring pointer-events-none absolute inset-0 rounded-[var(--radius-panel)] border-2 border-[var(--color-success)]" />
-                )}
-              </div>
-              <div className="mt-4 flex justify-center">
-                <StatusChip tone={phase === "success" ? "success" : "accent"}>{cameraStatus}</StatusChip>
-              </div>
-            </Panel>
-
-            {phase === "success" && outcome ? (
-              <CelebrationOverlay letter={targetLetter} outcome={outcome} onNext={handleNext} />
-            ) : (
-              <div className="space-y-4 text-sm text-[var(--color-mist)]">
-                <p className="font-medium text-[#eef4f0]">How it works</p>
-                <ol className="space-y-2 pl-4 [list-style:decimal]">
-                  <li>Allow camera access when prompted.</li>
-                  <li>Form the target letter clearly in frame.</li>
-                  <li>Hold steady until the app confirms your sign.</li>
-                </ol>
-                <div className="flex flex-wrap gap-3 pt-2">
-                  <SecondaryButton onClick={() => navigate("home")}>Back home</SecondaryButton>
-                  <PrimaryButton onClick={handleNext}>Skip letter</PrimaryButton>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <Card className="order-1 p-3 md:p-4 xl:order-2" padding={false}>
+        {/* Desktop: camera on the left, ASL reference + target info on the
+            right (task requirement). Mobile: camera first, reference stacked
+            below it -- same DOM order as the grid columns, so no xl:order
+            swap is needed and nothing can overflow horizontally. */}
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <Card className="min-w-0 p-3 md:p-4" padding={false}>
             {!ready ? (
               <EmptyState
                 icon="📷"
@@ -159,15 +176,63 @@ export function PracticePage({
             ) : (
               <CameraPractice
                 targetLetter={targetLetter}
+                attemptKey={attemptKey}
                 active={phase === "playing"}
                 ready={ready}
                 backendError={backendError}
                 onCorrect={handleCorrect}
-                onIncorrect={() => markIncorrect(targetLetter)}
+                onIncorrect={handleIncorrect}
                 onStatusChange={setCameraStatus}
               />
             )}
           </Card>
+
+          <div className="min-w-0 space-y-4">
+            {phase === "success" && outcome ? (
+              <CelebrationOverlay
+                letter={targetLetter}
+                outcome={outcome}
+                onNext={handleNext}
+                onPracticeAgain={handlePracticeAgain}
+                streak={state.streak}
+                confidence={confidence}
+                encouragement={encouragement}
+              />
+            ) : (
+              <>
+                <AlphabetReferencePanel
+                  letter={targetLetter}
+                  statusLabel={cameraStatus}
+                  statusTone={incorrectFeedback ? "warning" : "accent"}
+                />
+
+                {feedback && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="rounded-[var(--radius-panel)] border border-[var(--color-warm)]/30 bg-[var(--color-warm)]/[0.06] px-4 py-3 text-sm text-[var(--color-mist)]"
+                  >
+                    <p className="font-semibold text-[var(--color-warm)]">{feedback.headline}</p>
+                    <p className="mt-1 leading-relaxed">{feedback.detail}</p>
+                  </div>
+                )}
+
+                <details className="rounded-2xl border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-4 py-3 text-sm text-[var(--color-mist)]">
+                  <summary className="cursor-pointer font-medium text-[#eef4f0]">How it works</summary>
+                  <ol className="mt-2 space-y-2 pl-4 [list-style:decimal]">
+                    <li>Allow camera access when prompted.</li>
+                    <li>Form the target letter clearly in frame.</li>
+                    <li>Hold steady until the app confirms your sign.</li>
+                  </ol>
+                </details>
+
+                <div className="flex flex-wrap gap-3">
+                  <SecondaryButton onClick={() => navigate("home")}>Back home</SecondaryButton>
+                  <PrimaryButton onClick={handleNext}>Skip letter</PrimaryButton>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </>
