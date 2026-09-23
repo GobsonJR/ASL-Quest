@@ -19,6 +19,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+import httpx
 from fastapi.testclient import TestClient
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,8 +34,9 @@ os.environ.pop("CHATBOT_API_KEY", None)  # unconfigured unless a test opts in
 from backend import models  # noqa: E402,F401  (registers all ORM tables on Base.metadata)
 from backend.database import Base, SessionLocal, engine  # noqa: E402
 from backend.main import app  # noqa: E402
-from backend.models import ChatbotFeedback, ChatbotMessage  # noqa: E402
-from backend.services import chatbot_llm  # noqa: E402
+from backend.models import ChatbotConversation, ChatbotFeedback, ChatbotMessage  # noqa: E402
+from backend.routers.chatbot import MAX_HISTORY_MESSAGES, _build_history  # noqa: E402
+from backend.services import chatbot_knowledge, chatbot_llm  # noqa: E402
 
 
 class ChatbotRouterTests(unittest.TestCase):
@@ -282,6 +284,214 @@ class ChatbotRouterTests(unittest.TestCase):
                 self.assertNotIn("sk-test-super-secret-value", row.metadata_json)
         finally:
             os.environ.pop("CHATBOT_API_KEY", None)
+
+    # --- AURA identity ------------------------------------------------------------
+
+    def test_system_prompt_identifies_as_aura(self) -> None:
+        prompt = chatbot_knowledge.build_system_prompt()
+        self.assertIn("AURA", prompt)
+
+    # --- Status endpoint (online/configured indicator) -----------------------------
+
+    def test_status_endpoint_reports_unconfigured(self) -> None:
+        token = self.register("status_unconfigured_user")
+        response = self.client.get("/chatbot/status", headers=self.auth(token))
+        self.assertEqual(response.status_code, 200, response.text)
+        self.assertEqual(response.json(), {"configured": False})
+
+    def test_status_endpoint_reports_configured_without_leaking_key(self) -> None:
+        os.environ["CHATBOT_API_KEY"] = "sk-status-test-secret"
+        try:
+            token = self.register("status_configured_user")
+            response = self.client.get("/chatbot/status", headers=self.auth(token))
+            self.assertEqual(response.json(), {"configured": True})
+            self.assertNotIn("sk-status-test-secret", response.text)
+        finally:
+            os.environ.pop("CHATBOT_API_KEY", None)
+
+    def test_status_endpoint_requires_auth(self) -> None:
+        self.assertEqual(self.client.get("/chatbot/status").status_code, 401)
+
+    # --- Granular provider error handling (router-level mapping) ------------------
+
+    def test_rate_limited_handled_gracefully(self) -> None:
+        token = self.register("rate_limited_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", side_effect=chatbot_llm.ChatbotRateLimitedError("429")):
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "How is XP awarded?"},
+                headers=self.auth(token),
+            )
+        self.assertEqual(response.status_code, 201, response.text)
+        payload = response.json()["assistant_message"]
+        self.assertEqual(payload["provider_status"], "rate_limited")
+        self.assertNotIn("429", payload["content"])
+
+    def test_timeout_handled_gracefully(self) -> None:
+        token = self.register("timeout_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", side_effect=chatbot_llm.ChatbotTimeoutError("timed out")):
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "How is XP awarded?"},
+                headers=self.auth(token),
+            )
+        self.assertEqual(response.status_code, 201, response.text)
+        payload = response.json()["assistant_message"]
+        self.assertEqual(payload["provider_status"], "timeout")
+
+    def test_malformed_provider_response_handled_gracefully(self) -> None:
+        token = self.register("malformed_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(
+            chatbot_llm, "generate_reply", side_effect=chatbot_llm.ChatbotProviderError("malformed")
+        ):
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "How is XP awarded?"},
+                headers=self.auth(token),
+            )
+        self.assertEqual(response.status_code, 201, response.text)
+        payload = response.json()["assistant_message"]
+        self.assertEqual(payload["provider_status"], "error")
+        # The internal exception detail is never echoed to the user.
+        self.assertNotIn("malformed", payload["content"])
+
+    # --- Bounded conversation context / follow-up handling -------------------------
+
+    def test_conversation_history_is_bounded_to_recent_messages(self) -> None:
+        token = self.register("history_user")
+        conv_id = self.create_conversation(token)
+        with SessionLocal() as db:
+            for i in range(20):
+                role = "user" if i % 2 == 0 else "assistant"
+                db.add(ChatbotMessage(conversation_id=conv_id, role=role, content=f"msg {i}"))
+            db.commit()
+            conversation = db.query(ChatbotConversation).filter(ChatbotConversation.id == conv_id).first()
+            history = _build_history(conversation)
+        self.assertEqual(len(history), MAX_HISTORY_MESSAGES)
+        self.assertEqual(history[-1]["content"], "msg 19")
+        self.assertEqual(history[0]["content"], f"msg {20 - MAX_HISTORY_MESSAGES}")
+
+    def test_followup_phrase_reaches_provider_after_in_scope_turn(self) -> None:
+        token = self.register("followup_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="I3D is a video model...") as first_call:
+            self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "How does I3D work?"},
+                headers=self.auth(token),
+            )
+        first_history = first_call.call_args.args[1]
+        self.assertEqual(len(first_history), 1)
+        self.assertEqual(first_history[0]["content"], "How does I3D work?")
+
+        # "why?" alone is not a project keyword -- it only passes because the
+        # conversation already has a prior in-scope turn to anchor it to.
+        with patch.object(chatbot_llm, "generate_reply", return_value="Because it generalized better.") as second_call:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "why?"},
+                headers=self.auth(token),
+            )
+        second_call.assert_called_once()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "in_scope")
+        second_history = second_call.call_args.args[1]
+        contents = [m["content"] for m in second_history]
+        # The provider receives the prior exchange as context, not just the bare "why?".
+        self.assertIn("How does I3D work?", contents)
+        self.assertIn("I3D is a video model...", contents)
+        self.assertEqual(contents[-1], "why?")
+
+    def test_followup_phrase_without_prior_in_scope_turn_is_rejected(self) -> None:
+        token = self.register("followup_no_anchor_user")
+        conv_id = self.create_conversation(token)
+        # First turn is off-topic, so there is no prior in-scope turn to anchor to.
+        with patch.object(chatbot_llm, "generate_reply") as mocked:
+            self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "Tell me a joke"},
+                headers=self.auth(token),
+            )
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "why?"},
+                headers=self.auth(token),
+            )
+        mocked.assert_not_called()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "off_topic")
+
+
+class ChatbotLLMProviderTests(unittest.TestCase):
+    """Unit tests for backend/services/chatbot_llm.py's own response
+    classification, independent of the router/DB layer above. The external
+    network call (httpx.post) is always mocked -- no real request is made."""
+
+    def setUp(self) -> None:
+        os.environ["CHATBOT_API_KEY"] = "sk-llm-unit-test-key"
+
+    def tearDown(self) -> None:
+        os.environ.pop("CHATBOT_API_KEY", None)
+
+    def _ok_response(self, text: str = "A real answer.") -> httpx.Response:
+        response = httpx.Response(200, json={"content": [{"type": "text", "text": text}]})
+        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        return response
+
+    def test_missing_api_key_raises_not_configured(self) -> None:
+        os.environ.pop("CHATBOT_API_KEY", None)
+        with self.assertRaises(chatbot_llm.ChatbotNotConfiguredError):
+            chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+
+    def test_successful_response_returns_text(self) -> None:
+        with patch("backend.services.chatbot_llm.httpx.post", return_value=self._ok_response("Hello!")):
+            result = chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+        self.assertEqual(result, "Hello!")
+
+    def test_timeout_raises_timeout_error(self) -> None:
+        with patch("backend.services.chatbot_llm.httpx.post", side_effect=httpx.TimeoutException("timed out")):
+            with self.assertRaises(chatbot_llm.ChatbotTimeoutError):
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+
+    def test_rate_limit_status_raises_rate_limited_error(self) -> None:
+        response = httpx.Response(429, json={"error": {"message": "rate limited"}})
+        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotRateLimitedError):
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+
+    def test_invalid_api_key_status_raises_provider_error(self) -> None:
+        response = httpx.Response(401, json={"error": {"message": "invalid x-api-key"}})
+        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError) as ctx:
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+        # The 401 body/detail is never surfaced -- only the status code.
+        self.assertNotIn("invalid x-api-key", str(ctx.exception))
+        self.assertNotIn("sk-llm-unit-test-key", str(ctx.exception))
+
+    def test_malformed_json_raises_provider_error(self) -> None:
+        response = httpx.Response(200, content=b"not json at all")
+        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+
+    def test_empty_content_raises_provider_error(self) -> None:
+        response = httpx.Response(200, json={"content": []})
+        response.request = httpx.Request("POST", "https://api.anthropic.com/v1/messages")
+        with patch("backend.services.chatbot_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+
+    def test_api_key_never_appears_in_any_exception_message(self) -> None:
+        with patch(
+            "backend.services.chatbot_llm.httpx.post", side_effect=httpx.ConnectError("connection refused")
+        ):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError) as ctx:
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+        self.assertNotIn("sk-llm-unit-test-key", str(ctx.exception))
 
 
 if __name__ == "__main__":

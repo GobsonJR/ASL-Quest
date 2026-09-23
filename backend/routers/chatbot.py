@@ -30,6 +30,14 @@ _PROGRESS_CONTEXT_TRIGGERS = (
     "my achievement", "my native", "how am i doing", "my stats",
 )
 
+# How many of the most recent messages in a conversation get sent to the
+# provider as context for a follow-up (e.g. "what about the native head?").
+# Bounded so a long-running conversation doesn't grow the request (and the
+# token cost) without limit — 10 messages is 5 user/assistant exchanges,
+# comfortably enough for the "why?" / "what about X?" style follow-ups this
+# assistant supports.
+MAX_HISTORY_MESSAGES = 10
+
 
 def _serialize_message(message: ChatbotMessage) -> dict:
     try:
@@ -104,11 +112,12 @@ def _build_user_context(db: Session, user: User, message: str) -> str | None:
 
 
 def _build_history(conversation: ChatbotConversation) -> list[dict[str, str]]:
-    return [
+    messages = [
         {"role": m.role, "content": m.content}
         for m in conversation.messages
         if m.role in ("user", "assistant")
     ]
+    return messages[-MAX_HISTORY_MESSAGES:]
 
 
 def _has_prior_in_scope_turn(conversation: ChatbotConversation) -> bool:
@@ -122,6 +131,14 @@ def _has_prior_in_scope_turn(conversation: ChatbotConversation) -> bool:
         if metadata.get("scope") == "in_scope":
             return True
     return False
+
+
+@router.get("/status")
+def chatbot_status(_: User = Depends(get_current_user)) -> dict:
+    """Whether AURA's LLM provider is configured — never the key itself, never
+    which provider/model, just enough for the frontend to show an online/setup-
+    needed indicator before the user sends a first message."""
+    return {"configured": chatbot_llm.is_configured()}
 
 
 @router.post("/conversations", status_code=status.HTTP_201_CREATED)
@@ -195,16 +212,22 @@ def send_message(
             metadata = {"scope": "in_scope", "provider_status": "ok"}
         except chatbot_llm.ChatbotNotConfiguredError:
             reply_text = (
-                "The ASL-Quest Assistant isn't fully set up yet — an administrator needs to "
-                "configure the CHATBOT_API_KEY environment variable before I can answer "
-                "questions. See .env.example for details."
+                "AURA isn't fully set up yet — an administrator needs to configure the "
+                "CHATBOT_API_KEY environment variable before I can answer questions. "
+                "See .env.example for details."
             )
             metadata = {"scope": "in_scope", "provider_status": "not_configured"}
+        except chatbot_llm.ChatbotRateLimitedError:
+            reply_text = "AURA is getting a lot of requests right now. Please wait a moment and try again."
+            metadata = {"scope": "in_scope", "provider_status": "rate_limited"}
+        except chatbot_llm.ChatbotTimeoutError:
+            reply_text = "AURA's response is taking too long right now. Please try again."
+            metadata = {"scope": "in_scope", "provider_status": "timeout"}
         except chatbot_llm.ChatbotProviderError:
-            reply_text = (
-                "I'm having trouble reaching the ASL-Quest Assistant service right now. "
-                "Please try again in a moment."
-            )
+            # Catch-all for anything else (invalid/revoked key, malformed or empty
+            # response, unexpected HTTP status) — deliberately generic so the
+            # message never echoes provider internals back to the user.
+            reply_text = "I'm having trouble reaching AURA's provider right now. Please try again in a moment."
             metadata = {"scope": "in_scope", "provider_status": "error"}
 
     assistant_message = ChatbotMessage(

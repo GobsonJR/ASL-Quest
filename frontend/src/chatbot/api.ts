@@ -3,7 +3,7 @@ import { authHeaders } from "../auth/token";
 const API = "/api";
 
 export type ChatbotScope = "in_scope" | "off_topic" | null;
-export type ChatbotProviderStatus = "ok" | "not_configured" | "error" | null;
+export type ChatbotProviderStatus = "ok" | "not_configured" | "error" | "rate_limited" | "timeout" | null;
 
 export type ChatbotMessage = {
   id: number;
@@ -54,6 +54,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${API}${path}`, { ...init, headers });
   if (!response.ok) throw new Error(await parseError(response, "ASL-Quest Assistant request failed."));
   return response.json();
+}
+
+export function fetchChatbotStatus(): Promise<{ configured: boolean }> {
+  return request<{ configured: boolean }>("/chatbot/status");
 }
 
 export function createConversation(title?: string | null): Promise<ChatbotConversation> {

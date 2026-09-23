@@ -2,15 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import {
   Card,
   EmptyState,
-  PageHeader,
-  PageLayout,
   PrimaryButton,
   SecondaryButton,
+  SectionLabel,
   StatusChip,
 } from "../components/AppShell";
 import { useToast } from "../components/Toast";
 import {
   createConversation,
+  fetchChatbotStatus,
   getConversation,
   listConversations,
   sendChatbotFeedback,
@@ -20,10 +20,10 @@ import {
 } from "./api";
 
 const SUGGESTED_QUESTIONS = [
+  "How does A-Z recognition work?",
   "How does Native Sign recognition work?",
+  "What is I3D?",
   "How does the database store my progress?",
-  "What is the difference between Word Spelling and Native Signs?",
-  "How does the I3D model work?",
   "How is XP awarded?",
 ];
 
@@ -39,6 +39,41 @@ function formatTime(iso: string): string {
   }
 }
 
+/** AURA's small circular identity badge, reused in the header and beside every reply. */
+function AuraAvatar({ size = "md" }: { size?: "sm" | "md" }) {
+  const dimensions = size === "sm" ? "h-7 w-7 text-xs" : "h-11 w-11 text-base";
+  return (
+    <span
+      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-dim)] font-display font-semibold text-[var(--color-ink)] shadow-[0_0_20px_rgba(215,243,106,0.35)] ${dimensions}`}
+      aria-hidden="true"
+    >
+      A
+    </span>
+  );
+}
+
+function AuraStatusIndicator({ configured }: { configured: boolean | null }) {
+  if (configured === null) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-muted)]" aria-hidden="true" />
+        Checking status...
+      </span>
+    );
+  }
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 text-xs ${configured ? "text-[var(--color-success)]" : "text-[var(--color-warm)]"}`}
+    >
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${configured ? "bg-[var(--color-success)]" : "bg-[var(--color-warm)]"}`}
+        aria-hidden="true"
+      />
+      {configured ? "AURA is online" : "AURA needs setup"}
+    </span>
+  );
+}
+
 export function ChatbotPage() {
   const { push } = useToast();
 
@@ -46,6 +81,7 @@ export function ChatbotPage() {
   const [activeConversation, setActiveConversation] = useState<ChatbotConversation | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [configured, setConfigured] = useState<boolean | null>(null);
 
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -58,6 +94,13 @@ export function ChatbotPage() {
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
+    fetchChatbotStatus()
+      .then((result) => {
+        if (!cancelled) setConfigured(result.configured);
+      })
+      .catch(() => {
+        if (!cancelled) setConfigured(null);
+      });
     listConversations()
       .then(async (response) => {
         if (cancelled) return;
@@ -69,7 +112,7 @@ export function ChatbotPage() {
       })
       .catch((err) => {
         if (cancelled) return;
-        setLoadError(err instanceof Error ? err.message : "Unable to load the ASL-Quest Assistant.");
+        setLoadError(err instanceof Error ? err.message : "Unable to load AURA.");
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -155,7 +198,7 @@ export function ChatbotPage() {
     try {
       await sendChatbotFeedback(message.id, helpful);
       setVotedMessageIds((current) => new Set(current).add(message.id));
-      push(helpful ? "Thanks for the feedback!" : "Thanks — we'll use that to improve.", "success");
+      push(helpful ? "Thanks for the feedback!" : "Thanks — we'll use that to improve AURA.", "success");
     } catch (err) {
       push(err instanceof Error ? err.message : "Could not record feedback.", "error");
     }
@@ -164,7 +207,7 @@ export function ChatbotPage() {
   const messages = activeConversation?.messages ?? [];
 
   return (
-    <PageLayout>
+    <div className="space-y-8 md:space-y-10">
       <div className="glass-panel relative overflow-hidden rounded-[var(--radius-panel)] p-6 md:p-8">
         <div
           className="pointer-events-none absolute inset-0 opacity-70"
@@ -175,9 +218,17 @@ export function ChatbotPage() {
           aria-hidden="true"
         />
         <div className="relative flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <StatusChip tone="accent">ASL-QUEST ASSISTANT</StatusChip>
-            <PageHeader title="ASL-Quest Assistant" description="Ask me anything about the ASL-Quest project." compact />
+          <div className="flex items-center gap-3.5">
+            <AuraAvatar />
+            <div>
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className="font-display text-2xl font-medium text-[#eef4f0] md:text-3xl">AURA</h1>
+                <StatusChip tone="accent">ASL-QUEST PROJECT ASSISTANT</StatusChip>
+              </div>
+              <div className="mt-1">
+                <AuraStatusIndicator configured={configured} />
+              </div>
+            </div>
           </div>
           {conversations && conversations.length > 0 && (
             <div className="flex flex-wrap items-center gap-2">
@@ -202,21 +253,22 @@ export function ChatbotPage() {
       </div>
 
       {loading ? (
-        <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading the ASL-Quest Assistant...</div>
+        <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading AURA...</div>
       ) : loadError ? (
-        <EmptyState icon="⚠️" title="Unable to load the assistant" description={loadError} />
+        <EmptyState icon="⚠️" title="Unable to load AURA" description={loadError} />
       ) : (
         <Card className="flex min-h-[55vh] flex-col overflow-hidden p-0">
           <div className="flex-1 space-y-4 overflow-y-auto px-4 py-5 md:px-6" role="log" aria-live="polite">
             {messages.length === 0 ? (
               <div className="flex h-full flex-col items-center justify-center gap-5 py-10 text-center">
-                <span className="text-4xl" aria-hidden="true">
-                  🤟💬
-                </span>
-                <p className="max-w-sm text-sm text-[var(--color-mist)]">
-                  Ask about A-Z recognition, Word Spelling, Native Signs, the database, or how any part of
-                  ASL-Quest works. I only answer questions about this project.
-                </p>
+                <AuraAvatar />
+                <div>
+                  <SectionLabel>Ask AURA about ASL-Quest</SectionLabel>
+                  <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--color-mist)]">
+                    A-Z recognition, Word Spelling, Native Signs, the database, or how any part of the project
+                    works. AURA only answers questions about ASL-Quest.
+                  </p>
+                </div>
                 <div className="flex flex-wrap justify-center gap-2">
                   {SUGGESTED_QUESTIONS.map((question) => (
                     <button
@@ -243,9 +295,10 @@ export function ChatbotPage() {
             )}
 
             {sending && (
-              <div className="flex justify-start">
+              <div className="flex items-center gap-2">
+                <AuraAvatar size="sm" />
                 <p className="animate-pulse-glow inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 px-4 py-2 text-sm text-[var(--color-accent)]">
-                  Thinking...
+                  AURA is thinking...
                 </p>
               </div>
             )}
@@ -264,21 +317,21 @@ export function ChatbotPage() {
           <form onSubmit={handleSubmit} className="flex items-end gap-3 border-t border-[var(--color-line-soft)] px-4 py-4 md:px-6">
             <textarea
               className="input-field min-h-11 flex-1 resize-none"
-              placeholder="Ask about the ASL-Quest project..."
+              placeholder="Ask AURA about the ASL-Quest project..."
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={handleKeyDown}
               rows={1}
               disabled={sending}
-              aria-label="Message the ASL-Quest Assistant"
+              aria-label="Message AURA"
             />
-            <PrimaryButton type="submit" disabled={sending || !input.trim()} ariaLabel="Send message">
+            <PrimaryButton type="submit" disabled={sending || !input.trim()} ariaLabel="Send message to AURA">
               Send
             </PrimaryButton>
           </form>
         </Card>
       )}
-    </PageLayout>
+    </div>
   );
 }
 
@@ -292,16 +345,24 @@ function MessageBubble({
   onFeedback: (helpful: boolean) => void;
 }) {
   const isUser = message.role === "user";
+  const statusChip =
+    message.scope === "off_topic" ? (
+      <StatusChip tone="neutral">Off-topic</StatusChip>
+    ) : message.provider_status === "not_configured" ? (
+      <StatusChip tone="warning">Setup needed</StatusChip>
+    ) : message.provider_status === "rate_limited" ? (
+      <StatusChip tone="warning">Busy right now</StatusChip>
+    ) : message.provider_status === "timeout" ? (
+      <StatusChip tone="warning">Slow response</StatusChip>
+    ) : message.provider_status === "error" ? (
+      <StatusChip tone="warning">Connection issue</StatusChip>
+    ) : null;
+
   return (
-    <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-      <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? "" : "w-full"}`}>
-        {!isUser && (message.scope === "off_topic" || message.provider_status === "not_configured" || message.provider_status === "error") && (
-          <div className="mb-1.5 flex gap-2">
-            {message.scope === "off_topic" && <StatusChip tone="neutral">Off-topic</StatusChip>}
-            {message.provider_status === "not_configured" && <StatusChip tone="warning">Setup needed</StatusChip>}
-            {message.provider_status === "error" && <StatusChip tone="warning">Connection issue</StatusChip>}
-          </div>
-        )}
+    <div className={`flex items-start gap-2 ${isUser ? "justify-end" : "justify-start"}`}>
+      {!isUser && <AuraAvatar size="sm" />}
+      <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? "" : "min-w-0 flex-1 sm:flex-none"}`}>
+        {statusChip && <div className="mb-1.5 flex gap-2">{statusChip}</div>}
         <div
           className={
             isUser
@@ -320,7 +381,7 @@ function MessageBubble({
                 className={`rounded-full px-2 py-0.5 transition hover:text-[var(--color-success)] disabled:cursor-not-allowed disabled:opacity-50 ${voted ? "text-[var(--color-success)]" : ""}`}
                 onClick={() => onFeedback(true)}
                 disabled={voted}
-                aria-label="Mark this response as helpful"
+                aria-label="Mark this AURA response as helpful"
               >
                 👍
               </button>
@@ -329,7 +390,7 @@ function MessageBubble({
                 className={`rounded-full px-2 py-0.5 transition hover:text-[var(--color-warm)] disabled:cursor-not-allowed disabled:opacity-50 ${voted ? "text-[var(--color-warm)]" : ""}`}
                 onClick={() => onFeedback(false)}
                 disabled={voted}
-                aria-label="Mark this response as not helpful"
+                aria-label="Mark this AURA response as not helpful"
               >
                 👎
               </button>

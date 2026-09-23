@@ -38,6 +38,13 @@ def get_chatbot_model() -> str:
     return os.getenv("CHATBOT_MODEL", "").strip() or "claude-sonnet-5"
 
 
+# Optional override for the provider's API endpoint (e.g. a corporate proxy or a
+# different Anthropic-compatible endpoint). Defaults to Anthropic's own Messages
+# API — most deployments never need to set this.
+def get_chatbot_api_base_url() -> str:
+    return os.getenv("CHATBOT_API_BASE_URL", "").strip() or "https://api.anthropic.com/v1/messages"
+
+
 CORS_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
