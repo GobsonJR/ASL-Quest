@@ -275,15 +275,15 @@ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
 
 Space / nothing / del are not included. Those class folders are not in the training set.
 
-## Evaluation metrics (verified 14 Sep 2026)
+## Evaluation metrics — historical (original checkpoint, verified 14 Sep 2026)
 
-Checkpoint evaluated: `models/best_model.pth` on NVIDIA GeForce RTX 4050 Laptop GPU.
+Checkpoint evaluated: `models/best_model.pth` on NVIDIA GeForce RTX 4050 Laptop GPU. **This original checkpoint file was later lost and is no longer present at this path.** See "Evaluation metrics — current production checkpoint" below for what `models/best_model.pth` refers to today.
 
 ### Legacy random-split number (not a holdout)
 
-The checkpoint stores `accuracy` / `val_accuracy` = **98.22%**. That value came from the original training run’s **80/20 random validation split** and can leak near-duplicate frames. It is **not** the controlled test result below.
+The checkpoint stored `accuracy` / `val_accuracy` = **98.22%**. That value came from the original training run’s **80/20 random validation split** and can leak near-duplicate frames. It is **not** the controlled test result below, and it describes a checkpoint that no longer exists on disk.
 
-### Controlled sequential holdout (this repo)
+### Controlled sequential holdout (historical)
 
 | Metric | Value |
 | --- | --- |
@@ -293,14 +293,35 @@ The checkpoint stores `accuracy` / `val_accuracy` = **98.22%**. That value came 
 | Macro recall | **97.91%** |
 | Macro F1 | **97.90%** |
 
-Weakest per-class recall / accuracy on this holdout:
+Weakest per-class recall / accuracy on this historical holdout:
 
 - J: 80.67% (363 / 450)
 - P: 89.56% (403 / 450)
 - N: 90.89% (409 / 450)
 - B: 93.56% (421 / 450)
 
-These numbers were produced by `evaluate.py` running inference on the holdout images. They are not hand-entered.
+These historical numbers were produced by `evaluate.py` running inference on the holdout images at the time. They are not hand-entered, but they describe the original checkpoint above, not the checkpoint currently at `models/best_model.pth`.
+
+## Evaluation metrics — current production checkpoint
+
+`models/best_model.pth` currently refers to a **recovered/retrained** production checkpoint — the original checkpoint above was lost and this one was retrained from `dataset/asl_alphabet_train/` using the same architecture, preprocessing, and evaluation procedure. Its controlled test result, on the same 11,700-image sequential holdout:
+
+| Metric | Value |
+| --- | --- |
+| Test images | 11,700 (450 per class) |
+| Overall accuracy | **90.91%** |
+| Macro precision | **93.65%** |
+| Macro recall | **90.91%** |
+| Macro F1 | **90.22%** |
+
+Weakest per-class recall / accuracy on this holdout:
+
+- S: 27.78%
+- X: 35.33%
+- V: 69.78%
+- Y: 79.11%
+
+These current numbers were produced by `evaluate.py` running inference on the same holdout images and are recorded in `outputs/evaluation/metrics.json`. They are not hand-entered.
 
 ## Limitations
 

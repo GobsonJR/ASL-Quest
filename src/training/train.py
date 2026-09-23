@@ -106,6 +106,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--num-workers", type=int, default=NUM_WORKERS)
     parser.add_argument("--max-per-class", type=int, default=None)
     parser.add_argument("--patience", type=int, default=EARLY_STOP_PATIENCE)
+    parser.add_argument("--seed", type=int, default=SEED)
     parser.add_argument("--best-model", type=Path, default=V2_BEST_MODEL_PATH)
     parser.add_argument("--last-model", type=Path, default=V2_LAST_MODEL_PATH)
     parser.add_argument("--history", type=Path, default=OUTPUTS_DIR / "training_history.json")
@@ -116,7 +117,7 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    seed_everything(SEED)
+    seed_everything(args.seed)
     device = print_device_info()
 
     train_loader, val_loader, _, class_names, splits = build_dataloaders(
