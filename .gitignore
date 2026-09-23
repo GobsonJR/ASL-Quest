@@ -29,3 +29,9 @@ data/backups/
 outputs/asl_citizen_100/diagnostics/layer4_failure/frames/
 outputs/asl_citizen_100/diagnostics/*.png
 outputs/asl_citizen_native_10/diagnostics/**/*.png
+
+# deployment/ is a staging area for manually-copied runtime assets (model
+# checkpoints already covered by *.pth/*.pt/*.task above; the demo database
+# is not) — never the assets themselves. See deployment/README.md.
+deployment/database/*.db
+

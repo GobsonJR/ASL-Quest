@@ -8,6 +8,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import os
 import random
 import statistics
 import sys
@@ -18,7 +19,10 @@ from pathlib import Path
 import cv2
 
 ROOT = Path(__file__).resolve().parents[1]
-DATASET_ROOT = Path(r"D:\ASL_Citizen\ASL_Citizen")
+# Overridable via ASL_CITIZEN_DATASET_ROOT (same convention as
+# src/asl_citizen/config.py) since this licensed dataset's location is
+# machine-specific and never distributed with the repo.
+DATASET_ROOT = Path(os.getenv("ASL_CITIZEN_DATASET_ROOT", r"D:\ASL_Citizen\ASL_Citizen"))
 OUTPUT_DIR = ROOT / "outputs" / "asl_citizen_audit"
 SPLITS_DIR = DATASET_ROOT / "splits"
 VIDEOS_DIR = DATASET_ROOT / "videos"

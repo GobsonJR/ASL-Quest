@@ -2,14 +2,19 @@
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal
 
 from src.config import IMAGENET_MEAN, IMAGENET_STD, PROJECT_ROOT
 
-# External dataset (read-only; never modified by this pipeline).
-ASL_CITIZEN_ROOT = Path(r"D:\ASL_Citizen\ASL_Citizen")
+# External dataset (read-only; never modified by this pipeline). This is the
+# licensed ASL Citizen dataset, never distributed with the repo — its location
+# is machine-specific, so it's overridable via ASL_CITIZEN_DATASET_ROOT rather
+# than hardcoded, while keeping this exact path as the default (unchanged
+# behavior on machines that already have it there).
+ASL_CITIZEN_ROOT = Path(os.getenv("ASL_CITIZEN_DATASET_ROOT", r"D:\ASL_Citizen\ASL_Citizen"))
 ASL_CITIZEN_SPLITS_DIR = ASL_CITIZEN_ROOT / "splits"
 ASL_CITIZEN_VIDEOS_DIR = ASL_CITIZEN_ROOT / "videos"
 
