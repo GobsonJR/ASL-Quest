@@ -153,3 +153,16 @@ class WordPracticeSessionCreate(BaseModel):
     challenge_type: str | None = None
     challenge_finished: bool = False
     resume_index: int = 0
+
+
+class ChatbotConversationCreate(BaseModel):
+    title: str | None = Field(default=None, max_length=255)
+
+
+class ChatbotMessageCreate(BaseModel):
+    content: str = Field(min_length=1, max_length=4000)
+
+
+class ChatbotFeedbackCreate(BaseModel):
+    helpful: bool
+    feedback: str | None = Field(default=None, max_length=1000)

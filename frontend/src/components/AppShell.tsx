@@ -12,6 +12,7 @@ const NAV: Array<{ id: NavPage; label: string; adminOnly?: boolean }> = [
   { id: "challenges", label: "Challenges" },
   { id: "progress", label: "Progress" },
   { id: "achievements", label: "Badges" },
+  { id: "assistant", label: "Assistant" },
   { id: "profile", label: "Profile" },
   { id: "admin", label: "Admin", adminOnly: true },
 ];

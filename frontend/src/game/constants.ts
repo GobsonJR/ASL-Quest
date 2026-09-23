@@ -31,6 +31,7 @@ export type NavPage =
   | "challenges"
   | "progress"
   | "achievements"
+  | "assistant"
   | "profile"
   | "settings"
   | "admin";

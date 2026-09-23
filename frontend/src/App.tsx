@@ -11,6 +11,7 @@ import { HomePage } from "./pages/HomePage";
 import { LearnPage } from "./pages/LearnPage";
 import { NativeSignsPage } from "./native/NativeSignsPage";
 import { NativeSignPracticePage } from "./native/NativeSignPracticePage";
+import { ChatbotPage } from "./chatbot/ChatbotPage";
 import { PracticePage } from "./pages/PracticePage";
 import { WordPracticePage } from "./pages/WordPracticePage";
 import { WordsPage } from "./pages/WordsPage";
@@ -93,6 +94,7 @@ function AuthenticatedApp() {
         {page === "challenges" && <ChallengesPage />}
         {page === "progress" && <ProgressPage />}
         {page === "achievements" && <AchievementsPage />}
+        {page === "assistant" && <ChatbotPage />}
         {page === "profile" && <ProfilePage />}
         {page === "settings" && <SettingsPage />}
         {page === "admin" && <AdminPage />}

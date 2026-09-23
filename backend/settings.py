@@ -25,6 +25,19 @@ def get_bootstrap_admin_email() -> str:
 
 
 BOOTSTRAP_ADMIN_EMAIL = get_bootstrap_admin_email()
+
+
+# Read fresh on every call (not cached at import time like the constants above) so
+# tests can toggle "configured" vs "not configured" within a single process via
+# os.environ, without needing to control backend.settings' import order.
+def get_chatbot_api_key() -> str:
+    return os.getenv("CHATBOT_API_KEY", "").strip()
+
+
+def get_chatbot_model() -> str:
+    return os.getenv("CHATBOT_MODEL", "").strip() or "claude-sonnet-5"
+
+
 CORS_ORIGINS = [
     origin.strip()
     for origin in os.getenv(
