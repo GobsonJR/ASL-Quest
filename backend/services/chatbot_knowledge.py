@@ -128,43 +128,83 @@ PROJECT_KNOWLEDGE_SECTIONS: dict[str, str] = {
 }
 
 # Deliberately broad but bounded allow-list, matched as whole-word/whole-phrase
-# substrings against the normalized message. If a message matches none of these, the
-# backend treats it as out of scope WITHOUT calling the LLM provider at all — this is
-# the actual enforcement point (Phase 4/9 require the backend, not just a system
-# prompt, to own the scope boundary).
+# substrings against the normalized message. If a message matches none of these AND
+# it isn't a trusted follow-up (see is_in_scope below), the backend treats it as out
+# of scope WITHOUT calling the LLM provider at all — this is the actual enforcement
+# point (Phase 4/9 require the backend, not just a system prompt, to own the scope
+# boundary).
 PROJECT_KEYWORDS: tuple[str, ...] = (
-    "asl", "sign language", "asl-quest", "asl quest", "this app", "this project",
+    "asl", "sign", "sign language", "asl-quest", "asl quest", "this app", "this project",
     "this platform", "this website", "the app", "the platform",
-    "a-z", "a to z", "alphabet", "resnet", "handshape",
+    "a-z", "a to z", "alphabet", "resnet", "handshape", "recognition", "recognize",
     "mediapipe", "hand detect", "temporal smooth", "smoothing",
     "word spelling", "word practice", "spelling", "letter-by-letter", "letter by letter",
     "native sign", "native-sign", "isolated sign", "asl citizen", "i3d", "gloss",
     "vocabulary", "backbone", "linear head", "frozen",
     "database", "sqlite", "postgres", "sqlalchemy", "alembic", "migration", "schema",
-    "fastapi", "backend", "endpoint", "router", "api",
+    "fastapi", "backend", "endpoint", "router", "api", "architecture",
     "react", "typescript", "frontend", "vite", "component", "page",
     "authentication", "auth", "login", "register", "jwt", "bearer token",
     "xp", "experience point", "level", "streak", "achievement",
-    "badge", "progress", "mastery", "mastered",
+    "badge", "progress", "mastery", "mastered", "wrong", "correct", "mistake", "feedback",
     "analytics", "dataset", "training", "evaluation", "accuracy", "checkpoint",
     "model", "practice", "camera", "webcam", "prediction", "predict", "confidence",
     "chatbot", "assistant", "how do i", "how does", "how to use", "feature",
     "class_to_idx", "resnet18", "learning platform", "signer",
+    "limitation", "limitations", "roadmap", "alternative", "alternatives",
+    "compare", "comparison", "different", "difference",
 )
 
-# Very short conversational continuations that only make sense as a follow-up to an
-# already-in-scope exchange (e.g. "why?" after an on-topic answer). Matched only as
-# a WHOLE normalized message, never as a substring, and only honored when the
-# conversation already has at least one prior in-scope assistant reply — this keeps
-# "What is the capital of France?" (which is also short) from slipping through.
-FOLLOWUP_PHRASES: frozenset[str] = frozenset(
-    {
-        "why", "why not", "why is that", "why that",
-        "how", "how come", "how so",
-        "more", "tell me more", "explain", "explain more", "elaborate",
-        "continue", "go on", "and", "what about that", "what else",
-    }
+# A short conversational follow-up ("why?", "how is that different?", "tell me
+# more") almost never repeats a keyword of the question it's following up on —
+# that's what makes it a follow-up. A *content-bearing* follow-up like "What are
+# the alternatives?" is already handled above: "alternative"/"alternatives" (and
+# "different"/"difference"/"compare"/"comparison") are themselves in
+# PROJECT_KEYWORDS, so a message like that matches directly, on its own, with no
+# help from conversation state at all.
+#
+# What's left for THIS mechanism is the genuinely content-free case: a short
+# continuation with no topic words of its own to match against anything. For that
+# narrow case, an earlier version of this function tried a NEGATIVE deny-list of
+# "obviously generic trivia" shapes (capital-of, weather-in, etc.) to keep such
+# messages from slipping through — that approach was tried and reverted after a
+# live test caught a real hole: "What is the tallest mountain in the world?",
+# asked right after an in-scope reply, matched none of the deny-list's fixed
+# patterns and reached the provider anyway. A deny-list can never enumerate every
+# way to phrase an unrelated question, which is exactly the class of bug this
+# whole rewrite exists to fix elsewhere — reintroducing it here, just inverted,
+# would be a regression, not a fix.
+#
+# The correct-shaped tool for a scope BOUNDARY is a POSITIVE allow-list (safe
+# default: reject unless recognized), not a deny-list (unsafe default: accept
+# unless recognized). So: a short, low-content message is trusted as a follow-up
+# only if it *starts with* one of a small set of genuine continuation openers —
+# words that only make sense referring back to something already said, and that
+# no fresh, self-contained question would naturally open with. Matched as a
+# prefix (not requiring the whole message to be an exact fixed string, unlike the
+# old FOLLOWUP_PHRASES this replaces) so natural variations ("why though?", "how
+# come?", "tell me more about that") still work. Bounded by word count (a long
+# message "riding along" as a follow-up could smuggle in an unrelated topic) and
+# by only trusting the conversation's MOST RECENT assistant turn (not "any turn,
+# ever, this conversation has had") so it can't be used to permanently unlock an
+# unrelated tangent partway through a long conversation.
+_MAX_FOLLOWUP_WORDS = 12
+
+_FOLLOWUP_OPENER_PATTERN = re.compile(
+    r"^(?:"
+    r"why(?:\s+not)?|why is that|why that|"
+    r"how(?:\s+come|\s+so)?|"
+    r"more|tell me more|"
+    r"explain(?:\s+more)?|elaborate|"
+    r"continue|go on|"
+    r"and|"
+    r"what about(?:\s+that)?|what else"
+    r")\b"
 )
+
+
+def _is_trusted_followup_opener(normalized: str) -> bool:
+    return bool(_FOLLOWUP_OPENER_PATTERN.match(normalized))
 
 OFF_TOPIC_REPLY = "I can only answer questions related to the ASL-Quest project."
 
@@ -212,15 +252,30 @@ _KEYWORD_PATTERN = re.compile(
 )
 
 
-def is_in_scope(message: str, has_prior_in_scope_turn: bool = False) -> bool:
-    """Backend-owned scope gate. Returns False (out of scope) for anything that
-    doesn't match the project keyword allow-list, independent of the LLM."""
+def is_in_scope(message: str, last_turn_in_scope: bool = False) -> bool:
+    """Backend-owned scope gate — this, not the LLM or the system prompt, is what
+    actually keeps an off-topic message from ever reaching the provider.
+
+    A message is in scope if either:
+    1. It matches the project keyword allow-list (works for any message, first-turn
+       or not) — this also covers most content-bearing follow-ups directly, e.g.
+       "What are the alternatives?" matches on "alternatives" alone, or
+    2. It's short, opens with a recognized content-free continuation word ("why?",
+       "how come?", "tell me more", "what about that?"), and immediately follows an
+       in-scope assistant reply — see _FOLLOWUP_OPENER_PATTERN.
+
+    `last_turn_in_scope` must reflect only the conversation's most recent assistant
+    turn, not "was any turn ever in scope" — see
+    backend/routers/chatbot.py::_last_assistant_turn_in_scope.
+    """
     normalized = _normalize(message)
     if not normalized:
         return False
     if _KEYWORD_PATTERN.search(normalized):
         return True
-    return has_prior_in_scope_turn and normalized in FOLLOWUP_PHRASES
+    if not last_turn_in_scope:
+        return False
+    return len(normalized.split()) <= _MAX_FOLLOWUP_WORDS and _is_trusted_followup_opener(normalized)
 
 
 def build_project_knowledge() -> str:

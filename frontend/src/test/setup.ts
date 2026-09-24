@@ -8,3 +8,10 @@ import "@testing-library/jest-dom/vitest";
 afterEach(() => {
   cleanup();
 });
+
+// jsdom doesn't implement scrollIntoView at all -- any component that calls it
+// (e.g. auto-scrolling a chat log to the latest message) throws in every test
+// that renders it, unrelated to what that test is actually checking.
+if (!Element.prototype.scrollIntoView) {
+  Element.prototype.scrollIntoView = () => {};
+}

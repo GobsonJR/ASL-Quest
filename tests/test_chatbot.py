@@ -422,6 +422,149 @@ class ChatbotRouterTests(unittest.TestCase):
         mocked.assert_not_called()
         self.assertEqual(response.json()["assistant_message"]["scope"], "off_topic")
 
+    def test_unrelated_question_still_blocked_mid_conversation(self) -> None:
+        # Regression test for a real bug caught during live testing: an earlier
+        # version of the follow-up-continuity mechanism used a NEGATIVE deny-list of
+        # "obviously generic trivia" shapes (capital-of, weather-in, etc.) to keep a
+        # short unrelated question from riding along after an in-scope reply. A
+        # short, unrelated, *undeny-listed* question -- "What is the tallest
+        # mountain in the world?", which matched none of those fixed patterns --
+        # reached the real OpenRouter provider anyway. The fix replaced that
+        # deny-list with a positive allow-list of genuine continuation openers
+        # (_FOLLOWUP_OPENER_PATTERN); this test locks in that a short-but-unrelated
+        # question with a brand new subject of its own stays blocked even
+        # immediately after an in-scope exchange.
+        token = self.register("midconvo_offtopic_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="It's stored in native_sign_progress."):
+            self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "What database stores native sign progress?"},
+                headers=self.auth(token),
+            )
+        with patch.object(chatbot_llm, "generate_reply") as mocked:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "What is the tallest mountain in the world?"},
+                headers=self.auth(token),
+            )
+        mocked.assert_not_called()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "off_topic")
+
+    # --- Free-form questions (not a predefined-question/FAQ interface) -------------
+    # These exercise the real backend scope guard (backend/services/chatbot_knowledge
+    # .py::is_in_scope) end to end via the router, not a mock of it, so a future
+    # regression that narrows the guard back to a rigid keyword-only list would be
+    # caught here.
+
+    def test_suggested_question_works(self) -> None:
+        # Verbatim text from frontend/src/chatbot/ChatbotPage.tsx's SUGGESTED_QUESTIONS.
+        token = self.register("suggested_q_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="It's a ResNet18 classifier...") as mocked:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "How does A-Z recognition work?"},
+                headers=self.auth(token),
+            )
+        mocked.assert_called_once()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "in_scope")
+
+    def test_arbitrary_typed_asl_quest_question_works(self) -> None:
+        # No exact keyword phrase from the old allow-list ("wrong"/"sign" are the
+        # only overlaps, both newly added) -- this is a genuinely free-typed question,
+        # not a suggestion pulled from the UI.
+        token = self.register("arbitrary_q_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="Nothing is saved as correct...") as mocked:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "What happens when a user gets a sign wrong?"},
+                headers=self.auth(token),
+            )
+        mocked.assert_called_once()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "in_scope")
+
+    def test_arbitrary_technical_project_question_works(self) -> None:
+        token = self.register("architecture_q_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="FastAPI backend, React frontend...") as mocked:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "Explain the architecture simply."},
+                headers=self.auth(token),
+            )
+        mocked.assert_called_once()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "in_scope")
+
+    def test_natural_language_variation_works(self) -> None:
+        # A paraphrase, not a fixed phrase from PROJECT_KEYWORDS or the suggestions
+        # list -- only "handshape" overlaps, which is exactly the point: scope is
+        # decided by real content words in the sentence, not a lookup against a
+        # fixed question list.
+        token = self.register("variation_q_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="MediaPipe finds the hand first...") as mocked:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "What method figures out which handshape I'm making with my hand?"},
+                headers=self.auth(token),
+            )
+        mocked.assert_called_once()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "in_scope")
+
+    def test_followup_uses_conversation_context_for_pronoun_reference(self) -> None:
+        # The exact scenario from the task: "alternatives" shares no words at all
+        # with "ResNet18" -- old FOLLOWUP_PHRASES (~16 fixed exact strings) couldn't
+        # have matched this either way; it now also matches PROJECT_KEYWORDS directly
+        # ("alternatives"), so this is covered twice over (keyword AND continuity).
+        token = self.register("context_q_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="ResNet18 was fast and small...") as first:
+            self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "Why did we use ResNet18?"},
+                headers=self.auth(token),
+            )
+        first.assert_called_once()
+
+        with patch.object(chatbot_llm, "generate_reply", return_value="MobileNet or EfficientNet, for example.") as second:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "What are the alternatives?"},
+                headers=self.auth(token),
+            )
+        second.assert_called_once()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "in_scope")
+        contents = [m["content"] for m in second.call_args.args[1]]
+        self.assertIn("Why did we use ResNet18?", contents)
+        self.assertIn("ResNet18 was fast and small...", contents)
+        self.assertEqual(contents[-1], "What are the alternatives?")
+
+    def test_capital_of_france_is_blocked_before_provider_call(self) -> None:
+        token = self.register("france_q_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply") as mocked:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "What is the capital of France?"},
+                headers=self.auth(token),
+            )
+        mocked.assert_not_called()
+        self.assertEqual(response.json()["assistant_message"]["scope"], "off_topic")
+
+    def test_empty_input_is_rejected_by_validation(self) -> None:
+        token = self.register("empty_input_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply") as mocked:
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": ""},
+                headers=self.auth(token),
+            )
+        self.assertEqual(response.status_code, 422)
+        mocked.assert_not_called()
+
 
 class ChatbotLLMProviderTests(unittest.TestCase):
     """Unit tests for backend/services/chatbot_llm.py's own response
@@ -495,6 +638,17 @@ class ChatbotLLMProviderTests(unittest.TestCase):
     def test_timeout_raises_timeout_error(self) -> None:
         with patch("backend.services.chatbot_llm.httpx.post", side_effect=httpx.TimeoutException("timed out")):
             with self.assertRaises(chatbot_llm.ChatbotTimeoutError):
+                chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
+
+    def test_network_failure_raises_provider_error_not_a_raw_exception(self) -> None:
+        # DNS failure / connection refused / offline host -- httpx.ConnectError is a
+        # subclass of httpx.HTTPError, the general network-failure branch in
+        # generate_reply (distinct from the more specific TimeoutException branch).
+        with patch(
+            "backend.services.chatbot_llm.httpx.post",
+            side_effect=httpx.ConnectError("Connection refused"),
+        ):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
                 chatbot_llm.generate_reply("system", [{"role": "user", "content": "hi"}])
 
     def test_rate_limit_status_raises_rate_limited_error(self) -> None:

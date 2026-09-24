@@ -265,22 +265,29 @@ export function ChatbotPage() {
                 <div>
                   <SectionLabel>Ask AURA about ASL-Quest</SectionLabel>
                   <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--color-mist)]">
-                    A-Z recognition, Word Spelling, Native Signs, the database, or how any part of the project
-                    works. AURA only answers questions about ASL-Quest.
+                    Type any question in your own words — A-Z recognition, Word Spelling, Native Signs, the
+                    database, architecture, limitations, anything about how the project works. AURA only answers
+                    questions about ASL-Quest.
                   </p>
                 </div>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {SUGGESTED_QUESTIONS.map((question) => (
-                    <button
-                      key={question}
-                      type="button"
-                      className="rounded-full border border-[var(--color-line)] bg-[var(--color-panel-soft)]/60 px-3.5 py-1.5 text-xs font-medium text-[var(--color-mist)] transition hover:border-[var(--color-accent)]/40 hover:text-[#eef4f0] disabled:cursor-not-allowed disabled:opacity-50"
-                      onClick={() => void submitMessage(question)}
-                      disabled={sending}
-                    >
-                      {question}
-                    </button>
-                  ))}
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--color-muted)]">
+                    Suggested questions
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--color-muted)]">Shortcuts — not the only questions AURA can answer.</p>
+                  <div className="mt-2 flex flex-wrap justify-center gap-2">
+                    {SUGGESTED_QUESTIONS.map((question) => (
+                      <button
+                        key={question}
+                        type="button"
+                        className="rounded-full border border-[var(--color-line)] bg-[var(--color-panel-soft)]/60 px-3.5 py-1.5 text-xs font-medium text-[var(--color-mist)] transition hover:border-[var(--color-accent)]/40 hover:text-[#eef4f0] disabled:cursor-not-allowed disabled:opacity-50"
+                        onClick={() => void submitMessage(question)}
+                        disabled={sending}
+                      >
+                        {question}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : (
@@ -317,7 +324,7 @@ export function ChatbotPage() {
           <form onSubmit={handleSubmit} className="flex items-end gap-3 border-t border-[var(--color-line-soft)] px-4 py-4 md:px-6">
             <textarea
               className="input-field min-h-11 flex-1 resize-none"
-              placeholder="Ask AURA about the ASL-Quest project..."
+              placeholder="Ask AURA anything about ASL-Quest..."
               value={input}
               onChange={(event) => setInput(event.target.value)}
               onKeyDown={handleKeyDown}

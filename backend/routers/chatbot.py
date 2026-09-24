@@ -120,17 +120,23 @@ def _build_history(conversation: ChatbotConversation) -> list[dict[str, str]]:
     return messages[-MAX_HISTORY_MESSAGES:]
 
 
-def _has_prior_in_scope_turn(conversation: ChatbotConversation) -> bool:
-    for m in conversation.messages:
-        if m.role != "assistant":
-            continue
-        try:
-            metadata = json.loads(m.metadata_json) if m.metadata_json else {}
-        except (TypeError, ValueError):
-            metadata = {}
-        if metadata.get("scope") == "in_scope":
-            return True
-    return False
+def _last_assistant_turn_in_scope(conversation: ChatbotConversation) -> bool:
+    """Whether the conversation's MOST RECENT assistant reply was in scope — not
+    "was any reply ever in scope" (that would let one early in-scope exchange
+    permanently unlock unrelated follow-ups for the rest of the conversation). Feeds
+    is_in_scope's bounded follow-up-continuity check."""
+    assistant_messages = sorted(
+        (m for m in conversation.messages if m.role == "assistant"),
+        key=lambda m: m.id,
+    )
+    if not assistant_messages:
+        return False
+    last = assistant_messages[-1]
+    try:
+        metadata = json.loads(last.metadata_json) if last.metadata_json else {}
+    except (TypeError, ValueError):
+        metadata = {}
+    return metadata.get("scope") == "in_scope"
 
 
 @router.get("/status")
@@ -198,7 +204,7 @@ def send_message(
     # The scope gate runs in the backend, independent of the LLM (Phase 4/9): an
     # off-topic message never reaches the provider at all, so an unconfigured or
     # misbehaving provider can't accidentally answer it either.
-    in_scope = is_in_scope(payload.content, has_prior_in_scope_turn=_has_prior_in_scope_turn(conversation))
+    in_scope = is_in_scope(payload.content, last_turn_in_scope=_last_assistant_turn_in_scope(conversation))
 
     if not in_scope:
         reply_text = OFF_TOPIC_REPLY
