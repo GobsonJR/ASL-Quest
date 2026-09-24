@@ -193,8 +193,22 @@ def serialize_game_state(db: Session, user: User) -> GameStateSchema:
 
 def persist_game_state(db: Session, user: User, state: GameStateSchema) -> GameStateSchema:
     progress = ensure_user_progress(db, user)
-    progress.xp = state.xp
-    progress.level = level_from_xp(state.xp)
+    # XP has two independent writers into this same row: this endpoint (the
+    # client's full-state push, e.g. after an A-Z correct sign) and Native /
+    # Word Spelling's direct, atomic server-side increments
+    # (backend/routers/native.py, backend/services/words.py::record_word_session).
+    # A client can still be holding a GameState snapshot from *before* one of
+    # those direct increments landed (most realistically: another browser
+    # tab/session on the same account), and its PUT's `xp` would then be
+    # stale. XP is authoritative and monotonic server-side, so a client's
+    # value only ever raises it, never lowers it -- this is what stops a
+    # stale snapshot from silently erasing already-earned, already-persisted
+    # XP. (No current caller intentionally lowers XP through this endpoint;
+    # `resetProgress` in GameContext.tsx is unused today and would need its
+    # own explicit reset path rather than going through this merge-safe one.)
+    new_xp = max(progress.xp, state.xp)
+    progress.xp = new_xp
+    progress.level = level_from_xp(new_xp)
     progress.current_streak = state.streak
     progress.best_streak = state.longestStreak
     progress.last_active_date = date.fromisoformat(state.lastPracticeDate) if state.lastPracticeDate else None
