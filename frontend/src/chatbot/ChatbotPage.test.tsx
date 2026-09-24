@@ -47,6 +47,7 @@ function sendResult(userContent: string, assistantContent = "Here's the answer."
       content: userContent,
       scope: null,
       provider_status: null,
+      source: null,
       created_at: "2026-01-01T00:01:00Z",
     },
     assistant_message: {
@@ -56,6 +57,7 @@ function sendResult(userContent: string, assistantContent = "Here's the answer."
       content: assistantContent,
       scope: "in_scope",
       provider_status: "ok",
+      source: "llm",
       created_at: "2026-01-01T00:01:01Z",
     },
   };
@@ -142,5 +144,47 @@ describe("ChatbotPage: send failure surfaces an honest message", () => {
     fireEvent.click(screen.getByRole("button", { name: "Send message to AURA" }));
 
     expect(await screen.findByText("AURA's provider is rate-limiting requests right now.")).toBeInTheDocument();
+  });
+});
+
+describe("ChatbotPage: offline knowledge-base fallback", () => {
+  it("labels a reply as coming from the offline knowledge base when no LLM answered it", async () => {
+    sendChatbotMessage.mockResolvedValue({
+      conversation_id: 1,
+      user_message: {
+        id: 20,
+        conversation_id: 1,
+        role: "user",
+        content: "How is XP awarded?",
+        scope: null,
+        provider_status: null,
+        source: null,
+        created_at: "2026-01-01T00:01:00Z",
+      },
+      assistant_message: {
+        id: 21,
+        conversation_id: 1,
+        role: "assistant",
+        content: "AURA's AI model isn't reachable right now, so this answer comes from ASL-Quest's offline knowledge base instead:\n\nXP...",
+        scope: "in_scope",
+        provider_status: "not_configured",
+        source: "knowledge_base",
+        created_at: "2026-01-01T00:01:01Z",
+      },
+    });
+    render(<ChatbotPage />);
+
+    const textarea = await screen.findByLabelText("Message AURA");
+    fireEvent.change(textarea, { target: { value: "How is XP awarded?" } });
+    fireEvent.click(screen.getByRole("button", { name: "Send message to AURA" }));
+
+    expect(await screen.findByText("Offline knowledge base")).toBeInTheDocument();
+  });
+
+  it("shows the offline knowledge base status when no LLM provider is configured", async () => {
+    fetchChatbotStatus.mockReset().mockResolvedValue({ configured: false, knowledge_base_available: true, online_required: false });
+    render(<ChatbotPage />);
+
+    expect(await screen.findByText("Offline knowledge base")).toBeInTheDocument();
   });
 });

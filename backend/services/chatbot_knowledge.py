@@ -278,6 +278,90 @@ def is_in_scope(message: str, last_turn_in_scope: bool = False) -> bool:
     return len(normalized.split()) <= _MAX_FOLLOWUP_WORDS and _is_trusted_followup_opener(normalized)
 
 
+# Keyword groups used ONLY for offline fallback retrieval (see fallback_answer
+# below) -- deliberately more specific/curated than PROJECT_KEYWORDS (which
+# exists to gate scope broadly), so that each group points at the single
+# PROJECT_KNOWLEDGE_SECTIONS entry it actually describes.
+SECTION_KEYWORDS: dict[str, tuple[str, ...]] = {
+    "overview": (
+        "asl quest", "asl-quest", "this app", "this project", "this platform",
+        "this website", "the app", "the platform", "overview", "learning platform",
+        "three learning systems",
+    ),
+    "a_to_z": (
+        "a-z", "a to z", "alphabet", "resnet", "resnet18", "handshape", "mediapipe",
+        "hand detect", "temporal smooth", "smoothing", "confidence threshold",
+        "class_to_idx", "best_model",
+    ),
+    "word_spelling": (
+        "word spelling", "word practice", "spelling", "letter-by-letter", "letter by letter",
+    ),
+    "native_signs": (
+        "native sign", "native-sign", "isolated sign", "asl citizen", "i3d", "gloss",
+        "vocabulary", "backbone", "linear head", "frozen", "native",
+    ),
+    "gamification": (
+        "xp", "experience point", "level", "streak", "achievement", "badge",
+        "mastery", "mastered", "gamification", "challenge",
+    ),
+    "database": (
+        "database", "sqlite", "postgres", "sqlalchemy", "alembic", "migration", "schema",
+    ),
+    "backend": (
+        "fastapi", "backend", "endpoint", "router", "architecture", "authentication",
+        "auth", "jwt", "bearer token", "login", "register",
+    ),
+    "frontend": (
+        "react", "typescript", "frontend", "vite", "component", "page",
+    ),
+}
+
+_SECTION_PATTERNS: dict[str, re.Pattern[str]] = {
+    section: re.compile(
+        r"\b(?:"
+        + "|".join(sorted({re.escape(_normalize(kw)) for kw in keywords if _normalize(kw)}, key=len, reverse=True))
+        + r")\b"
+    )
+    for section, keywords in SECTION_KEYWORDS.items()
+}
+
+FALLBACK_PREFIX = (
+    "AURA's AI model isn't reachable right now, so this answer comes from ASL-Quest's "
+    "offline knowledge base instead:\n\n"
+)
+
+
+def fallback_answer(message: str) -> str:
+    """Deterministic, LLM-free answer used whenever the configured provider is
+    unavailable (not configured, unreachable, rate-limited, or erroring) --
+    this is what keeps AURA answering ASL-Quest questions even with the local
+    Ollama server stopped and no OPENROUTER_API_KEY set (e.g. during a demo
+    with no internet and no local model running).
+
+    Scores each knowledge section by how many of its curated keywords appear
+    in the message and returns the content of the best-matching section(s)
+    (top 2, in case of a tie) prefixed with a clear "this is the offline
+    knowledge base, not the AI" disclaimer. Never invents anything not
+    already in PROJECT_KNOWLEDGE_SECTIONS; if nothing matches, says so via
+    NO_INFO_REPLY rather than guessing.
+    """
+    normalized = _normalize(message)
+    if not normalized:
+        return NO_INFO_REPLY
+
+    scores = {
+        section: len(pattern.findall(normalized)) for section, pattern in _SECTION_PATTERNS.items()
+    }
+    scores = {section: count for section, count in scores.items() if count > 0}
+    if not scores:
+        return NO_INFO_REPLY
+
+    best = max(scores.values())
+    top_sections = sorted(section for section, count in scores.items() if count == best)
+    body = "\n\n".join(PROJECT_KNOWLEDGE_SECTIONS[section] for section in top_sections[:2])
+    return FALLBACK_PREFIX + body
+
+
 def build_project_knowledge() -> str:
     return "\n\n".join(
         f"## {title.replace('_', ' ').title()}\n{body}" for title, body in PROJECT_KNOWLEDGE_SECTIONS.items()

@@ -54,6 +54,29 @@ def get_chatbot_api_base_url() -> str:
     )
 
 
+# Which LLM provider AURA uses: "openrouter" (default, unchanged behavior),
+# "local" (a local Ollama server -- see backend/services/chatbot_local_llm.py
+# -- works fully offline, never contacts OpenRouter, never needs
+# OPENROUTER_API_KEY), or "auto" (prefer local when reachable, otherwise fall
+# back to OpenRouter if it's configured). Defaulting to "openrouter" when
+# unset means every existing deployment/test is unaffected by this setting's
+# existence.
+def get_chatbot_provider() -> str:
+    return os.getenv("CHATBOT_PROVIDER", "").strip().lower() or "openrouter"
+
+
+# Local Ollama server base URL (no trailing slash) -- e.g. http://127.0.0.1:11434.
+# Only used when CHATBOT_PROVIDER is "local" or "auto".
+def get_chatbot_local_base_url() -> str:
+    return (os.getenv("CHATBOT_LOCAL_BASE_URL", "").strip() or "http://127.0.0.1:11434").rstrip("/")
+
+
+# Ollama model tag for local/auto mode. The model itself is never downloaded
+# by this project -- see README's "Offline AURA setup": `ollama pull qwen3:4b`.
+def get_chatbot_local_model() -> str:
+    return os.getenv("CHATBOT_LOCAL_MODEL", "").strip() or "qwen3:4b"
+
+
 CORS_ORIGINS = [
     origin.strip()
     for origin in (

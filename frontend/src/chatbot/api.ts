@@ -4,6 +4,26 @@ const API = "/api";
 
 export type ChatbotScope = "in_scope" | "off_topic" | null;
 export type ChatbotProviderStatus = "ok" | "not_configured" | "error" | "rate_limited" | "timeout" | null;
+// Where an in-scope reply's content actually came from -- "llm" (the configured
+// provider answered normally) or "knowledge_base" (no LLM was reachable, so
+// backend/services/chatbot_knowledge.py::fallback_answer answered instead, from
+// ASL-Quest's static offline knowledge base). Older/mocked backends may omit this.
+export type ChatbotSource = "llm" | "knowledge_base" | null;
+
+// AURA's active LLM provider -- see backend/services/chatbot_llm.py. "local"
+// runs fully offline via Ollama; "openrouter" is the original hosted
+// provider; "auto" prefers local when reachable, falling back to OpenRouter.
+// Optional fields: older/mocked backends may only return { configured }.
+export type ChatbotProvider = "local" | "openrouter" | "auto";
+
+export type ChatbotStatus = {
+  configured: boolean;
+  provider?: ChatbotProvider;
+  local_available?: boolean;
+  local_model?: string | null;
+  knowledge_base_available?: boolean;
+  online_required?: boolean;
+};
 
 export type ChatbotMessage = {
   id: number;
@@ -12,6 +32,7 @@ export type ChatbotMessage = {
   content: string;
   scope: ChatbotScope;
   provider_status: ChatbotProviderStatus;
+  source: ChatbotSource;
   created_at: string;
 };
 
@@ -56,8 +77,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.json();
 }
 
-export function fetchChatbotStatus(): Promise<{ configured: boolean }> {
-  return request<{ configured: boolean }>("/chatbot/status");
+export function fetchChatbotStatus(): Promise<ChatbotStatus> {
+  return request<ChatbotStatus>("/chatbot/status");
 }
 
 export function createConversation(title?: string | null): Promise<ChatbotConversation> {

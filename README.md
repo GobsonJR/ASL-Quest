@@ -201,6 +201,41 @@ npm install
 
 Do not use `dataset/asl_alphabet_test` as a benchmark. It has only 28 images; `A_test.jpg` and `B_test.jpg` are duplicates; some filenames do not match the visible letter. The folder is left unmodified.
 
+## AURA (project chatbot)
+
+AURA answers questions about how ASL-Quest works (A-Z recognition, ResNet18, MediaPipe, Word Spelling, Native Signs, I3D, ASL Citizen, the learning path, XP/streaks/mastery/achievements, the database, FastAPI/React architecture, testing, limitations) and rejects anything unrelated to the project — a deterministic backend scope guard runs before any LLM is ever called, for both providers below. Configured via `CHATBOT_PROVIDER` in `.env` (see `.env.example` for all variables); leaving it unset keeps the original ONLINE-only behavior.
+
+### ONLINE mode (OpenRouter)
+
+Default when `CHATBOT_PROVIDER` is unset or `openrouter`. Requires `OPENROUTER_API_KEY` (OpenRouter's free-tier models work — see `.env.example`). Leave the key unset to disable AURA gracefully (it replies with a setup message instead of crashing the app).
+
+### OFFLINE AURA SETUP (local Ollama)
+
+Runs AURA with **no internet connection**, using a local [Ollama](https://ollama.com/download/windows) server and the `qwen3:4b` model. Same scope guard, same project knowledge, same conversation history as ONLINE mode — only the LLM transport changes, and OpenRouter is never contacted while this mode is active.
+
+1. Install Ollama: https://ollama.com/download/windows
+2. Pull the model once (this step requires internet; the model itself is never downloaded by this project's own code — Ollama manages it):
+   ```bat
+   ollama pull qwen3:4b
+   ```
+3. Make sure Ollama is running:
+   ```bat
+   ollama run qwen3:4b
+   ```
+4. Set in `.env`:
+   ```
+   CHATBOT_PROVIDER=local
+   CHATBOT_LOCAL_BASE_URL=http://127.0.0.1:11434
+   CHATBOT_LOCAL_MODEL=qwen3:4b
+   ```
+5. Start the backend and frontend as usual (see "How to run" below). AURA now answers entirely offline.
+
+`CHATBOT_PROVIDER=auto` prefers the local model whenever Ollama is reachable and falls back to OpenRouter only if it's configured.
+
+### Offline knowledge-base fallback (no LLM required at all)
+
+If neither a reachable local Ollama server nor a configured OpenRouter key is available (or the active provider errors, times out, or is rate-limited), AURA does **not** just apologize — it answers from `backend/services/chatbot_knowledge.py`'s static project knowledge base instead, matching the question's keywords to the most relevant knowledge section (A-Z recognition, Word Spelling, Native Signs, gamification, database, backend, frontend, or the project overview). This is what keeps AURA useful during a fully offline demo even with Ollama stopped and no API key set. Each reply's `source` field (`"llm"` or `"knowledge_base"`) tells the frontend which path answered it, shown as an "Offline knowledge base" badge. If a question is in scope but matches no known section, AURA says so honestly ("I don't have enough information about that part of ASL-Quest yet.") rather than guessing — it never invents facts either way.
+
 ## How to run
 
 ### Backend

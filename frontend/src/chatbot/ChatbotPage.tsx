@@ -17,6 +17,7 @@ import {
   sendChatbotMessage,
   type ChatbotConversation,
   type ChatbotMessage,
+  type ChatbotStatus,
 } from "./api";
 
 const SUGGESTED_QUESTIONS = [
@@ -52,8 +53,15 @@ function AuraAvatar({ size = "md" }: { size?: "sm" | "md" }) {
   );
 }
 
-function AuraStatusIndicator({ configured }: { configured: boolean | null }) {
-  if (configured === null) {
+// "qwen3:4b" -> "Qwen3 4B" -- a friendly label, not the raw Ollama tag.
+function formatLocalModelLabel(model: string): string {
+  const [name, size] = model.split(":");
+  const prettyName = name ? name.charAt(0).toUpperCase() + name.slice(1) : model;
+  return size ? `${prettyName} ${size.toUpperCase()}` : prettyName;
+}
+
+function AuraStatusIndicator({ status }: { status: ChatbotStatus | null }) {
+  if (status === null) {
     return (
       <span className="inline-flex items-center gap-1.5 text-xs text-[var(--color-muted)]">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[var(--color-muted)]" aria-hidden="true" />
@@ -61,15 +69,32 @@ function AuraStatusIndicator({ configured }: { configured: boolean | null }) {
       </span>
     );
   }
+  // Running on a local Ollama model right now (provider "local" or "auto"
+  // with a reachable local server) -- AURA works with no internet in this
+  // state, so it gets its own indicator rather than the generic "online" one.
+  if (status.local_available) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--color-success)]">
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" aria-hidden="true" />
+        Offline AI{status.local_model ? ` • ${formatLocalModelLabel(status.local_model)}` : ""}
+      </span>
+    );
+  }
+  if (status.configured) {
+    return (
+      <span className="inline-flex items-center gap-1.5 text-xs text-[var(--color-success)]">
+        <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" aria-hidden="true" />
+        AURA is online
+      </span>
+    );
+  }
+  // No local model reachable and no hosted provider configured -- AURA still
+  // answers from its static offline knowledge base (chatbot_knowledge.
+  // fallback_answer), so this is not a broken/setup-needed state.
   return (
-    <span
-      className={`inline-flex items-center gap-1.5 text-xs ${configured ? "text-[var(--color-success)]" : "text-[var(--color-warm)]"}`}
-    >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${configured ? "bg-[var(--color-success)]" : "bg-[var(--color-warm)]"}`}
-        aria-hidden="true"
-      />
-      {configured ? "AURA is online" : "AURA needs setup"}
+    <span className="inline-flex items-center gap-1.5 text-xs text-[var(--color-success)]">
+      <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-success)]" aria-hidden="true" />
+      Offline knowledge base
     </span>
   );
 }
@@ -81,7 +106,7 @@ export function ChatbotPage() {
   const [activeConversation, setActiveConversation] = useState<ChatbotConversation | null>(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [configured, setConfigured] = useState<boolean | null>(null);
+  const [status, setStatus] = useState<ChatbotStatus | null>(null);
 
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -96,10 +121,10 @@ export function ChatbotPage() {
     setLoadError(null);
     fetchChatbotStatus()
       .then((result) => {
-        if (!cancelled) setConfigured(result.configured);
+        if (!cancelled) setStatus(result);
       })
       .catch(() => {
-        if (!cancelled) setConfigured(null);
+        if (!cancelled) setStatus(null);
       });
     listConversations()
       .then(async (response) => {
@@ -226,7 +251,7 @@ export function ChatbotPage() {
                 <StatusChip tone="accent">ASL-QUEST PROJECT ASSISTANT</StatusChip>
               </div>
               <div className="mt-1">
-                <AuraStatusIndicator configured={configured} />
+                <AuraStatusIndicator status={status} />
               </div>
             </div>
           </div>
@@ -355,14 +380,12 @@ function MessageBubble({
   const statusChip =
     message.scope === "off_topic" ? (
       <StatusChip tone="neutral">Off-topic</StatusChip>
-    ) : message.provider_status === "not_configured" ? (
-      <StatusChip tone="warning">Setup needed</StatusChip>
-    ) : message.provider_status === "rate_limited" ? (
-      <StatusChip tone="warning">Busy right now</StatusChip>
-    ) : message.provider_status === "timeout" ? (
-      <StatusChip tone="warning">Slow response</StatusChip>
-    ) : message.provider_status === "error" ? (
-      <StatusChip tone="warning">Connection issue</StatusChip>
+    ) : message.source === "knowledge_base" ? (
+      // The LLM provider wasn't reachable for this reply (not configured, rate
+      // limited, timed out, or otherwise erroring) -- chatbot_knowledge.
+      // fallback_answer answered from the static offline knowledge base
+      // instead, so this is a real answer, not a failure.
+      <StatusChip tone="accent">Offline knowledge base</StatusChip>
     ) : null;
 
   return (

@@ -18,7 +18,7 @@ from backend.models import (
 from backend.schemas import ChatbotConversationCreate, ChatbotFeedbackCreate, ChatbotMessageCreate
 from backend.security import get_current_user
 from backend.services import chatbot_llm
-from backend.services.chatbot_knowledge import OFF_TOPIC_REPLY, build_system_prompt, is_in_scope
+from backend.services.chatbot_knowledge import OFF_TOPIC_REPLY, build_system_prompt, fallback_answer, is_in_scope
 
 router = APIRouter(prefix="/chatbot", tags=["chatbot"])
 
@@ -51,6 +51,7 @@ def _serialize_message(message: ChatbotMessage) -> dict:
         "content": message.content,
         "scope": metadata.get("scope"),
         "provider_status": metadata.get("provider_status"),
+        "source": metadata.get("source"),
         "created_at": message.created_at.isoformat(),
     }
 
@@ -141,10 +142,11 @@ def _last_assistant_turn_in_scope(conversation: ChatbotConversation) -> bool:
 
 @router.get("/status")
 def chatbot_status(_: User = Depends(get_current_user)) -> dict:
-    """Whether AURA's LLM provider is configured — never the key itself, never
-    which provider/model, just enough for the frontend to show an online/setup-
-    needed indicator before the user sends a first message."""
-    return {"configured": chatbot_llm.is_configured()}
+    """Whether AURA's LLM provider is configured, which provider is active, and
+    (for local/auto) whether the local Ollama server is reachable right now —
+    never the API key itself. Enough for the frontend to show an online/setup-
+    needed/offline indicator before the user sends a first message."""
+    return chatbot_llm.get_status_info()
 
 
 @router.post("/conversations", status_code=status.HTTP_201_CREATED)
@@ -215,26 +217,25 @@ def send_message(
         history = _build_history(conversation) + [{"role": "user", "content": payload.content}]
         try:
             reply_text = chatbot_llm.generate_reply(system_prompt, history)
-            metadata = {"scope": "in_scope", "provider_status": "ok"}
+            metadata = {"scope": "in_scope", "provider_status": "ok", "source": "llm"}
         except chatbot_llm.ChatbotNotConfiguredError:
-            reply_text = (
-                "AURA isn't fully set up yet — an administrator needs to configure the "
-                "OPENROUTER_API_KEY environment variable before I can answer questions. "
-                "See .env.example for details."
-            )
-            metadata = {"scope": "in_scope", "provider_status": "not_configured"}
+            # No usable LLM provider at all (no local Ollama, no OPENROUTER_API_KEY).
+            # Falls back to the deterministic offline knowledge base instead of an
+            # apology — AURA must keep answering ASL-Quest questions even with no
+            # LLM configured (e.g. a fully offline demo with Ollama stopped).
+            reply_text = fallback_answer(payload.content)
+            metadata = {"scope": "in_scope", "provider_status": "not_configured", "source": "knowledge_base"}
         except chatbot_llm.ChatbotRateLimitedError:
-            reply_text = "AURA is getting a lot of requests right now. Please wait a moment and try again."
-            metadata = {"scope": "in_scope", "provider_status": "rate_limited"}
+            reply_text = fallback_answer(payload.content)
+            metadata = {"scope": "in_scope", "provider_status": "rate_limited", "source": "knowledge_base"}
         except chatbot_llm.ChatbotTimeoutError:
-            reply_text = "AURA's response is taking too long right now. Please try again."
-            metadata = {"scope": "in_scope", "provider_status": "timeout"}
+            reply_text = fallback_answer(payload.content)
+            metadata = {"scope": "in_scope", "provider_status": "timeout", "source": "knowledge_base"}
         except chatbot_llm.ChatbotProviderError:
             # Catch-all for anything else (invalid/revoked key, malformed or empty
-            # response, unexpected HTTP status) — deliberately generic so the
-            # message never echoes provider internals back to the user.
-            reply_text = "I'm having trouble reaching AURA's provider right now. Please try again in a moment."
-            metadata = {"scope": "in_scope", "provider_status": "error"}
+            # response, unreachable Ollama, unexpected HTTP status).
+            reply_text = fallback_answer(payload.content)
+            metadata = {"scope": "in_scope", "provider_status": "error", "source": "knowledge_base"}
 
     assistant_message = ChatbotMessage(
         conversation_id=conversation.id,

@@ -30,13 +30,17 @@ TEST_DB = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
 os.environ["ASL_QUEST_DATABASE_URL"] = f"sqlite:///{TEST_DB.name}"
 os.environ["ASL_QUEST_SECRET_KEY"] = "chatbot-test-secret"
 os.environ.pop("OPENROUTER_API_KEY", None)  # unconfigured unless a test opts in
+# Provider defaults to "openrouter" unless a test opts into local/auto mode.
+os.environ.pop("CHATBOT_PROVIDER", None)
+os.environ.pop("CHATBOT_LOCAL_BASE_URL", None)
+os.environ.pop("CHATBOT_LOCAL_MODEL", None)
 
-from backend import models  # noqa: E402,F401  (registers all ORM tables on Base.metadata)
+from backend import models, settings  # noqa: E402,F401  (registers all ORM tables on Base.metadata)
 from backend.database import Base, SessionLocal, engine  # noqa: E402
 from backend.main import app  # noqa: E402
 from backend.models import ChatbotConversation, ChatbotFeedback, ChatbotMessage  # noqa: E402
 from backend.routers.chatbot import MAX_HISTORY_MESSAGES, _build_history  # noqa: E402
-from backend.services import chatbot_knowledge, chatbot_llm  # noqa: E402
+from backend.services import chatbot_knowledge, chatbot_llm, chatbot_local_llm  # noqa: E402
 
 
 class ChatbotRouterTests(unittest.TestCase):
@@ -244,9 +248,60 @@ class ChatbotRouterTests(unittest.TestCase):
         payload = response.json()["assistant_message"]
         self.assertEqual(payload["scope"], "in_scope")
         self.assertEqual(payload["provider_status"], "not_configured")
-        self.assertIn("OPENROUTER_API_KEY", payload["content"])
-        # Never silently answers with a fabricated/general-knowledge reply.
-        self.assertNotIn("I3D was chosen", payload["content"])
+        self.assertEqual(payload["source"], "knowledge_base")
+        # No LLM was reachable, so this answers from the static offline
+        # knowledge base instead of an apology -- the exact verified fact from
+        # PROJECT_KNOWLEDGE_SECTIONS, not a fabricated/hallucinated reply.
+        self.assertIn("I3D", payload["content"])
+        self.assertIn(chatbot_knowledge.FALLBACK_PREFIX, payload["content"])
+
+    # --- Offline knowledge-base fallback (no LLM reachable at all) --------------
+
+    def test_fallback_answers_in_scope_question_when_no_provider_configured(self) -> None:
+        token = self.register("fallback_xp_user")
+        conv_id = self.create_conversation(token)
+        response = self.client.post(
+            f"/chatbot/conversations/{conv_id}/messages",
+            json={"content": "How is XP awarded?"},
+            headers=self.auth(token),
+        )
+        self.assertEqual(response.status_code, 201, response.text)
+        payload = response.json()["assistant_message"]
+        self.assertEqual(payload["source"], "knowledge_base")
+        self.assertIn("XP", payload["content"])
+
+    def test_fallback_used_on_provider_error_not_just_not_configured(self) -> None:
+        token = self.register("fallback_error_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", side_effect=chatbot_llm.ChatbotProviderError("boom")):
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "How does the database store my progress?"},
+                headers=self.auth(token),
+            )
+        payload = response.json()["assistant_message"]
+        self.assertEqual(payload["provider_status"], "error")
+        self.assertEqual(payload["source"], "knowledge_base")
+        self.assertIn("SQLAlchemy", payload["content"])
+
+    def test_successful_llm_reply_tagged_with_llm_source(self) -> None:
+        token = self.register("llm_source_user")
+        conv_id = self.create_conversation(token)
+        with patch.object(chatbot_llm, "generate_reply", return_value="A real generated answer."):
+            response = self.client.post(
+                f"/chatbot/conversations/{conv_id}/messages",
+                json={"content": "How does A-Z recognition work?"},
+                headers=self.auth(token),
+            )
+        payload = response.json()["assistant_message"]
+        self.assertEqual(payload["source"], "llm")
+
+    def test_status_endpoint_reports_knowledge_base_always_available(self) -> None:
+        token = self.register("status_kb_user")
+        response = self.client.get("/chatbot/status", headers=self.auth(token))
+        payload = response.json()
+        self.assertTrue(payload["knowledge_base_available"])
+        self.assertFalse(payload["online_required"])
 
     def test_provider_error_handled_gracefully(self) -> None:
         token = self.register("provider_error_user")
@@ -297,14 +352,21 @@ class ChatbotRouterTests(unittest.TestCase):
         token = self.register("status_unconfigured_user")
         response = self.client.get("/chatbot/status", headers=self.auth(token))
         self.assertEqual(response.status_code, 200, response.text)
-        self.assertEqual(response.json(), {"configured": False})
+        payload = response.json()
+        self.assertEqual(payload["configured"], False)
+        self.assertEqual(payload["provider"], "openrouter")
+        # Default provider is openrouter, which never probes local Ollama.
+        self.assertEqual(payload["local_available"], False)
+        self.assertIsNone(payload["local_model"])
 
     def test_status_endpoint_reports_configured_without_leaking_key(self) -> None:
         os.environ["OPENROUTER_API_KEY"] = "sk-status-test-secret"
         try:
             token = self.register("status_configured_user")
             response = self.client.get("/chatbot/status", headers=self.auth(token))
-            self.assertEqual(response.json(), {"configured": True})
+            payload = response.json()
+            self.assertEqual(payload["configured"], True)
+            self.assertEqual(payload["provider"], "openrouter")
             self.assertNotIn("sk-status-test-secret", response.text)
         finally:
             os.environ.pop("OPENROUTER_API_KEY", None)
@@ -326,6 +388,7 @@ class ChatbotRouterTests(unittest.TestCase):
         self.assertEqual(response.status_code, 201, response.text)
         payload = response.json()["assistant_message"]
         self.assertEqual(payload["provider_status"], "rate_limited")
+        self.assertEqual(payload["source"], "knowledge_base")
         self.assertNotIn("429", payload["content"])
 
     def test_timeout_handled_gracefully(self) -> None:
@@ -565,6 +628,140 @@ class ChatbotRouterTests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         mocked.assert_not_called()
 
+    # --- Local/offline provider mode (router-level, end to end) ----------------
+    # CHATBOT_PROVIDER=local never touches OpenRouter -- chatbot_local_llm.
+    # generate_reply is mocked (never a real Ollama server), and OpenRouter's
+    # own httpx.post is also mocked in the "never falls back" tests specifically
+    # so a regression that accidentally re-introduces a fallback is caught here,
+    # not just at the chatbot_llm unit level (see ChatbotLocalProviderTests).
+
+    def test_local_mode_scope_guard_blocks_before_provider(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        try:
+            token = self.register("local_offtopic_user")
+            conv_id = self.create_conversation(token)
+            with patch.object(chatbot_local_llm, "generate_reply") as mocked:
+                response = self.client.post(
+                    f"/chatbot/conversations/{conv_id}/messages",
+                    json={"content": "What is the capital of France?"},
+                    headers=self.auth(token),
+                )
+            mocked.assert_not_called()
+            self.assertEqual(response.json()["assistant_message"]["scope"], "off_topic")
+        finally:
+            os.environ.pop("CHATBOT_PROVIDER", None)
+
+    def test_local_mode_arbitrary_project_question_reaches_local_provider(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        try:
+            token = self.register("local_project_user")
+            conv_id = self.create_conversation(token)
+            with patch.object(chatbot_local_llm, "generate_reply", return_value="ResNet18 is small and fast.") as mocked:
+                response = self.client.post(
+                    f"/chatbot/conversations/{conv_id}/messages",
+                    json={"content": "Why did we use ResNet18?"},
+                    headers=self.auth(token),
+                )
+            mocked.assert_called_once()
+            payload = response.json()["assistant_message"]
+            self.assertEqual(payload["scope"], "in_scope")
+            self.assertEqual(payload["provider_status"], "ok")
+            self.assertEqual(payload["content"], "ResNet18 is small and fast.")
+        finally:
+            os.environ.pop("CHATBOT_PROVIDER", None)
+
+    def test_local_mode_followup_context_reaches_local_provider(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        try:
+            token = self.register("local_followup_user")
+            conv_id = self.create_conversation(token)
+            with patch.object(chatbot_local_llm, "generate_reply", return_value="ResNet18 was fast and small...") as first:
+                self.client.post(
+                    f"/chatbot/conversations/{conv_id}/messages",
+                    json={"content": "Why did we use ResNet18?"},
+                    headers=self.auth(token),
+                )
+            first.assert_called_once()
+
+            with patch.object(chatbot_local_llm, "generate_reply", return_value="MobileNet, for example.") as second:
+                response = self.client.post(
+                    f"/chatbot/conversations/{conv_id}/messages",
+                    json={"content": "What are the alternatives?"},
+                    headers=self.auth(token),
+                )
+            second.assert_called_once()
+            self.assertEqual(response.json()["assistant_message"]["scope"], "in_scope")
+            # generate_reply(system_prompt, history, base_url=..., model=...) --
+            # history is the second positional argument.
+            history = second.call_args.args[1]
+            contents = [m["content"] for m in history]
+            self.assertIn("Why did we use ResNet18?", contents)
+            self.assertIn("ResNet18 was fast and small...", contents)
+            self.assertEqual(contents[-1], "What are the alternatives?")
+        finally:
+            os.environ.pop("CHATBOT_PROVIDER", None)
+
+    def test_local_mode_never_calls_openrouter_even_when_configured(self) -> None:
+        # Explicit local mode must never reach OpenRouter, even if a real
+        # OPENROUTER_API_KEY happens to be configured -- this is what
+        # guarantees a true offline review mode (never a silent fallback).
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        os.environ["OPENROUTER_API_KEY"] = "sk-should-never-be-used-in-local-mode"
+        try:
+            token = self.register("local_no_openrouter_user")
+            conv_id = self.create_conversation(token)
+            with patch.object(chatbot_local_llm, "generate_reply", return_value="Local answer.") as local_mock:
+                with patch("backend.services.chatbot_llm.httpx.post") as openrouter_mock:
+                    response = self.client.post(
+                        f"/chatbot/conversations/{conv_id}/messages",
+                        json={"content": "How does XP work?"},
+                        headers=self.auth(token),
+                    )
+            local_mock.assert_called_once()
+            openrouter_mock.assert_not_called()
+            self.assertEqual(response.json()["assistant_message"]["content"], "Local answer.")
+        finally:
+            os.environ.pop("CHATBOT_PROVIDER", None)
+            os.environ.pop("OPENROUTER_API_KEY", None)
+
+    def test_local_mode_ollama_unreachable_handled_gracefully(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        try:
+            token = self.register("local_unreachable_user")
+            conv_id = self.create_conversation(token)
+            with patch.object(
+                chatbot_local_llm, "generate_reply", side_effect=chatbot_llm.ChatbotProviderError("connection refused")
+            ):
+                response = self.client.post(
+                    f"/chatbot/conversations/{conv_id}/messages",
+                    json={"content": "How does XP work?"},
+                    headers=self.auth(token),
+                )
+            self.assertEqual(response.status_code, 201, response.text)
+            payload = response.json()["assistant_message"]
+            self.assertEqual(payload["provider_status"], "error")
+            self.assertNotIn("connection refused", payload["content"])
+        finally:
+            os.environ.pop("CHATBOT_PROVIDER", None)
+
+    def test_status_endpoint_reports_local_provider_and_never_leaks_key(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        os.environ["OPENROUTER_API_KEY"] = "sk-local-mode-unused-secret"
+        try:
+            token = self.register("local_status_user")
+            with patch.object(chatbot_local_llm, "is_available", return_value=True):
+                response = self.client.get("/chatbot/status", headers=self.auth(token))
+            self.assertEqual(response.status_code, 200, response.text)
+            payload = response.json()
+            self.assertEqual(payload["provider"], "local")
+            self.assertEqual(payload["configured"], True)
+            self.assertEqual(payload["local_available"], True)
+            self.assertEqual(payload["local_model"], "qwen3:4b")
+            self.assertNotIn("sk-local-mode-unused-secret", response.text)
+        finally:
+            os.environ.pop("CHATBOT_PROVIDER", None)
+            os.environ.pop("OPENROUTER_API_KEY", None)
+
 
 class ChatbotLLMProviderTests(unittest.TestCase):
     """Unit tests for backend/services/chatbot_llm.py's own response
@@ -717,6 +914,270 @@ class ChatbotLLMProviderTests(unittest.TestCase):
         args, kwargs = mocked.call_args
         self.assertNotIn("sk-llm-unit-test-key", args[0])
         self.assertNotIn("sk-llm-unit-test-key", str(kwargs["json"]))
+
+
+class ChatbotLocalProviderTests(unittest.TestCase):
+    """Unit tests for the local Ollama provider (backend/services/
+    chatbot_local_llm.py) and chatbot_llm.py's provider dispatch (the
+    local/auto branches of generate_reply/is_configured/get_status_info). No
+    real Ollama server and no real OpenRouter call is ever made -- the
+    underlying httpx calls (or generate_reply/is_available themselves) are
+    always mocked."""
+
+    LOCAL_BASE_URL = "http://127.0.0.1:11434"
+    OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+    def setUp(self) -> None:
+        for key in ("OPENROUTER_API_KEY", "CHATBOT_PROVIDER", "CHATBOT_LOCAL_BASE_URL", "CHATBOT_LOCAL_MODEL"):
+            os.environ.pop(key, None)
+
+    def tearDown(self) -> None:
+        for key in ("OPENROUTER_API_KEY", "CHATBOT_PROVIDER", "CHATBOT_LOCAL_BASE_URL", "CHATBOT_LOCAL_MODEL"):
+            os.environ.pop(key, None)
+
+    def _ok_ollama_response(self, text: str = "A local answer.") -> httpx.Response:
+        response = httpx.Response(
+            200, json={"model": "qwen3:4b", "message": {"role": "assistant", "content": text}, "done": True}
+        )
+        response.request = httpx.Request("POST", f"{self.LOCAL_BASE_URL}/api/chat")
+        return response
+
+    def _ok_openrouter_response(self, text: str = "An OpenRouter answer.") -> httpx.Response:
+        response = httpx.Response(200, json={"choices": [{"message": {"role": "assistant", "content": text}}]})
+        response.request = httpx.Request("POST", self.OPENROUTER_URL)
+        return response
+
+    # --- 1. Local provider configuration ----------------------------------------
+
+    def test_local_provider_config_defaults(self) -> None:
+        self.assertEqual(settings.get_chatbot_provider(), "openrouter")
+        self.assertEqual(settings.get_chatbot_local_base_url(), "http://127.0.0.1:11434")
+        self.assertEqual(settings.get_chatbot_local_model(), "qwen3:4b")
+
+    def test_local_provider_config_from_env(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "Local"  # case-insensitive
+        os.environ["CHATBOT_LOCAL_BASE_URL"] = "http://127.0.0.1:9999/"  # trailing slash
+        os.environ["CHATBOT_LOCAL_MODEL"] = "qwen3:1.7b"
+        self.assertEqual(settings.get_chatbot_provider(), "local")
+        self.assertEqual(settings.get_chatbot_local_base_url(), "http://127.0.0.1:9999")
+        self.assertEqual(settings.get_chatbot_local_model(), "qwen3:1.7b")
+
+    # --- 2. Local Ollama request formatting --------------------------------------
+
+    def test_local_request_uses_ollama_chat_endpoint_and_shape(self) -> None:
+        with patch(
+            "backend.services.chatbot_local_llm.httpx.post", return_value=self._ok_ollama_response("Hi.")
+        ) as mocked:
+            chatbot_local_llm.generate_reply(
+                "You are AURA.", [{"role": "user", "content": "Hi"}], base_url=self.LOCAL_BASE_URL, model="qwen3:4b"
+            )
+        mocked.assert_called_once()
+        args, kwargs = mocked.call_args
+        self.assertEqual(args[0], f"{self.LOCAL_BASE_URL}/api/chat")
+        self.assertEqual(kwargs["json"]["model"], "qwen3:4b")
+        self.assertEqual(kwargs["json"]["stream"], False)
+        self.assertEqual(
+            kwargs["json"]["messages"],
+            [{"role": "system", "content": "You are AURA."}, {"role": "user", "content": "Hi"}],
+        )
+
+    # --- 3. Local response parsing ------------------------------------------------
+
+    def test_local_response_parsing_returns_text(self) -> None:
+        with patch("backend.services.chatbot_local_llm.httpx.post", return_value=self._ok_ollama_response("The answer.")):
+            result = chatbot_local_llm.generate_reply("sys", [], base_url=self.LOCAL_BASE_URL, model="qwen3:4b")
+        self.assertEqual(result, "The answer.")
+
+    # --- 4. Malformed Ollama response -----------------------------------------------
+
+    def test_local_malformed_json_raises_provider_error(self) -> None:
+        response = httpx.Response(200, content=b"not json at all")
+        response.request = httpx.Request("POST", f"{self.LOCAL_BASE_URL}/api/chat")
+        with patch("backend.services.chatbot_local_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                chatbot_local_llm.generate_reply("sys", [], base_url=self.LOCAL_BASE_URL, model="qwen3:4b")
+
+    def test_local_missing_message_key_raises_provider_error(self) -> None:
+        # Right shape of JSON, wrong/unexpected structure.
+        response = httpx.Response(200, json={"model": "qwen3:4b", "done": True})
+        response.request = httpx.Request("POST", f"{self.LOCAL_BASE_URL}/api/chat")
+        with patch("backend.services.chatbot_local_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                chatbot_local_llm.generate_reply("sys", [], base_url=self.LOCAL_BASE_URL, model="qwen3:4b")
+
+    def test_local_empty_content_raises_provider_error(self) -> None:
+        with patch("backend.services.chatbot_local_llm.httpx.post", return_value=self._ok_ollama_response("")):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                chatbot_local_llm.generate_reply("sys", [], base_url=self.LOCAL_BASE_URL, model="qwen3:4b")
+
+    def test_local_http_error_status_raises_provider_error(self) -> None:
+        response = httpx.Response(500, json={"error": "model not found"})
+        response.request = httpx.Request("POST", f"{self.LOCAL_BASE_URL}/api/chat")
+        with patch("backend.services.chatbot_local_llm.httpx.post", return_value=response):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError) as ctx:
+                chatbot_local_llm.generate_reply("sys", [], base_url=self.LOCAL_BASE_URL, model="qwen3:4b")
+        self.assertNotIn("model not found", str(ctx.exception))
+
+    # --- 5. Ollama unavailable ---------------------------------------------------
+
+    def test_local_connection_refused_raises_provider_error(self) -> None:
+        with patch("backend.services.chatbot_local_llm.httpx.post", side_effect=httpx.ConnectError("refused")):
+            with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                chatbot_local_llm.generate_reply("sys", [], base_url=self.LOCAL_BASE_URL, model="qwen3:4b")
+
+    def test_local_timeout_raises_timeout_error(self) -> None:
+        with patch("backend.services.chatbot_local_llm.httpx.post", side_effect=httpx.TimeoutException("timed out")):
+            with self.assertRaises(chatbot_llm.ChatbotTimeoutError):
+                chatbot_local_llm.generate_reply("sys", [], base_url=self.LOCAL_BASE_URL, model="qwen3:4b")
+
+    def test_is_available_false_on_connection_error(self) -> None:
+        with patch("backend.services.chatbot_local_llm.httpx.get", side_effect=httpx.ConnectError("refused")):
+            self.assertFalse(chatbot_local_llm.is_available(self.LOCAL_BASE_URL))
+
+    def test_is_available_true_on_200(self) -> None:
+        ok = httpx.Response(200, json={"models": []})
+        ok.request = httpx.Request("GET", f"{self.LOCAL_BASE_URL}/api/tags")
+        with patch("backend.services.chatbot_local_llm.httpx.get", return_value=ok):
+            self.assertTrue(chatbot_local_llm.is_available(self.LOCAL_BASE_URL))
+
+    def test_is_available_false_on_non_200(self) -> None:
+        bad = httpx.Response(500)
+        bad.request = httpx.Request("GET", f"{self.LOCAL_BASE_URL}/api/tags")
+        with patch("backend.services.chatbot_local_llm.httpx.get", return_value=bad):
+            self.assertFalse(chatbot_local_llm.is_available(self.LOCAL_BASE_URL))
+
+    # --- 6. Explicit local mode never calls OpenRouter ---------------------------
+
+    def test_explicit_local_mode_never_calls_openrouter_even_on_failure(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        os.environ["OPENROUTER_API_KEY"] = "sk-should-never-be-used"
+        with patch.object(
+            chatbot_local_llm, "generate_reply", side_effect=chatbot_llm.ChatbotProviderError("ollama down")
+        ) as local_mock:
+            with patch("backend.services.chatbot_llm.httpx.post") as openrouter_mock:
+                with self.assertRaises(chatbot_llm.ChatbotProviderError):
+                    chatbot_llm.generate_reply("sys", [{"role": "user", "content": "hi"}])
+        local_mock.assert_called_once()
+        openrouter_mock.assert_not_called()
+
+    def test_explicit_local_mode_uses_local_on_success(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "local"
+        with patch.object(chatbot_local_llm, "generate_reply", return_value="Local answer.") as local_mock:
+            with patch("backend.services.chatbot_llm.httpx.post") as openrouter_mock:
+                result = chatbot_llm.generate_reply("sys", [{"role": "user", "content": "hi"}])
+        self.assertEqual(result, "Local answer.")
+        local_mock.assert_called_once()
+        openrouter_mock.assert_not_called()
+
+    # --- 7. Auto mode prefers local when available --------------------------------
+
+    def test_auto_mode_prefers_local_when_available(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "auto"
+        os.environ["OPENROUTER_API_KEY"] = "sk-should-not-be-needed"
+        with patch.object(chatbot_local_llm, "is_available", return_value=True):
+            with patch.object(chatbot_local_llm, "generate_reply", return_value="Local wins.") as local_mock:
+                with patch("backend.services.chatbot_llm.httpx.post") as openrouter_mock:
+                    result = chatbot_llm.generate_reply("sys", [{"role": "user", "content": "hi"}])
+        self.assertEqual(result, "Local wins.")
+        local_mock.assert_called_once()
+        openrouter_mock.assert_not_called()
+
+    # --- 8. Auto mode uses OpenRouter only when local unavailable and configured --
+
+    def test_auto_mode_falls_back_to_openrouter_when_local_unavailable(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "auto"
+        os.environ["OPENROUTER_API_KEY"] = "sk-fallback-key"
+        with patch.object(chatbot_local_llm, "is_available", return_value=False):
+            with patch(
+                "backend.services.chatbot_llm.httpx.post", return_value=self._ok_openrouter_response("Fallback answer.")
+            ) as openrouter_mock:
+                result = chatbot_llm.generate_reply("sys", [{"role": "user", "content": "hi"}])
+        self.assertEqual(result, "Fallback answer.")
+        openrouter_mock.assert_called_once()
+
+    def test_auto_mode_does_not_use_openrouter_when_local_available(self) -> None:
+        # Complements test_auto_mode_prefers_local_when_available: even with a
+        # valid OpenRouter key present, local wins whenever it's reachable.
+        os.environ["CHATBOT_PROVIDER"] = "auto"
+        os.environ["OPENROUTER_API_KEY"] = "sk-present-but-unused"
+        with patch.object(chatbot_local_llm, "is_available", return_value=True):
+            with patch.object(chatbot_local_llm, "generate_reply", return_value="Local answer."):
+                with patch("backend.services.chatbot_llm.httpx.post") as openrouter_mock:
+                    chatbot_llm.generate_reply("sys", [{"role": "user", "content": "hi"}])
+        openrouter_mock.assert_not_called()
+
+    # --- 9. No-provider state -----------------------------------------------------
+
+    def test_auto_mode_raises_not_configured_when_neither_available(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "auto"
+        with patch.object(chatbot_local_llm, "is_available", return_value=False):
+            with self.assertRaises(chatbot_llm.ChatbotNotConfiguredError):
+                chatbot_llm.generate_reply("sys", [{"role": "user", "content": "hi"}])
+
+    # --- 13. API key never appears in status/errors --------------------------------
+
+    def test_get_status_info_never_includes_api_key(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "auto"
+        os.environ["OPENROUTER_API_KEY"] = "sk-status-info-secret"
+        with patch.object(chatbot_local_llm, "is_available", return_value=False):
+            info = chatbot_llm.get_status_info()
+        self.assertNotIn("sk-status-info-secret", str(info))
+        self.assertEqual(info["provider"], "auto")
+
+    def test_not_configured_message_never_includes_api_key(self) -> None:
+        os.environ["CHATBOT_PROVIDER"] = "auto"
+        os.environ["OPENROUTER_API_KEY"] = "sk-error-message-secret"
+        # Key is set but local is unavailable and this key is deliberately
+        # invalid-shaped -- irrelevant here since is_available gates first.
+        with patch.object(chatbot_local_llm, "is_available", return_value=True):
+            with patch.object(
+                chatbot_local_llm, "generate_reply", side_effect=chatbot_llm.ChatbotProviderError("boom")
+            ):
+                with self.assertRaises(chatbot_llm.ChatbotProviderError) as ctx:
+                    chatbot_llm.generate_reply("sys", [{"role": "user", "content": "hi"}])
+        self.assertNotIn("sk-error-message-secret", str(ctx.exception))
+
+
+class ChatbotKnowledgeFallbackTests(unittest.TestCase):
+    """Unit tests for chatbot_knowledge.fallback_answer -- the deterministic,
+    LLM-free answer path used whenever no provider is reachable. No network
+    call, no DB, no app instance is involved here at all."""
+
+    def test_matches_gamification_section_for_xp_question(self) -> None:
+        answer = chatbot_knowledge.fallback_answer("How do I earn XP?")
+        self.assertIn("XP", answer)
+        self.assertIn(chatbot_knowledge.FALLBACK_PREFIX, answer)
+
+    def test_matches_native_signs_section(self) -> None:
+        answer = chatbot_knowledge.fallback_answer("What is Native ASL / Native Signs?")
+        self.assertIn("I3D", answer)
+
+    def test_matches_a_to_z_section(self) -> None:
+        answer = chatbot_knowledge.fallback_answer("How does the A-Z alphabet recognition work?")
+        self.assertIn("ResNet18", answer)
+
+    def test_matches_database_section(self) -> None:
+        answer = chatbot_knowledge.fallback_answer("What database does this use?")
+        self.assertIn("SQLAlchemy", answer)
+
+    def test_no_keyword_match_returns_no_info_reply_not_a_guess(self) -> None:
+        # A message that reached fallback_answer at all already passed the
+        # backend scope guard (is_in_scope), but that guard's allow-list is
+        # broader than any single knowledge section -- e.g. "chatbot"/
+        # "assistant" match PROJECT_KEYWORDS but no SECTION_KEYWORDS group.
+        answer = chatbot_knowledge.fallback_answer("assistant")
+        self.assertEqual(answer, chatbot_knowledge.NO_INFO_REPLY)
+
+    def test_empty_message_returns_no_info_reply(self) -> None:
+        self.assertEqual(chatbot_knowledge.fallback_answer(""), chatbot_knowledge.NO_INFO_REPLY)
+
+    def test_never_calls_any_network_or_llm_code(self) -> None:
+        # fallback_answer must be pure/local -- patch generate_reply on both
+        # providers to raise if touched, and confirm the fallback still works.
+        with patch.object(chatbot_llm, "generate_reply", side_effect=AssertionError("must not call LLM")):
+            with patch.object(chatbot_local_llm, "generate_reply", side_effect=AssertionError("must not call LLM")):
+                answer = chatbot_knowledge.fallback_answer("How is XP awarded?")
+        self.assertIn("XP", answer)
 
 
 if __name__ == "__main__":
