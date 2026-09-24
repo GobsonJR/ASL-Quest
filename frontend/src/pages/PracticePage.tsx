@@ -3,8 +3,11 @@ import { Card, EmptyState, PrimaryButton, SecondaryButton, StatusChip } from "..
 import { AlphabetReferencePanel } from "../components/AlphabetReferencePanel";
 import { CameraPractice } from "../components/CameraPractice";
 import { CelebrationOverlay, LevelUpOverlay } from "../components/CelebrationOverlay";
+import { LetterProgressStrip } from "../components/LetterProgressStrip";
+import { MissionCard } from "../components/MissionCard";
 import { useToast } from "../components/Toast";
 import { BADGES, DAILY_TARGET } from "../game/constants";
+import { getLearningPathNodes, lettersMasteredCount } from "../game/gamification";
 import { useGame } from "../game/GameContext";
 import type { PracticeOutcome } from "../game/types";
 import { buildIncorrectFeedback, pickEncouragement } from "./alphabetFeedback";
@@ -60,6 +63,9 @@ export function PracticePage({
   // Bumped on "Practice again" to reset the current attempt (votes, handled
   // flags) without tearing down the camera stream -- see CameraPractice.
   const [attemptKey, setAttemptKey] = useState(0);
+  // Presentational only -- how many tries the learner has had on the current
+  // letter, shown on MissionCard. Never touches game state/XP.
+  const [attemptNumber, setAttemptNumber] = useState(1);
 
   useEffect(() => {
     if (!sessionStarted) {
@@ -76,6 +82,7 @@ export function PracticePage({
     setIncorrectFeedback(null);
     setCameraStatus("Show your hand");
     setAttemptKey((key) => key + 1);
+    setAttemptNumber(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [practiceLetter, challengeMode]);
 
@@ -99,6 +106,7 @@ export function PracticePage({
   function handleIncorrect(predictedLetter: string) {
     markIncorrect(targetLetter, predictedLetter);
     setIncorrectFeedback({ predicted: predictedLetter });
+    setAttemptNumber((value) => value + 1);
   }
 
   function handleNext() {
@@ -111,6 +119,7 @@ export function PracticePage({
     setShowLevelUp(false);
     setCameraStatus("Show your hand");
     setAttemptKey((key) => key + 1);
+    setAttemptNumber(1);
     startPractice(next, challengeMode);
   }
 
@@ -126,11 +135,15 @@ export function PracticePage({
     setShowLevelUp(false);
     setCameraStatus("Show your hand");
     setAttemptKey((key) => key + 1);
+    setAttemptNumber(1);
   }
 
   const challengeLabel = CHALLENGE_LABELS[challengeMode];
   const dailyProgress = `${state.dailyChallenge.progress} / ${DAILY_TARGET}`;
   const feedback = incorrectFeedback ? buildIncorrectFeedback(targetLetter, incorrectFeedback.predicted) : null;
+  const letterCorrect = state.letterStats?.[targetLetter]?.correct ?? 0;
+  const masteredCount = lettersMasteredCount(state);
+  const pathNodes = getLearningPathNodes(state);
 
   return (
     <>
@@ -155,6 +168,15 @@ export function PracticePage({
             Level {level} · {state.xp} XP · {state.streak}d streak
             {challengeMode === "daily" ? ` · ${dailyProgress}` : ""}
           </span>
+        </div>
+
+        <MissionCard challengeLabel={challengeLabel} attemptNumber={attemptNumber} streak={state.streak} />
+
+        <div className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">
+            {masteredCount} / 26 letters mastered
+          </p>
+          <LetterProgressStrip nodes={pathNodes} />
         </div>
 
         {/* Desktop: camera on the left, ASL reference + target info on the
@@ -197,6 +219,8 @@ export function PracticePage({
                 streak={state.streak}
                 confidence={confidence}
                 encouragement={encouragement}
+                correct={letterCorrect}
+                lettersCompleted={masteredCount}
               />
             ) : (
               <>
@@ -204,6 +228,7 @@ export function PracticePage({
                   letter={targetLetter}
                   statusLabel={cameraStatus}
                   statusTone={incorrectFeedback ? "warning" : "accent"}
+                  correct={letterCorrect}
                 />
 
                 {feedback && (

@@ -1,5 +1,6 @@
 import { BADGES } from "../game/constants";
 import type { PracticeOutcome } from "../game/types";
+import { LetterMasteryBar } from "./LetterMasteryBar";
 import { PrimaryButton, SecondaryButton } from "./AppShell";
 
 function badgeTitle(id: string): string {
@@ -21,6 +22,8 @@ export function CelebrationOverlay({
   streak,
   confidence,
   encouragement,
+  correct,
+  lettersCompleted,
 }: {
   letter: string;
   outcome: PracticeOutcome;
@@ -30,6 +33,12 @@ export function CelebrationOverlay({
   streak?: number;
   confidence?: number | null;
   encouragement?: string;
+  /** This letter's total correct count so far (including this attempt) --
+   * drives the mastery bar below. Optional so callers that don't track
+   * per-letter mastery still render the celebration without it. */
+  correct?: number;
+  /** How many of the 26 letters have reached mastery (lettersMasteredCount). */
+  lettersCompleted?: number;
 }) {
   const upperLetter = letter.toUpperCase();
   return (
@@ -72,6 +81,17 @@ export function CelebrationOverlay({
       {outcome.badgesUnlocked.length > 0 && (
         <div className="mt-4 text-sm font-medium text-[var(--color-warm)]">
           New badge{outcome.badgesUnlocked.length > 1 ? "s" : ""}: {outcome.badgesUnlocked.map(badgeTitle).join(", ")}
+        </div>
+      )}
+
+      {typeof correct === "number" && (
+        <div className="mx-auto mt-5 max-w-[220px] text-left">
+          <LetterMasteryBar correct={correct} />
+          {typeof lettersCompleted === "number" && (
+            <p className="mt-2 text-center text-xs text-[var(--color-muted)]">
+              {lettersCompleted} / 26 letters mastered
+            </p>
+          )}
         </div>
       )}
 

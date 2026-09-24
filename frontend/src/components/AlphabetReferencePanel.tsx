@@ -1,51 +1,74 @@
 import { Card, SectionLabel, StatusChip } from "./AppShell";
+import { LetterMasteryBar } from "./LetterMasteryBar";
 import { REFERENCE_LICENSE_NOTE, referenceImageAlt, referenceImageSrc } from "../pages/alphabetFeedback";
 
 /** The "before/during detection" reference card: a large, dynamically-updating
  * ASL handshape illustration for the current target letter, plus a live status
  * chip. Deliberately the visual anchor of the right-hand column -- see
  * PracticePage, which swaps it out for CelebrationOverlay once the learner
- * gets the letter right. */
+ * gets the letter right. `correct` is optional so existing callers/tests that
+ * don't track per-letter mastery here still render exactly as before, minus
+ * the mastery bar. */
 export function AlphabetReferencePanel({
   letter,
   statusLabel,
   statusTone = "accent",
+  correct,
 }: {
   letter: string;
   statusLabel?: string;
   statusTone?: "neutral" | "success" | "warning" | "accent";
+  correct?: number;
 }) {
   return (
-    <Card className="space-y-4 text-center" data-testid="alphabet-reference-panel">
-      <SectionLabel>Reference</SectionLabel>
+    <Card className="relative space-y-4 overflow-hidden text-center" data-testid="alphabet-reference-panel">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-70"
+        style={{
+          background:
+            "radial-gradient(480px 220px at 20% -10%, rgba(215,243,106,0.14) 0%, transparent 55%), radial-gradient(420px 200px at 100% 0%, rgba(243,193,107,0.08) 0%, transparent 50%)",
+        }}
+        aria-hidden="true"
+      />
+      <div className="relative space-y-4">
+        <SectionLabel>Your Target</SectionLabel>
 
-      <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white p-3">
-        <img
-          key={letter.toUpperCase()}
-          src={referenceImageSrc(letter)}
-          alt={referenceImageAlt(letter)}
-          className="h-auto w-full"
-          width={200}
-          height={263}
-          loading="eager"
-        />
-      </div>
-
-      <div>
-        <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">Show this sign</p>
-        <p className="mt-1 font-display text-5xl text-[var(--color-accent)]">{letter.toUpperCase()}</p>
-        <p className="mt-2 text-sm leading-relaxed text-[var(--color-mist)]">
-          Hold this handshape in front of the camera.
-        </p>
-      </div>
-
-      {statusLabel && (
-        <div className="flex justify-center" aria-live="polite">
-          <StatusChip tone={statusTone}>{statusLabel}</StatusChip>
+        <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white p-3">
+          <img
+            key={letter.toUpperCase()}
+            src={referenceImageSrc(letter)}
+            alt={referenceImageAlt(letter)}
+            className="h-auto w-full"
+            width={200}
+            height={263}
+            loading="eager"
+          />
         </div>
-      )}
 
-      <p className="text-[0.65rem] leading-snug text-[var(--color-muted)]">{REFERENCE_LICENSE_NOTE}</p>
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">
+            Show me {letter.toUpperCase()}
+          </p>
+          <p className="mt-1 font-display text-5xl text-[var(--color-accent)]">{letter.toUpperCase()}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--color-mist)]">
+            Hold this handshape in front of the camera.
+          </p>
+        </div>
+
+        {statusLabel && (
+          <div className="flex justify-center" aria-live="polite">
+            <StatusChip tone={statusTone}>{statusLabel}</StatusChip>
+          </div>
+        )}
+
+        {typeof correct === "number" && (
+          <div className="mx-auto max-w-[220px] text-left">
+            <LetterMasteryBar correct={correct} />
+          </div>
+        )}
+
+        <p className="text-[0.65rem] leading-snug text-[var(--color-muted)]">{REFERENCE_LICENSE_NOTE}</p>
+      </div>
     </Card>
   );
 }

@@ -101,8 +101,16 @@ export function WordPracticePage({
         push(`Achievement unlocked: ${result.new_achievements.map((item) => item.name).join(", ")}`, "info");
       }
       if (result.xp_earned > 0) push(`+${result.xp_earned} XP`, "success");
-    } catch {
-      push("Saved locally — we'll sync word progress when you're back online.", "warning");
+    } catch (err) {
+      // fetch() itself throws a TypeError for a genuine network/offline failure;
+      // anything else here is a resolved HTTP response the backend rejected
+      // (its real detail message now flows through via words/api.ts's
+      // parseError) and must not be reported as if it were safely queued.
+      if (err instanceof TypeError) {
+        push("Saved locally — we'll sync word progress when you're back online.", "warning");
+      } else {
+        push(err instanceof Error ? err.message : "Couldn't save your progress.", "error");
+      }
     }
   }
 

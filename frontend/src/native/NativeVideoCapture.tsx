@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { PrimaryButton, StatusChip } from "../components/AppShell";
+import { describeCameraError } from "../shared/cameraError";
 
 const RECORD_SECONDS = 3;
 const CANDIDATE_MIME_TYPES = [
@@ -65,8 +66,8 @@ export function NativeVideoCapture({
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
-    } catch {
-      setCameraError("Your camera isn't available right now. Check permissions and try again.");
+    } catch (err) {
+      setCameraError(describeCameraError(err));
       return;
     }
 
@@ -86,6 +87,16 @@ export function NativeVideoCapture({
       stopCamera();
       setState("clip_ready");
       onClipReady(clip, mimeType);
+    };
+    // Without this, a mid-recording failure (device unplugged, track ended,
+    // encoder error) leaves the UI stuck showing "Recording..." forever --
+    // onstop never fires on its own after a recorder-level error.
+    recorder.onerror = (event) => {
+      if (stopTimerRef.current) window.clearTimeout(stopTimerRef.current);
+      stopCamera();
+      setState("idle");
+      const mediaError = (event as unknown as { error?: unknown }).error;
+      setCameraError(describeCameraError(mediaError));
     };
     recorderRef.current = recorder;
 

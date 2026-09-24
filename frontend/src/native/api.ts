@@ -1,4 +1,5 @@
 import { authHeaders } from "../auth/token";
+import { parseError } from "../shared/httpError";
 
 const API = "/api";
 
@@ -68,15 +69,6 @@ export type NativeProgress = {
   overall_mastery: number;
   signs: NativeSignProgressEntry[];
 };
-
-async function parseError(response: Response, fallback: string): Promise<string> {
-  try {
-    const payload = await response.json();
-    return payload.detail ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
 
 async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers);

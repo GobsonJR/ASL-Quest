@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { predictImage, type PredictResponse } from "../api";
+import { describeCameraError } from "../shared/cameraError";
 import { EmptyState, StatusChip } from "./AppShell";
 
 const VOTE_WINDOW = 7;
@@ -119,13 +120,13 @@ export function CameraPractice({
       lastErrorRef.current = null;
       updateStatus("Show your hand", "accent");
       void runPredictionLoop();
-    } catch {
+    } catch (err) {
       // A cancelled attempt's play()/getUserMedia can reject (e.g.
       // AbortError when cleanup already tore down the video/stream) purely
       // because it was interrupted, not because the camera is actually
       // unavailable -- don't show a false error for that.
       if (isCancelled()) return;
-      setError("Your camera isn't available right now. Check permissions and try again.");
+      setError(describeCameraError(err));
       updateStatus("Camera permission needed", "warning");
     } finally {
       if (!isCancelled()) setLoading(false);

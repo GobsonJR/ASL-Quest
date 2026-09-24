@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { PracticePage } from "./PracticePage";
+import { LETTERS } from "../game/constants";
 import type { PracticeOutcome } from "../game/types";
+
+function emptyLetterStats(): Record<string, { correct: number; attempts: number }> {
+  return Object.fromEntries(LETTERS.map((letter) => [letter, { correct: 0, attempts: 0 }]));
+}
 
 const markCorrect = vi.fn<(letter: string, elapsedMs: number) => PracticeOutcome>();
 const markIncorrect = vi.fn();
@@ -29,6 +34,7 @@ vi.mock("../game/GameContext", () => ({
       xp: 100,
       streak: 3,
       dailyChallenge: { progress: 0 },
+      letterStats: emptyLetterStats(),
     },
     level: 1,
     practiceLetter: null,

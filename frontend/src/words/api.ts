@@ -1,4 +1,5 @@
 import { authHeaders } from "../auth/token";
+import { parseError } from "../shared/httpError";
 
 const API = "/api";
 
@@ -83,7 +84,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const tokenHeaders = authHeaders();
   if (tokenHeaders.Authorization) headers.set("Authorization", tokenHeaders.Authorization);
   const response = await fetch(`${API}${path}`, { ...init, headers });
-  if (!response.ok) throw new Error("Word request failed.");
+  if (!response.ok) throw new Error(await parseError(response, "Word request failed."));
   return response.json();
 }
 
