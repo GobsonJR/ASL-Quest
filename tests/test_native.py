@@ -36,6 +36,7 @@ from backend.main import app  # noqa: E402
 from backend.models import (  # noqa: E402
     NativeSign,
     NativeSignProgress,
+    NativeSignReference,
     NativeSignSession,
     SignPrediction,
     UserAchievement,
@@ -647,6 +648,120 @@ class NativeRouterTests(unittest.TestCase):
         self._practice(token_a, book_id, "BOOK")
 
         self.assertEqual(self._unlocked_slugs(user_b_id), set())
+
+
+class NativeSignReferenceTests(unittest.TestCase):
+    """Focused tests for the reference-video system added on top of
+    native_sign_references (backend/routers/native.py::_serialize_reference).
+    Exercises the existing APPROVED_REFERENCE_SOURCE_TYPES/_is_http_url safety
+    checks directly -- these are what actually keep an unsafe or unapproved
+    row (e.g. anything pointing at redistributed dataset media) from ever
+    reaching the client as a playable video_url."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+        with SessionLocal() as db:
+            seed_achievements(db)
+        _seed_native_signs()
+        cls.client = TestClient(app)
+
+    def setUp(self) -> None:
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+        with SessionLocal() as db:
+            seed_achievements(db)
+        _seed_native_signs()
+
+    def register(self, username: str) -> str:
+        response = self.client.post(
+            "/auth/register",
+            json={"username": username, "email": f"{username}@example.com", "password": "Password123!"},
+        )
+        self.assertEqual(response.status_code, 201, response.text)
+        return response.json()["access_token"]
+
+    def _add_reference(self, gloss: str, **kwargs) -> None:
+        defaults = dict(
+            source_type="external_url",
+            source_identifier="https://example.com/reference",
+            thumbnail_path=None,
+            license_note=None,
+            is_primary=True,
+        )
+        defaults.update(kwargs)
+        with SessionLocal() as db:
+            sign = db.query(NativeSign).filter(NativeSign.gloss == gloss).first()
+            db.add(NativeSignReference(native_sign_id=sign.id, **defaults))
+            db.commit()
+
+    def _reference_for(self, token: str, gloss: str) -> dict:
+        response = self.client.get("/native/signs", headers={"Authorization": f"Bearer {token}"})
+        self.assertEqual(response.status_code, 200, response.text)
+        item = next(item for item in response.json()["items"] if item["gloss"] == gloss)
+        return item["reference"]
+
+    def test_reference_loads_for_an_approved_external_url(self) -> None:
+        self._add_reference(
+            "BOOK",
+            source_type="external_url",
+            source_identifier="https://learnhowtosign.com/dictionary/book/",
+            license_note='Reference: "Book" by Learn How to Sign (learnhowtosign.com).',
+        )
+        token = self.register("ref_user_ok")
+        reference = self._reference_for(token, "BOOK")
+        self.assertTrue(reference["available"])
+        self.assertEqual(reference["video_url"], "https://learnhowtosign.com/dictionary/book/")
+        self.assertEqual(reference["source_type"], "external_url")
+        self.assertIn("Learn How to Sign", reference["license_note"])
+
+    def test_reference_missing_gracefully_falls_back(self) -> None:
+        # WATER is seeded by _seed_native_signs() but never given a reference row here.
+        token = self.register("ref_user_missing")
+        reference = self._reference_for(token, "WATER")
+        self.assertFalse(reference["available"])
+        self.assertIsNone(reference["video_url"])
+        self.assertIsNone(reference["source_type"])
+        self.assertIsNone(reference["license_note"])
+
+    def test_reference_rejects_unapproved_source_type(self) -> None:
+        # asl_citizen is explicitly excluded from APPROVED_REFERENCE_SOURCE_TYPES --
+        # a row can exist (e.g. recording where training/eval clips live) without ever
+        # being exposed to the client as a playable reference.
+        self._add_reference(
+            "BOOK",
+            source_type="asl_citizen",
+            source_identifier="https://example.com/asl-citizen-clip.mp4",
+            license_note="ASL Citizen dataset clip -- not for redistribution.",
+        )
+        token = self.register("ref_user_unapproved_type")
+        reference = self._reference_for(token, "BOOK")
+        self.assertFalse(reference["available"])
+        self.assertIsNone(reference["video_url"])
+
+    def test_reference_rejects_non_https_url(self) -> None:
+        self._add_reference(
+            "BOOK",
+            source_type="external_url",
+            source_identifier="/local/filesystem/path.mp4",
+        )
+        token = self.register("ref_user_bad_url")
+        reference = self._reference_for(token, "BOOK")
+        self.assertFalse(reference["available"])
+        self.assertIsNone(reference["video_url"])
+
+    def test_reference_thumbnail_also_validated_as_http_url(self) -> None:
+        self._add_reference(
+            "BOOK",
+            source_type="external_url",
+            source_identifier="https://learnhowtosign.com/dictionary/book/",
+            thumbnail_path="/etc/passwd",
+        )
+        token = self.register("ref_user_bad_thumbnail")
+        reference = self._reference_for(token, "BOOK")
+        self.assertTrue(reference["available"])
+        self.assertIsNone(reference["thumbnail_url"])
 
 
 if __name__ == "__main__":

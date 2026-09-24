@@ -29,18 +29,40 @@ function prefersReducedMotion(): boolean {
 }
 
 /** Converts a watch-page URL into its embeddable form for the given approved source type.
- * Returns null when the URL should instead be played directly as a video file. */
+ * Returns null when the URL should instead be shown as a link-out card -- either because
+ * the source isn't a recognized embeddable provider (e.g. "external_url", a plain
+ * reference page), or because the URL itself doesn't contain a parseable video id. Never
+ * falls back to a bare <video src> for an arbitrary URL: an "external_url" reference here
+ * is a web PAGE (e.g. a dictionary entry), not a media file, and would just fail to play. */
 function referenceEmbedUrl(url: string, sourceType: string | null): string | null {
   if (sourceType === "youtube") {
     const match = url.match(/(?:v=|youtu\.be\/|embed\/)([\w-]{11})/);
-    return `https://www.youtube.com/embed/${match ? match[1] : ""}`;
+    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
   }
   if (sourceType === "vimeo") {
-    const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-    return match ? `https://player.vimeo.com/video/${match[1]}` : url;
+    const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([a-f0-9]+))?/);
+    if (!match) return null;
+    return match[2] ? `https://player.vimeo.com/video/${match[1]}?h=${match[2]}` : `https://player.vimeo.com/video/${match[1]}`;
   }
   return null;
 }
+
+// A short, learner-facing reminder shown above the reference video/link -- same spirit as
+// LearnPage.tsx's SIGN_HINTS for A-Z, but for native vocabulary. Presentational only, not
+// backed by a "tip" column (native_signs has no such field, and adding one isn't needed
+// for a handful of static strings scoped to this page).
+const REFERENCE_TIPS: Record<string, string> = {
+  HELLO: "Watch the hand's starting position closely, then match the same brief wave.",
+  THANKYOU: "Notice where the fingertips start (at the chin) and where the hand ends up.",
+  PLEASE: "Watch the circular motion on the chest -- speed and size matter less than the shape.",
+  YES: "The whole sign is a small, repeated motion from the wrist, not the whole arm.",
+  NO: "Watch how the fingers snap together -- it's quick, not a slow pinch.",
+  MOTHER: "Watch exactly where the thumb taps -- that single contact point is the sign.",
+  WATER: "Watch the handshape stay fixed while it taps near the mouth.",
+  EAT1: "Watch the fingertips tap the mouth -- once for the verb EAT, not a longer motion.",
+  HELP: "Watch which hand moves and which hand stays still underneath it.",
+  BOOK: "Watch the two flat hands open like covers -- that opening motion is the whole sign.",
+};
 
 export function NativeSignPracticePage() {
   const { practiceNativeSignId, navigate, startNativeSignPractice, applyNativeSignResult } = useGame();
@@ -58,6 +80,11 @@ export function NativeSignPracticePage() {
 
   const referenceRef = useRef<HTMLDivElement>(null);
   const [referencePulse, setReferencePulse] = useState(false);
+  // Gates the capture step behind an explicit acknowledgment that the learner watched the
+  // reference first (LEARN -> WATCH -> COPY, not straight to recording). NativeVideoCapture
+  // itself is untouched and always mounted -- this only toggles its existing `disabled`
+  // prop, so the record/predict/result mechanics stay exactly as they were.
+  const [watched, setWatched] = useState(false);
 
   useEffect(() => {
     if (practiceNativeSignId == null) {
@@ -70,6 +97,7 @@ export function NativeSignPracticePage() {
     setPhase("capture");
     setResult(null);
     setPredictError(null);
+    setWatched(false);
     Promise.all([getNativeSigns(), getNativeSignProgress(practiceNativeSignId)])
       .then(([signsResponse, progressResponse]) => {
         if (cancelled) return;
@@ -211,15 +239,27 @@ export function NativeSignPracticePage() {
         </div>
       </div>
 
-      <StepTracker phase={phase} />
+      <StepTracker phase={phase} watched={watched} />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <ReferencePanel sign={sign} panelRef={referenceRef} pulse={referencePulse} />
+        <ReferencePanel
+          key={sign.id}
+          sign={sign}
+          panelRef={referenceRef}
+          pulse={referencePulse}
+          watched={watched}
+          onReady={() => setWatched(true)}
+        />
 
         <Card className="flex min-w-0 flex-col space-y-4">
           <SectionHeader title="Your practice" description="Now perform the sign." />
 
-          {phase === "capture" && <NativeVideoCapture disabled={false} onClipReady={handleClip} />}
+          {phase === "capture" && <NativeVideoCapture disabled={!watched} onClipReady={handleClip} />}
+          {phase === "capture" && !watched && (
+            <p className="text-xs text-[var(--color-muted)]" role="status">
+              Watch the reference and select &ldquo;I&rsquo;m ready&rdquo; to unlock recording.
+            </p>
+          )}
 
           {phase === "processing" && (
             <div
@@ -359,7 +399,7 @@ export function NativeSignPracticePage() {
   );
 }
 
-function StepTracker({ phase }: { phase: Phase }) {
+function StepTracker({ phase, watched }: { phase: Phase; watched: boolean }) {
   const steps: Array<{ key: "watch" | "copy" | "check"; label: string }> = [
     { key: "watch", label: "Watch" },
     { key: "copy", label: "Copy" },
@@ -367,8 +407,8 @@ function StepTracker({ phase }: { phase: Phase }) {
   ];
 
   function statusFor(key: "watch" | "copy" | "check"): "done" | "active" | "upcoming" {
-    if (key === "watch") return "done";
-    if (key === "copy") return phase === "capture" ? "active" : "done";
+    if (key === "watch") return watched ? "done" : "active";
+    if (key === "copy") return watched && phase === "capture" ? "active" : watched ? "done" : "upcoming";
     return phase === "processing" ? "active" : phase === "result" ? "done" : "upcoming";
   }
 
@@ -406,14 +446,36 @@ function ReferencePanel({
   sign,
   panelRef,
   pulse,
+  watched,
+  onReady,
 }: {
   sign: NativeSign;
   panelRef: RefObject<HTMLDivElement | null>;
   pulse: boolean;
+  watched: boolean;
+  onReady: () => void;
 }) {
   const reference = sign.reference;
   const embedUrl =
     reference.available && reference.video_url ? referenceEmbedUrl(reference.video_url, reference.source_type) : null;
+  const tip = REFERENCE_TIPS[sign.gloss];
+
+  const [embedState, setEmbedState] = useState<"loading" | "loaded" | "error">("loading");
+
+  // React's synthetic event system only wires up "load" for <iframe> -- there is no
+  // working onError for this tag (confirmed against react-dom's own source: only
+  // "image" registers both "error" and "load"; "iframe"/"object" register "load"
+  // only). A truly broken embed (blocked/unreachable/private) therefore never tells
+  // us it failed -- the only observable signal is that "loaded" never arrives, so a
+  // timeout is the actual failure detector here, not an onError handler.
+  useEffect(() => {
+    if (!embedUrl) return;
+    setEmbedState("loading");
+    const timer = window.setTimeout(() => {
+      setEmbedState((current) => (current === "loaded" ? current : "error"));
+    }, 8000);
+    return () => window.clearTimeout(timer);
+  }, [embedUrl]);
 
   return (
     <Card
@@ -424,32 +486,79 @@ function ReferencePanel({
     >
       <div ref={panelRef} />
       <SectionHeader title="Reference" description="Learn the sign before you copy it." />
+      <p className="-mt-2 font-display text-2xl text-[#eef4f0]">{sign.display_name}</p>
 
       {reference.available && reference.video_url ? (
         <div className="space-y-2">
-          <div className="aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-black">
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-black">
             {embedUrl ? (
-              <iframe
-                className="h-full w-full"
-                src={embedUrl}
-                title={`Reference demonstration of ${sign.display_name}`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+              <>
+                {embedState !== "loaded" && (
+                  <div
+                    className="absolute inset-0 grid place-items-center bg-[var(--color-ink)]"
+                    // Hide the purely decorative loading spinner from the a11y tree, but
+                    // the error state's message + "Open source instead" link are real
+                    // content a screen-reader user needs -- they must stay accessible.
+                    aria-hidden={embedState === "loading"}
+                  >
+                    {embedState === "loading" ? (
+                      <span className="animate-pulse-glow rounded-full border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 px-4 py-2 text-xs text-[var(--color-accent)]">
+                        Loading reference...
+                      </span>
+                    ) : (
+                      <div className="px-6 text-center">
+                        <p className="text-sm text-[var(--color-mist)]">This reference couldn&rsquo;t load.</p>
+                        <a
+                          href={reference.video_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-2 inline-block text-xs font-medium text-[var(--color-accent)] hover:underline"
+                        >
+                          Open source instead ↗
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                )}
+                <iframe
+                  className="h-full w-full"
+                  src={embedUrl}
+                  title={`Reference demonstration of ${sign.display_name}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  onLoad={() => setEmbedState("loaded")}
+                />
+              </>
             ) : (
-              <video
-                className="h-full w-full object-cover"
-                controls
-                playsInline
-                src={reference.video_url}
-                aria-label={`Reference demonstration of ${sign.display_name}`}
+              <a
+                href={reference.video_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-[var(--color-panel-soft)] to-[var(--color-panel)] px-6 text-center transition hover:from-[var(--color-panel)] hover:to-[var(--color-ink)]"
               >
-                Your browser does not support embedded video playback.
-              </video>
+                <span className="text-5xl" aria-hidden="true">
+                  ▶
+                </span>
+                <p className="text-sm font-semibold text-[#eef4f0]">Watch &ldquo;{sign.display_name}&rdquo;</p>
+                <StatusChip tone="accent">Open source ↗</StatusChip>
+              </a>
             )}
           </div>
-          {reference.license_note && (
-            <p className="text-xs text-[var(--color-muted)]">{reference.license_note}</p>
+          <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--color-muted)]">Watch carefully</p>
+          {tip && <p className="text-sm leading-relaxed text-[var(--color-mist)]">{tip}</p>}
+          {reference.license_note && <p className="text-xs text-[var(--color-muted)]">{reference.license_note}</p>}
+          {/* For the link-out case the card above IS the open-source link -- a second
+              copy of the same link right below it would just be noise. Only the
+              embedded-iframe case needs a distinct secondary "view the original" link. */}
+          {embedUrl && (
+            <a
+              href={reference.video_url ?? undefined}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block text-xs font-medium text-[var(--color-accent)] hover:underline"
+            >
+              Open source ↗
+            </a>
           )}
         </div>
       ) : (
@@ -458,7 +567,7 @@ function ReferencePanel({
             <span className="animate-hand-wave text-5xl" aria-hidden="true">
               🤟
             </span>
-            <StatusChip tone="neutral">Reference demonstration</StatusChip>
+            <StatusChip tone="neutral">Reference video coming soon</StatusChip>
             <p className="max-w-xs text-sm leading-relaxed text-[var(--color-mist)]">
               No verified reference video is connected for &ldquo;{sign.display_name}&rdquo; yet. Once an approved
               source is added to the catalog, it will play here automatically.
@@ -478,6 +587,16 @@ function ReferencePanel({
           </div>
         </div>
       )}
+
+      <div className="mt-auto pt-1">
+        {watched ? (
+          <StatusChip tone="success">✓ Watched</StatusChip>
+        ) : (
+          <PrimaryButton className="w-full" onClick={onReady}>
+            I&rsquo;m ready — Continue
+          </PrimaryButton>
+        )}
+      </div>
     </Card>
   );
 }
