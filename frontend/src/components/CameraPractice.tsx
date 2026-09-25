@@ -43,7 +43,7 @@ export function CameraPractice({
   const handledIncorrect = useRef(false);
   const lastErrorRef = useRef<string | null>(null);
 
-  const [status, setStatus] = useState("Show your hand");
+  const [status, setStatus] = useState("Show your hand ✋");
   const [statusTone, setStatusTone] = useState<"neutral" | "success" | "warning" | "accent">("accent");
   const [error, setError] = useState<string | null>(backendError);
   const [debug, setDebug] = useState<PredictResponse | null>(null);
@@ -57,7 +57,7 @@ export function CameraPractice({
     handledIncorrect.current = false;
     challengeStartedAt.current = Date.now();
     votes.current = [];
-    updateStatus("Show your hand", "accent");
+    updateStatus("Show your hand ✋", "accent");
     if (active && ready && streamRef.current && !runningRef.current) {
       runningRef.current = true;
       setRunning(true);
@@ -118,7 +118,7 @@ export function CameraPractice({
       setRunning(true);
       setError(null);
       lastErrorRef.current = null;
-      updateStatus("Show your hand", "accent");
+      updateStatus("Show your hand ✋", "accent");
       void runPredictionLoop();
     } catch (err) {
       // A cancelled attempt's play()/getUserMedia can reject (e.g.
@@ -151,7 +151,7 @@ export function CameraPractice({
     ctx.clearRect(0, 0, width, height);
     if (!box) return;
     const [x1, y1, x2, y2] = box;
-    ctx.strokeStyle = "#d7f36a";
+    ctx.strokeStyle = "#4c5fea";
     ctx.lineWidth = 3;
     ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
   }
@@ -190,27 +190,27 @@ export function CameraPractice({
 
         if (!prediction.prediction) {
           votes.current = [];
-          updateStatus(prediction.message ?? "Show your hand in frame", "accent");
+          updateStatus(prediction.message ?? "Show your hand ✋", "accent");
           continue;
         }
 
         if (prediction.low_confidence) {
           votes.current = [];
-          updateStatus("Hold your sign steady", "warning");
+          updateStatus("Hold the shape steady...", "warning");
           continue;
         }
 
         votes.current = [...votes.current, prediction.prediction].slice(-VOTE_WINDOW);
         const stable = majority(votes.current);
         if (!stable) {
-          updateStatus("Keep signing...", "accent");
+          updateStatus("Looking good... keep signing", "accent");
           continue;
         }
 
         if (stable === targetLetter) {
           handledCorrect.current = true;
           runningRef.current = false;
-          updateStatus("Perfect sign!", "success");
+          updateStatus("Perfect sign! 🎉", "success");
           onCorrect(Date.now() - challengeStartedAt.current, prediction.confidence);
           continue;
         }
@@ -244,7 +244,7 @@ export function CameraPractice({
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-3xl border border-[var(--color-line)] bg-black shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]">
+      <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-[var(--color-primary-soft)] bg-black shadow-[0_8px_28px_-8px_rgba(76,95,234,0.35)]">
         <video
           ref={videoRef}
           className="aspect-[4/3] w-full object-cover"
@@ -257,36 +257,36 @@ export function CameraPractice({
         {!running && (
           <div className="absolute inset-0 grid place-items-center bg-black/60 px-6 text-center backdrop-blur-[2px]">
             <div>
-              <p className="text-lg font-semibold text-[var(--color-mist)]">
+              <p className="text-lg font-semibold text-white">
                 {loading ? "Starting camera..." : active ? "Camera paused" : "Practice paused"}
               </p>
               {!loading && active && (
-                <p className="mt-2 text-sm text-[var(--color-muted)]">Allow camera access to begin signing.</p>
+                <p className="mt-2 text-sm text-white/70">Allow camera access to begin signing.</p>
               )}
             </div>
           </div>
         )}
 
         <div className="absolute left-3 top-3">
-          <StatusChip tone={running ? "success" : "neutral"}>{running ? "Live" : "Idle"}</StatusChip>
+          <StatusChip tone={running ? "success" : "neutral"}>{running ? "● Live" : "Idle"}</StatusChip>
         </div>
 
         <canvas ref={canvasRef} className="hidden" aria-hidden="true" />
       </div>
 
-      <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-4 py-3">
-        <p className="text-sm text-[var(--color-mist)]">Status</p>
+      <div className="flex items-center justify-between gap-3 rounded-2xl border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-4 py-3">
+        <p className="text-sm font-medium text-[var(--color-ink-soft)]">Status</p>
         <StatusChip tone={statusTone}>{status}</StatusChip>
       </div>
 
       {error && running && (
-        <p className="rounded-2xl border border-[var(--color-warm)]/30 bg-[var(--color-warm)]/10 px-4 py-2 text-sm text-[var(--color-warm)]">
+        <p className="rounded-2xl border border-[var(--color-streak)]/25 bg-[var(--color-streak-soft)] px-4 py-2 text-sm text-[var(--color-streak)]">
           {error}
         </p>
       )}
 
-      <details className="rounded-2xl border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-4 py-3 text-xs text-[var(--color-muted)]">
-        <summary className="cursor-pointer font-semibold text-[var(--color-mist)]">Technical details</summary>
+      <details className="rounded-2xl border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-4 py-3 text-xs text-[var(--color-muted)]">
+        <summary className="cursor-pointer font-semibold text-[var(--color-ink-soft)]">Technical details</summary>
         <div className="mt-2 space-y-1">
           <p>Detected: {debug?.prediction ?? "—"}</p>
           <p>Confidence: {debug ? `${(debug.confidence * 100).toFixed(1)}%` : "—"}</p>

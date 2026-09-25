@@ -62,7 +62,7 @@ export function AdminPage() {
   }
 
   if (!overview || !users || !letters || !activity || !recent) {
-    return <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading admin dashboard...</div>;
+    return <div className="grid min-h-[40vh] place-items-center text-[var(--color-ink-soft)]">Loading admin dashboard...</div>;
   }
 
   return (
@@ -92,7 +92,7 @@ export function AdminPage() {
           <SectionLabel>Popular letters</SectionLabel>
           <div className="mt-4 space-y-2">
             {letters.popular.slice(0, 8).map((item) => (
-              <div key={item.letter} className="flex items-center justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm">
+              <div key={item.letter} className="flex items-center justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm">
                 <span className="font-semibold">{item.letter}</span>
                 <span className="text-[var(--color-muted)]">{item.attempts} attempts</span>
               </div>
@@ -104,7 +104,7 @@ export function AdminPage() {
           <SectionLabel>Difficult letters</SectionLabel>
           <div className="mt-4 space-y-2">
             {letters.difficult.slice(0, 8).map((item) => (
-              <div key={item.letter} className="flex items-center justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm">
+              <div key={item.letter} className="flex items-center justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm">
                 <span className="font-semibold">{item.letter}</span>
                 <span className="text-[var(--color-muted)]">{item.accuracy != null ? `${item.accuracy}%` : "—"}</span>
               </div>
@@ -119,7 +119,7 @@ export function AdminPage() {
             <SectionLabel>Most practiced words</SectionLabel>
             <div className="mt-4 space-y-2">
               {words.most_practiced.slice(0, 8).map((item) => (
-                <div key={item.word} className="flex items-center justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm">
+                <div key={item.word} className="flex items-center justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm">
                   <span className="font-semibold">{item.word}</span>
                   <span className="text-[var(--color-muted)]">{item.sessions} sessions</span>
                 </div>
@@ -130,7 +130,7 @@ export function AdminPage() {
             <SectionLabel>Hardest words</SectionLabel>
             <div className="mt-4 space-y-2">
               {words.hardest.slice(0, 8).map((item) => (
-                <div key={item.word} className="flex items-center justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm">
+                <div key={item.word} className="flex items-center justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm">
                   <span className="font-semibold">{item.word}</span>
                   <span className="text-[var(--color-muted)]">{item.accuracy != null ? `${item.accuracy}%` : "—"}</span>
                 </div>
@@ -141,7 +141,7 @@ export function AdminPage() {
             <SectionLabel>Popular categories</SectionLabel>
             <div className="mt-4 space-y-2">
               {words.most_popular_categories.map((item) => (
-                <div key={item.category} className="flex items-center justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm">
+                <div key={item.category} className="flex items-center justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm">
                   <span>{item.category}</span>
                   <span className="text-[var(--color-muted)]">{item.sessions}</span>
                 </div>
@@ -155,14 +155,14 @@ export function AdminPage() {
         <SectionLabel>User management</SectionLabel>
         <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <input
-            className="w-full rounded-2xl border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-4 py-3"
+            className="w-full rounded-2xl border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-4 py-3"
             placeholder="Search username or email"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />
           <button
             type="button"
-            className="rounded-full bg-[var(--color-accent)] px-6 py-3 text-sm font-bold text-[var(--color-ink)]"
+            className="rounded-full bg-[var(--color-primary)] px-6 py-3 text-sm font-bold text-white"
             onClick={() => fetchAdminUsers({ page: 1, search }).then(setUsers)}
           >
             Search
@@ -182,7 +182,7 @@ export function AdminPage() {
             </thead>
             <tbody>
               {users.items.map((item) => (
-                <tr key={item.id} className="border-t border-[var(--color-line-soft)]">
+                <tr key={item.id} className="border-t border-[var(--color-border-soft)]">
                   <td className="px-2 py-2 font-semibold">{item.username}</td>
                   <td className="px-2 py-2">{item.email}</td>
                   <td className="px-2 py-2">{item.role}</td>
@@ -204,7 +204,7 @@ export function AdminPage() {
           <SectionLabel>System activity</SectionLabel>
           <div className="mt-4 space-y-2">
             {activity.points.slice(-7).map((point) => (
-              <div key={point.date} className="flex items-center justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm">
+              <div key={point.date} className="flex items-center justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm">
                 <span>{point.date}</span>
                 <span className="font-semibold">{point.value} attempts</span>
               </div>
@@ -216,11 +216,11 @@ export function AdminPage() {
           <SectionLabel>Recent learner activity</SectionLabel>
           <div className="mt-4 space-y-2">
             {recent.items.slice(0, 10).map((item, index) => (
-              <div key={`${item.user_id}-${item.created_at}-${index}`} className="flex items-center justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm">
+              <div key={`${item.user_id}-${item.created_at}-${index}`} className="flex items-center justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm">
                 <span>
                   User #{item.user_id} · {item.letter}
                 </span>
-                <span className={item.correct ? "text-[var(--color-success)]" : "text-[var(--color-warm)]"}>
+                <span className={item.correct ? "text-[var(--color-success)]" : "text-[var(--color-streak)]"}>
                   {item.correct ? "Correct" : "Incorrect"}
                 </span>
               </div>

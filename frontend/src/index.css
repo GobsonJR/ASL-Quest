@@ -1,23 +1,57 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Outfit:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
+/* ASL-Quest design system -- a bright, friendly "learning journey" identity.
+   Deliberately NOT a copy of Duolingo's palette/mascot/layout: our own indigo
+   primary + mint/gold/coral/purple accent family, our own type pairing
+   (Fraunces display + Outfit body, already in place before this redesign).
+   Same CSS custom-property NAMES are reused by ~30 component files below --
+   see individual component files for how each token is applied. */
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", ui-serif, Georgia, serif;
-  --color-ink: #0a0f0d;
-  --color-panel: #121a17;
-  --color-panel-soft: #17221d;
-  --color-line: #2a3b34;
-  --color-line-soft: #223028;
-  --color-mist: #b8c9c0;
-  --color-muted: #8fa399;
-  --color-accent: #d7f36a;
-  --color-accent-dim: #a8c94a;
-  --color-warm: #f3c16b;
-  --color-success: #6ee7a8;
-  --color-danger: #f87171;
-  --radius-panel: 1rem;
-  --radius-control: 0.75rem;
+
+  /* Surfaces */
+  --color-canvas: #f6f7fd;
+  --color-surface: #ffffff;
+  --color-surface-soft: #f1f2fa;
+  --color-surface-sunken: #e9ebf6;
+  --color-border: #e3e6f3;
+  --color-border-soft: #edeff9;
+
+  /* Text */
+  --color-ink: #232842;
+  --color-ink-soft: #565c7d;
+  --color-muted: #8b90ac;
+
+  /* Brand -- primary action color */
+  --color-primary: #4c5fea;
+  --color-primary-dim: #3a49c4;
+  --color-primary-soft: #eceffe;
+
+  /* Semantic accents, used consistently by purpose (see design system) */
+  --color-success: #17b884;
+  --color-success-soft: #e1f8ef;
+  --color-xp: #ffb020;
+  --color-xp-soft: #fff4d9;
+  --color-streak: #ff7a45;
+  --color-streak-soft: #ffe9de;
+  --color-native: #8b5fe8;
+  --color-native-soft: #f2ecfe;
+  --color-danger: #f0475c;
+  --color-danger-soft: #fde8eb;
+  --color-locked: #b6bbd1;
+  --color-locked-soft: #f1f2f7;
+
+  /* Legacy alias kept only because a couple of not-yet-migrated call sites in
+     older components may still resolve --color-warm before this redesign is
+     fully rolled out; equal to --color-streak (same role: warm highlight/
+     warning). New code should use --color-streak directly. */
+  --color-warm: #ff7a45;
+
+  --radius-panel: 1.5rem;
+  --radius-control: 1rem;
+  --radius-pill: 999px;
 }
 
 html,
@@ -29,10 +63,10 @@ body,
 body {
   margin: 0;
   background:
-    radial-gradient(1200px 600px at 10% -8%, rgba(45, 90, 65, 0.22) 0%, transparent 50%),
-    radial-gradient(800px 400px at 100% 0%, rgba(90, 60, 20, 0.12) 0%, transparent 40%),
-    var(--color-ink);
-  color: #eef4f0;
+    radial-gradient(900px 480px at 12% -12%, rgba(76, 95, 234, 0.07) 0%, transparent 55%),
+    radial-gradient(700px 380px at 100% 0%, rgba(139, 95, 232, 0.06) 0%, transparent 50%),
+    var(--color-canvas);
+  color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
@@ -40,17 +74,18 @@ body {
 .input-field {
   width: 100%;
   border-radius: var(--radius-control);
-  border: 1px solid var(--color-line-soft);
-  background: var(--color-panel-soft);
-  padding: 0.625rem 1rem;
-  color: #eef4f0;
-  font-size: 0.875rem;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  padding: 0.7rem 1rem;
+  color: var(--color-ink);
+  font-size: 0.9375rem;
   line-height: 1.5;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input-field:focus {
-  border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-line));
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-soft);
   outline: none;
 }
 
@@ -60,7 +95,7 @@ input {
 }
 
 *:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
@@ -121,10 +156,10 @@ input {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(215, 243, 106, 0.35);
+    box-shadow: 0 0 0 0 rgba(76, 95, 234, 0.28);
   }
   50% {
-    box-shadow: 0 0 24px 4px rgba(215, 243, 106, 0.2);
+    box-shadow: 0 0 22px 4px rgba(76, 95, 234, 0.16);
   }
 }
 
@@ -142,12 +177,7 @@ input {
 }
 
 .shimmer-bar {
-  background: linear-gradient(
-    90deg,
-    var(--color-accent) 0%,
-    #e8ff9a 50%,
-    var(--color-accent) 100%
-  );
+  background: linear-gradient(90deg, var(--color-primary) 0%, #7c8bf5 50%, var(--color-primary) 100%);
   background-size: 200% 100%;
   animation: shimmer 2.5s ease-in-out infinite;
 }
@@ -167,8 +197,47 @@ input {
   animation: success-ring 0.6s ease-out forwards;
 }
 
+/* Celebration burst for correct-answer / level-up moments. */
+@keyframes celebrate-pop {
+  0% {
+    transform: scale(0.6) rotate(-6deg);
+    opacity: 0;
+  }
+  55% {
+    transform: scale(1.08) rotate(2deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-celebrate {
+  animation: celebrate-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes badge-unlock {
+  0% {
+    transform: scale(0.5) rotate(-10deg);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.12) rotate(4deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-badge-unlock {
+  animation: badge-unlock 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
 /* Reference-panel learning aids: a decorative hand cue and directional motion arrows.
-   Purely illustrative (not an authoritative sign demonstration) — see
+   Purely illustrative (not an authoritative sign demonstration) -- see
    NativeSignPracticePage's ReferencePanel. */
 @keyframes hand-wave {
   0%,
@@ -204,30 +273,34 @@ input {
   animation: motion-arrow 1.5s ease-in-out infinite;
 }
 
+/* Soft, friendly surface -- replaces the old dark/blurred "glass panel" look.
+   Kept as the same class name so every existing call site re-themes for
+   free, but it is now a plain elevated card: solid white surface + soft
+   shadow instead of backdrop-blur over a dark background. */
 .glass-panel {
-  background: rgba(18, 26, 23, 0.72);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(42, 59, 52, 0.8);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-soft);
+  box-shadow: 0 1px 2px rgba(35, 40, 66, 0.04), 0 12px 28px -14px rgba(35, 40, 66, 0.16);
 }
 
 .card-hover {
-  transition: border-color 0.15s ease, background-color 0.15s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .card-hover:hover {
-  border-color: color-mix(in srgb, var(--color-accent) 20%, var(--color-line));
+  border-color: var(--color-primary-soft);
+  box-shadow: 0 1px 2px rgba(35, 40, 66, 0.05), 0 16px 32px -14px rgba(35, 40, 66, 0.2);
 }
 
 /* Same reduce-motion guard as .card-hover, extended with a transform lift for
    feature cards (e.g. Native Signs catalog) that want a slightly stronger effect. */
 .lift-hover {
-  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .lift-hover:hover {
-  transform: translateY(-4px) scale(1.015);
-  border-color: color-mix(in srgb, var(--color-accent) 35%, var(--color-line));
-  box-shadow: 0 12px 32px -12px rgba(215, 243, 106, 0.25);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(35, 40, 66, 0.06), 0 20px 36px -14px rgba(35, 40, 66, 0.22);
 }
 
 html.reduce-motion .page-enter,
@@ -236,6 +309,8 @@ html.reduce-motion .animate-float-up,
 html.reduce-motion .animate-pulse-glow,
 html.reduce-motion .shimmer-bar,
 html.reduce-motion .success-ring,
+html.reduce-motion .animate-celebrate,
+html.reduce-motion .animate-badge-unlock,
 html.reduce-motion .animate-hand-wave,
 html.reduce-motion .animate-motion-arrow,
 html.reduce-motion .card-hover:hover,
@@ -252,6 +327,8 @@ html.reduce-motion .lift-hover:hover {
   .animate-pulse-glow,
   .shimmer-bar,
   .success-ring,
+  .animate-celebrate,
+  .animate-badge-unlock,
   .animate-hand-wave,
   .animate-motion-arrow,
   .card-hover:hover,

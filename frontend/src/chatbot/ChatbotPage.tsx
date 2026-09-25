@@ -45,7 +45,7 @@ function AuraAvatar({ size = "md" }: { size?: "sm" | "md" }) {
   const dimensions = size === "sm" ? "h-7 w-7 text-xs" : "h-11 w-11 text-base";
   return (
     <span
-      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--color-accent)] to-[var(--color-accent-dim)] font-display font-semibold text-[var(--color-ink)] shadow-[0_0_20px_rgba(215,243,106,0.35)] ${dimensions}`}
+      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dim)] font-display font-semibold text-white shadow-[0_0_20px_rgba(76,95,234,0.35)] ${dimensions}`}
       aria-hidden="true"
     >
       A
@@ -234,20 +234,12 @@ export function ChatbotPage() {
   return (
     <div className="space-y-8 md:space-y-10">
       <div className="glass-panel relative overflow-hidden rounded-[var(--radius-panel)] p-6 md:p-8">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            background:
-              "radial-gradient(600px 260px at 15% -10%, rgba(215,243,106,0.16) 0%, transparent 55%), radial-gradient(500px 220px at 100% 10%, rgba(243,193,107,0.10) 0%, transparent 50%)",
-          }}
-          aria-hidden="true"
-        />
         <div className="relative flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <AuraAvatar />
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-display text-2xl font-medium text-[#eef4f0] md:text-3xl">AURA</h1>
+                <h1 className="font-display text-2xl font-medium text-[var(--color-ink)] md:text-3xl">AURA</h1>
                 <StatusChip tone="accent">ASL-QUEST PROJECT ASSISTANT</StatusChip>
               </div>
               <div className="mt-1">
@@ -278,7 +270,7 @@ export function ChatbotPage() {
       </div>
 
       {loading ? (
-        <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading AURA...</div>
+        <div className="grid min-h-[40vh] place-items-center text-[var(--color-ink-soft)]">Loading AURA...</div>
       ) : loadError ? (
         <EmptyState icon="⚠️" title="Unable to load AURA" description={loadError} />
       ) : (
@@ -289,7 +281,7 @@ export function ChatbotPage() {
                 <AuraAvatar />
                 <div>
                   <SectionLabel>Ask AURA about ASL-Quest</SectionLabel>
-                  <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--color-mist)]">
+                  <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--color-ink-soft)]">
                     Type any question in your own words — A-Z recognition, Word Spelling, Native Signs, the
                     database, architecture, limitations, anything about how the project works. AURA only answers
                     questions about ASL-Quest.
@@ -305,7 +297,7 @@ export function ChatbotPage() {
                       <button
                         key={question}
                         type="button"
-                        className="rounded-full border border-[var(--color-line)] bg-[var(--color-panel-soft)]/60 px-3.5 py-1.5 text-xs font-medium text-[var(--color-mist)] transition hover:border-[var(--color-accent)]/40 hover:text-[#eef4f0] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-soft)]/60 px-3.5 py-1.5 text-xs font-medium text-[var(--color-ink-soft)] transition hover:border-[var(--color-primary)]/40 hover:text-[var(--color-ink)] disabled:cursor-not-allowed disabled:opacity-50"
                         onClick={() => void submitMessage(question)}
                         disabled={sending}
                       >
@@ -329,7 +321,7 @@ export function ChatbotPage() {
             {sending && (
               <div className="flex items-center gap-2">
                 <AuraAvatar size="sm" />
-                <p className="animate-pulse-glow inline-flex items-center gap-2 rounded-full border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 px-4 py-2 text-sm text-[var(--color-accent)]">
+                <p className="animate-pulse-glow inline-flex items-center gap-2 rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 px-4 py-2 text-sm text-[var(--color-primary)]">
                   AURA is thinking...
                 </p>
               </div>
@@ -339,14 +331,14 @@ export function ChatbotPage() {
 
           {sendError && (
             <p
-              className="mx-4 mb-2 rounded-2xl border border-[var(--color-warm)]/30 bg-[var(--color-warm)]/10 px-4 py-2 text-sm text-[var(--color-warm)] md:mx-6"
+              className="mx-4 mb-2 rounded-2xl border border-[var(--color-streak)]/30 bg-[var(--color-streak)]/10 px-4 py-2 text-sm text-[var(--color-streak)] md:mx-6"
               role="alert"
             >
               {sendError}
             </p>
           )}
 
-          <form onSubmit={handleSubmit} className="flex items-end gap-3 border-t border-[var(--color-line-soft)] px-4 py-4 md:px-6">
+          <form onSubmit={handleSubmit} className="flex items-end gap-3 border-t border-[var(--color-border-soft)] px-4 py-4 md:px-6">
             <textarea
               className="input-field min-h-11 flex-1 resize-none"
               placeholder="Ask AURA anything about ASL-Quest..."
@@ -396,8 +388,8 @@ function MessageBubble({
         <div
           className={
             isUser
-              ? "rounded-[var(--radius-panel)] rounded-br-sm bg-[var(--color-accent)] px-4 py-2.5 text-sm text-[var(--color-ink)]"
-              : "rounded-[var(--radius-panel)] rounded-bl-sm border border-[var(--color-line)] bg-[var(--color-panel-soft)]/70 px-4 py-2.5 text-sm leading-relaxed text-[#eef4f0]"
+              ? "rounded-[var(--radius-panel)] rounded-br-sm bg-[var(--color-primary)] px-4 py-2.5 text-sm text-white"
+              : "rounded-[var(--radius-panel)] rounded-bl-sm border border-[var(--color-border)] bg-[var(--color-surface-soft)]/70 px-4 py-2.5 text-sm leading-relaxed text-[var(--color-ink)]"
           }
         >
           <p className="whitespace-pre-wrap">{message.content}</p>
@@ -417,7 +409,7 @@ function MessageBubble({
               </button>
               <button
                 type="button"
-                className={`rounded-full px-2 py-0.5 transition hover:text-[var(--color-warm)] disabled:cursor-not-allowed disabled:opacity-50 ${voted ? "text-[var(--color-warm)]" : ""}`}
+                className={`rounded-full px-2 py-0.5 transition hover:text-[var(--color-streak)] disabled:cursor-not-allowed disabled:opacity-50 ${voted ? "text-[var(--color-streak)]" : ""}`}
                 onClick={() => onFeedback(false)}
                 disabled={voted}
                 aria-label="Mark this AURA response as not helpful"

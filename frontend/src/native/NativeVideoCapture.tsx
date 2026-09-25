@@ -124,8 +124,8 @@ export function NativeVideoCapture({
 
   if (unsupported) {
     return (
-      <div className="rounded-[var(--radius-panel)] border border-dashed border-[var(--color-line)] px-6 py-10 text-center">
-        <p className="text-sm text-[var(--color-mist)]">
+      <div className="rounded-[var(--radius-panel)] border border-dashed border-[var(--color-border)] px-6 py-10 text-center">
+        <p className="text-sm text-[var(--color-ink-soft)]">
           Video recording isn't supported in this browser. Try a recent version of Chrome, Edge, or Firefox.
         </p>
       </div>
@@ -134,7 +134,7 @@ export function NativeVideoCapture({
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-black shadow-[inset_0_0_40px_rgba(0,0,0,0.5)]">
+      <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-[var(--color-native-soft)] bg-black shadow-[0_8px_28px_-8px_rgba(139,95,232,0.35)]">
         <video
           ref={videoRef}
           className="aspect-[4/3] w-full object-cover"
@@ -144,7 +144,7 @@ export function NativeVideoCapture({
         />
         {state !== "recording" && (
           <div className="absolute inset-0 grid place-items-center bg-black/60 px-6 text-center backdrop-blur-[2px]">
-            <p className="text-sm text-[var(--color-mist)]">
+            <p className="text-sm text-white/85">
               {state === "clip_ready" ? "Clip captured" : "Camera preview appears when recording starts"}
             </p>
           </div>
@@ -157,7 +157,7 @@ export function NativeVideoCapture({
       </div>
 
       {cameraError && (
-        <p className="rounded-2xl border border-[var(--color-warm)]/30 bg-[var(--color-warm)]/10 px-4 py-2 text-sm text-[var(--color-warm)]">
+        <p className="rounded-2xl border border-[var(--color-streak)]/30 bg-[var(--color-streak)]/10 px-4 py-2 text-sm text-[var(--color-streak)]">
           {cameraError}
         </p>
       )}

@@ -29,8 +29,8 @@ export function DateRangeFilter({
           type="button"
           className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
             value === option.id
-              ? "bg-[var(--color-accent)] text-[var(--color-ink)]"
-              : "border border-[var(--color-line-soft)] text-[var(--color-mist)] hover:border-[var(--color-accent)]/40"
+              ? "bg-[var(--color-primary)] text-white"
+              : "border border-[var(--color-border-soft)] text-[var(--color-ink-soft)] hover:border-[var(--color-primary)]/40"
           }`}
           onClick={() => onChange(option.id)}
           aria-pressed={value === option.id}
@@ -57,8 +57,8 @@ export function HeatmapRangeFilter({
           type="button"
           className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
             value === option.id
-              ? "bg-[var(--color-accent)] text-[var(--color-ink)]"
-              : "border border-[var(--color-line-soft)] text-[var(--color-mist)]"
+              ? "bg-[var(--color-primary)] text-white"
+              : "border border-[var(--color-border-soft)] text-[var(--color-ink-soft)]"
           }`}
           onClick={() => onChange(option.id)}
           aria-pressed={value === option.id}
@@ -83,7 +83,7 @@ export function LineChart({
 }) {
   if (points.length === 0) {
     return (
-      <div className="rounded-2xl border border-dashed border-[var(--color-line-soft)] bg-[var(--color-panel-soft)]/40 px-4 py-8 text-center text-sm text-[var(--color-mist)]">
+      <div className="rounded-2xl border border-dashed border-[var(--color-border-soft)] bg-[var(--color-surface-soft)]/40 px-4 py-8 text-center text-sm text-[var(--color-ink-soft)]">
         {emptyMessage}
       </div>
     );
@@ -102,11 +102,11 @@ export function LineChart({
 
   return (
     <div>
-      <h3 className="mb-3 text-sm font-semibold text-[var(--color-mist)]">{title}</h3>
+      <h3 className="mb-3 text-sm font-semibold text-[var(--color-ink-soft)]">{title}</h3>
       <svg viewBox={`0 0 ${width} ${height}`} className="h-44 w-full" role="img" aria-label={title}>
         <polyline
           fill="none"
-          stroke="var(--color-accent)"
+          stroke="var(--color-primary)"
           strokeWidth="3"
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -126,11 +126,11 @@ export function LineChart({
 }
 
 const HEAT_COLORS = [
-  "bg-[var(--color-panel-soft)]",
-  "bg-[var(--color-accent)]/20",
-  "bg-[var(--color-accent)]/40",
-  "bg-[var(--color-accent)]/65",
-  "bg-[var(--color-accent)]",
+  "bg-[var(--color-surface-soft)]",
+  "bg-[var(--color-primary)]/20",
+  "bg-[var(--color-primary)]/40",
+  "bg-[var(--color-primary)]/65",
+  "bg-[var(--color-primary)]",
 ];
 
 export function ActivityHeatmap({
@@ -146,7 +146,7 @@ export function ActivityHeatmap({
   }>;
 }) {
   if (cells.length === 0) {
-    return <p className="text-sm text-[var(--color-mist)]">No activity recorded yet.</p>;
+    return <p className="text-sm text-[var(--color-ink-soft)]">No activity recorded yet.</p>;
   }
 
   const weeks: typeof cells[] = [];

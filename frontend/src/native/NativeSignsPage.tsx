@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { Card, EmptyState, PageHeader, PageLayout, PrimaryButton, ProgressBar, StatusChip } from "../components/AppShell";
+import { Card, EmptyState, PageLayout, PrimaryButton, ProgressBar, StatusChip } from "../components/AppShell";
 import { useToast } from "../components/Toast";
 import { useGame } from "../game/GameContext";
 import { getNativeProgress, getNativeSigns, type NativeProgress, type NativeSign } from "./api";
@@ -90,7 +90,7 @@ export function NativeSignsPage() {
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="h-56 animate-pulse rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-[var(--color-panel)]/60"
+              className="h-56 animate-pulse rounded-[var(--radius-panel)] border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)]"
             />
           ))}
         </div>
@@ -152,8 +152,8 @@ export function NativeSignsPage() {
       <section className="space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h3 className="text-base font-semibold text-[#eef4f0]">Sign catalog</h3>
-            <p className="mt-1 text-sm text-[var(--color-mist)]">
+            <h3 className="text-base font-semibold text-[var(--color-ink)]">Sign catalog</h3>
+            <p className="mt-1 text-sm text-[var(--color-ink-soft)]">
               {filtered.length} of {signs.length} signs shown
             </p>
           </div>
@@ -188,7 +188,7 @@ export function NativeSignsPage() {
         )}
 
         {filtered.length === 0 ? (
-          <p className="rounded-[var(--radius-panel)] border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-sm text-[var(--color-mist)]">
+          <p className="rounded-[var(--radius-panel)] border border-dashed border-[var(--color-border)] px-6 py-10 text-center text-sm text-[var(--color-ink-soft)]">
             No signs match your filters.
           </p>
         ) : (
@@ -211,39 +211,32 @@ export function NativeSignsPage() {
 
 function HeroSection() {
   return (
-    <div className="glass-panel relative overflow-hidden rounded-[var(--radius-panel)] p-6 md:p-8">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(600px 260px at 15% -10%, rgba(215,243,106,0.16) 0%, transparent 55%), radial-gradient(500px 220px at 100% 10%, rgba(243,193,107,0.10) 0%, transparent 50%)",
-        }}
-        aria-hidden="true"
-      />
+    <div className="relative overflow-hidden rounded-[var(--radius-panel)] bg-[var(--color-native)] p-6 text-white md:p-8">
+      <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-56 rounded-full bg-white/10" aria-hidden="true" />
       <div className="relative">
         <div className="flex flex-wrap items-center gap-3">
-          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[var(--radius-panel)] border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 text-3xl">
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[var(--radius-panel)] bg-white/15 text-3xl">
             🤟
           </span>
-          <StatusChip tone="accent">ISOLATED SIGN RECOGNITION</StatusChip>
+          <StatusChip tone="neutral">
+            <span className="text-[var(--color-native)]">ISOLATED SIGN RECOGNITION</span>
+          </StatusChip>
         </div>
 
-        <PageHeader
-          title="Native ASL Signs"
-          description="Learn real ASL signs — not letter-by-letter spelling."
-          compact
-        />
+        <p className="mt-5 font-display text-2xl font-bold md:text-4xl">Native ASL</p>
+        <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-white/85">
+          Learn complete signs, not just letters — real ASL signs, not letter-by-letter spelling.
+        </p>
 
-        <div className="mt-5 grid gap-3 text-sm text-[var(--color-mist)] sm:grid-cols-3">
-          <p className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)]/60 px-4 py-3">
-            <span className="font-semibold text-[#eef4f0]">A–Z</span> teaches individual handshapes.
+        <div className="mt-5 grid gap-3 text-sm sm:grid-cols-3">
+          <p className="rounded-[var(--radius-control)] bg-white/10 px-4 py-3">
+            <span className="font-bold">A–Z</span> teaches individual handshapes.
           </p>
-          <p className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)]/60 px-4 py-3">
-            <span className="font-semibold text-[#eef4f0]">Word Spelling</span> combines letters.
+          <p className="rounded-[var(--radius-control)] bg-white/10 px-4 py-3">
+            <span className="font-bold">Word Spelling</span> combines letters.
           </p>
-          <p className="rounded-[var(--radius-control)] border border-[var(--color-accent)]/25 bg-[var(--color-accent)]/[0.06] px-4 py-3">
-            <span className="font-semibold text-[var(--color-accent)]">Native Signs</span> recognizes a complete
-            isolated ASL sign.
+          <p className="rounded-[var(--radius-control)] bg-white/20 px-4 py-3">
+            <span className="font-bold">Native Signs</span> recognizes a complete isolated ASL sign.
           </p>
         </div>
       </div>
@@ -263,21 +256,14 @@ function StatCard({
   sub?: string;
 }) {
   return (
-    <Card className="lift-hover relative overflow-hidden">
-      <div
-        className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-20"
-        style={{ background: "radial-gradient(circle, var(--color-accent) 0%, transparent 70%)" }}
-        aria-hidden="true"
-      />
-      <div className="relative flex items-center gap-4">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-[var(--radius-control)] bg-gradient-to-br from-[var(--color-accent)]/25 to-[var(--color-accent-dim)]/10 text-2xl">
-          {icon}
-        </span>
-        <div>
-          <p className="font-display text-3xl text-[#eef4f0]">{value}</p>
-          <p className="text-xs uppercase tracking-[0.1em] text-[var(--color-muted)]">{label}</p>
-          {sub && <p className="mt-0.5 text-xs text-[var(--color-muted)]">{sub}</p>}
-        </div>
+    <Card className="lift-hover flex items-center gap-4">
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--color-native-soft)] text-2xl">
+        {icon}
+      </span>
+      <div>
+        <p className="font-display text-3xl font-bold text-[var(--color-ink)]">{value}</p>
+        <p className="text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-muted)]">{label}</p>
+        {sub && <p className="mt-0.5 text-xs text-[var(--color-muted)]">{sub}</p>}
       </div>
     </Card>
   );
@@ -296,13 +282,13 @@ function FilterGroup({
 }) {
   return (
     <div className="flex flex-wrap items-center gap-1.5" role="group" aria-label={`Filter by ${label}`}>
-      <span className="mr-1 text-xs font-medium uppercase tracking-[0.1em] text-[var(--color-muted)]">{label}</span>
+      <span className="mr-1 text-xs font-bold uppercase tracking-[0.1em] text-[var(--color-muted)]">{label}</span>
       <button
         type="button"
-        className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+        className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
           selected === null
-            ? "bg-[var(--color-accent)] text-[var(--color-ink)]"
-            : "border border-[var(--color-line)] text-[var(--color-mist)] hover:border-[var(--color-line-soft)]"
+            ? "bg-[var(--color-native)] text-white"
+            : "border-2 border-[var(--color-border)] text-[var(--color-ink-soft)] hover:border-[var(--color-native-soft)]"
         }`}
         onClick={() => onSelect(null)}
         aria-pressed={selected === null}
@@ -313,10 +299,10 @@ function FilterGroup({
         <button
           key={option}
           type="button"
-          className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+          className={`rounded-full px-3 py-1 text-xs font-semibold transition ${
             selected === option
-              ? "bg-[var(--color-accent)] text-[var(--color-ink)]"
-              : "border border-[var(--color-line)] text-[var(--color-mist)] hover:border-[var(--color-line-soft)]"
+              ? "bg-[var(--color-native)] text-white"
+              : "border-2 border-[var(--color-border)] text-[var(--color-ink-soft)] hover:border-[var(--color-native-soft)]"
           }`}
           onClick={() => onSelect(option)}
           aria-pressed={selected === option}
@@ -345,10 +331,10 @@ function SignCard({
       style={{ animationDelay: `${Math.min(index, 10) * 40}ms` } as CSSProperties}
     >
       <div className="flex items-start justify-between gap-3">
-        <h3 className="font-display text-2xl text-[#eef4f0]">{sign.display_name}</h3>
+        <h3 className="font-display text-2xl font-bold text-[var(--color-ink)]">{sign.display_name}</h3>
         <StatusChip tone={sign.active ? "success" : "neutral"}>{sign.active ? "Active" : "Inactive"}</StatusChip>
       </div>
-      <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-accent)]">
+      <p className="mt-1 text-xs font-bold uppercase tracking-[0.14em] text-[var(--color-native)]">
         {sign.gloss}
       </p>
 
@@ -363,8 +349,8 @@ function SignCard({
         </div>
       )}
 
-      {sign.meaning && <p className="mt-3 text-sm text-[var(--color-mist)]">{sign.meaning}</p>}
-      {sign.description && <p className="mt-2 text-sm text-[var(--color-mist)]">{sign.description}</p>}
+      {sign.meaning && <p className="mt-3 text-sm text-[var(--color-ink-soft)]">{sign.meaning}</p>}
+      {sign.description && <p className="mt-2 text-sm text-[var(--color-ink-soft)]">{sign.description}</p>}
       {sign.example_text && (
         <p className="mt-2 text-sm italic text-[var(--color-muted)]">&ldquo;{sign.example_text}&rdquo;</p>
       )}

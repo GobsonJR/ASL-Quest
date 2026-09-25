@@ -44,9 +44,9 @@ export function WordsPage() {
   return (
     <PageLayout>
       <PageHeader
-        eyebrow="Word practice"
-        title="Spell words with A–Z signs"
-        description="This is letter-by-letter spelling using the existing alphabet classifier. It is not native ASL word recognition."
+        eyebrow="🧩 Word Spelling"
+        title="Choose a word to practice"
+        description="Spell words letter-by-letter using the same A–Z handshapes you already know. This is not native ASL word recognition."
       />
 
       <div className="flex flex-wrap gap-2" role="group" aria-label="Word categories">
@@ -54,10 +54,10 @@ export function WordsPage() {
           <button
             key={item}
             type="button"
-            className={`rounded-[var(--radius-control)] px-3 py-1.5 text-sm ${
+            className={`rounded-[var(--radius-pill)] px-4 py-1.5 text-sm font-semibold transition ${
               category === item
-                ? "bg-[var(--color-accent)] text-[var(--color-ink)]"
-                : "border border-[var(--color-line)] text-[var(--color-mist)]"
+                ? "bg-[var(--color-primary)] text-white"
+                : "border-2 border-[var(--color-border)] text-[var(--color-ink-soft)] hover:border-[var(--color-primary-soft)]"
             }`}
             onClick={() => setCategory(item)}
           >
@@ -70,67 +70,73 @@ export function WordsPage() {
         {selectedWord && (
           <Panel className="space-y-5 xl:sticky xl:top-28 xl:self-start">
             <div>
-              <StatusChip tone="neutral">{selectedWord.category}</StatusChip>
-              <h3 className="mt-3 font-display text-4xl">{selectedWord.word}</h3>
-              <p className="mt-2 text-sm text-[var(--color-mist)]">{selectedWord.description}</p>
+              <StatusChip tone="accent">{selectedWord.category}</StatusChip>
+              <h3 className="mt-3 font-display text-4xl font-bold text-[var(--color-ink)]">{selectedWord.word}</h3>
+              <p className="mt-2 text-sm text-[var(--color-ink-soft)]">{selectedWord.description}</p>
             </div>
-            <p className="font-display text-2xl tracking-[0.2em] text-[var(--color-accent)]">
+            <p className="font-display text-2xl font-semibold tracking-[0.2em] text-[var(--color-native)]">
               {selectedWord.letters.join("   ")}
             </p>
             <div>
-              <p className="text-xs uppercase tracking-[0.12em] text-[var(--color-muted)]">How it works</p>
-              <ol className="mt-2 space-y-1 pl-4 text-sm text-[var(--color-mist)] [list-style:decimal]">
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-muted)]">How it works</p>
+              <ol className="mt-2 space-y-1 pl-4 text-sm text-[var(--color-ink-soft)] [list-style:decimal]">
                 {selectedWord.letters.map((letter, idx) => (
                   <li key={`${letter}-${idx}`}>Make the {letter} sign</li>
                 ))}
                 <li>Complete the word</li>
               </ol>
             </div>
-            {localWord.tip && <p className="text-sm text-[var(--color-muted)]">{localWord.tip}</p>}
+            {localWord.tip && <p className="text-sm text-[var(--color-muted)]">💡 {localWord.tip}</p>}
             {selectedWord.progress && selectedWord.progress.attempts > 0 && (
-              <p className="text-sm text-[var(--color-mist)]">
+              <p className="text-sm text-[var(--color-ink-soft)]">
                 {selectedWord.progress.completions} completions · {selectedWord.progress.mastery}% mastery
                 {selectedWord.progress.accuracy != null ? ` · ${selectedWord.progress.accuracy}% accuracy` : ""}
               </p>
             )}
-            <PrimaryButton onClick={() => startWordPractice(selectedWord.id)}>Start practice</PrimaryButton>
+            <PrimaryButton className="w-full" onClick={() => startWordPractice(selectedWord.id)}>
+              Start →
+            </PrimaryButton>
           </Panel>
         )}
 
         <section>
           <SectionHeader title="Vocabulary" description="Select a word, then spell it one alphabet sign at a time." />
-          <ul className="mt-4 divide-y divide-[var(--color-line-soft)] rounded-[var(--radius-panel)] border border-[var(--color-line)]">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {filtered.map((item) => {
               const active = item.id === selectedWord?.id;
               const mastered = item.progress?.mastered;
               return (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left ${
-                      active ? "bg-[var(--color-accent)]/8" : "hover:bg-[var(--color-panel-soft)]"
-                    }`}
-                    onClick={() => setSelectedWordId(item.id)}
-                    aria-pressed={active}
-                  >
-                    <span>
-                      <span className="block font-display text-xl">{item.word}</span>
-                      <span className="text-xs text-[var(--color-muted)]">
-                        {item.category} · {item.difficulty} · {item.letter_count} letters
-                      </span>
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`lift-hover flex flex-col items-start gap-2 rounded-[var(--radius-panel)] border-2 p-4 text-left transition ${
+                    active
+                      ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)]"
+                      : "border-[var(--color-border-soft)] bg-[var(--color-surface)]"
+                  }`}
+                  onClick={() => setSelectedWordId(item.id)}
+                  aria-pressed={active}
+                >
+                  <div className="flex w-full items-center justify-between gap-2">
+                    <StatusChip tone="neutral">{item.difficulty}</StatusChip>
+                    {mastered && <StatusChip tone="success">✓ Mastered</StatusChip>}
+                  </div>
+                  <span className="font-display text-2xl font-bold text-[var(--color-ink)]">{item.word}</span>
+                  <span className="text-sm text-[var(--color-ink-soft)]">
+                    {item.letters.join(" → ")} · {item.letter_count} letters
+                  </span>
+                  {item.progress && item.progress.attempts > 0 && (
+                    <span className="text-xs font-semibold text-[var(--color-success)]">
+                      {Math.round(item.progress.mastery)}% mastery
                     </span>
-                    <span className="flex items-center gap-3">
-                      {item.progress && item.progress.attempts > 0 && (
-                        <span className="text-xs text-[var(--color-mist)]">{Math.round(item.progress.mastery)}%</span>
-                      )}
-                      {mastered && <StatusChip tone="success">Mastered</StatusChip>}
-                      <span className="text-sm font-medium text-[var(--color-accent)]">Practice</span>
-                    </span>
-                  </button>
-                </li>
+                  )}
+                  <span className="mt-1 text-sm font-bold text-[var(--color-primary)]">
+                    {active ? "Selected" : "Practice →"}
+                  </span>
+                </button>
               );
             })}
-          </ul>
+          </div>
         </section>
       </div>
     </PageLayout>

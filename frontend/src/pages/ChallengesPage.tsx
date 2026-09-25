@@ -40,13 +40,11 @@ export function ChallengesPage() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <PageHeader
-          eyebrow="Challenges"
-          title="Game modes & bonus XP"
-          description="Complete challenges to level up faster, maintain your streak, and unlock badges."
-        />
-      </Card>
+      <PageHeader
+        eyebrow="🎯 Today's missions"
+        title="Game modes & bonus XP"
+        description="Complete challenges to level up faster, maintain your streak, and unlock badges."
+      />
 
       <div className="grid gap-4 lg:grid-cols-2">
         {CHALLENGES.map((challenge) => {
@@ -72,15 +70,15 @@ export function ChallengesPage() {
               </div>
 
               <h3 className="mt-4 font-display text-2xl">{challenge.title}</h3>
-              <p className="mt-2 flex-1 text-sm text-[var(--color-mist)]">{challenge.description}</p>
+              <p className="mt-2 flex-1 text-sm text-[var(--color-ink-soft)]">{challenge.description}</p>
 
               <div className="mt-5 space-y-3">
                 <div className="flex items-center justify-between text-sm">
                   <SectionLabel>Progress</SectionLabel>
-                  <span className="text-[var(--color-mist)]">{progressLabel[challenge.id]}</span>
+                  <span className="text-[var(--color-ink-soft)]">{progressLabel[challenge.id]}</span>
                 </div>
                 <ProgressBar percent={progressByChallenge[challenge.id]} showPercent={false} />
-                <p className="text-sm font-semibold text-[var(--color-accent)]">Reward: +{challenge.reward} XP</p>
+                <p className="text-sm font-semibold text-[var(--color-primary)]">Reward: +{challenge.reward} XP</p>
               </div>
 
               <PrimaryButton
@@ -110,7 +108,7 @@ export function ChallengesPage() {
       {dailyWords.length > 0 && (
         <Card>
           <SectionLabel>Today's spelling words</SectionLabel>
-          <p className="mt-2 text-sm text-[var(--color-mist)]">
+          <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
             Keep the daily letter goal, and also spell these three words if you want extra practice. They stay the same all day.
           </p>
           <p className="mt-3 font-display text-2xl tracking-wide">{dailyWords.join("   ·   ")}</p>

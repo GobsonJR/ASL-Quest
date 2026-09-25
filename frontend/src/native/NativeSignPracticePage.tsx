@@ -181,7 +181,7 @@ export function NativeSignPracticePage() {
   if (loading) {
     return (
       <PageLayout>
-        <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading sign...</div>
+        <div className="grid min-h-[40vh] place-items-center text-[var(--color-ink-soft)]">Loading sign...</div>
       </PageLayout>
     );
   }
@@ -205,24 +205,18 @@ export function NativeSignPracticePage() {
         ← Back to Native Signs
       </SecondaryButton>
 
-      <div className="glass-panel relative overflow-hidden rounded-[var(--radius-panel)] p-6 md:p-8">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-70"
-          style={{
-            background:
-              "radial-gradient(600px 260px at 15% -10%, rgba(215,243,106,0.16) 0%, transparent 55%), radial-gradient(500px 220px at 100% 10%, rgba(243,193,107,0.10) 0%, transparent 50%)",
-          }}
-          aria-hidden="true"
-        />
+      <div className="glass-panel relative overflow-hidden rounded-[var(--radius-panel)] border-t-4 !border-t-[var(--color-native)] p-6 md:p-8">
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2">
-            <StatusChip tone="accent">NATIVE SIGN PRACTICE</StatusChip>
+            <StatusChip tone="neutral">
+              <span className="text-[var(--color-native)]">🎥 NATIVE SIGN PRACTICE</span>
+            </StatusChip>
             {sign.category && <StatusChip tone="neutral">{sign.category}</StatusChip>}
             {sign.difficulty && <StatusChip tone="neutral">{sign.difficulty}</StatusChip>}
           </div>
           <PageHeader title={sign.display_name} description={sign.meaning ?? undefined} compact />
           {sign.description && (
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-mist)]">{sign.description}</p>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--color-ink-soft)]">{sign.description}</p>
           )}
           {sign.example_text && (
             <p className="mt-2 text-sm italic text-[var(--color-muted)]">&ldquo;{sign.example_text}&rdquo;</p>
@@ -263,12 +257,12 @@ export function NativeSignPracticePage() {
 
           {phase === "processing" && (
             <div
-              className="grid min-h-[220px] place-items-center rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-[var(--color-panel-soft)]/40"
+              className="grid min-h-[220px] place-items-center rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface-soft)]/40"
               role="status"
               aria-live="polite"
             >
               <div className="text-center">
-                <p className="animate-pulse-glow inline-block rounded-full border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 px-4 py-2 text-sm text-[var(--color-accent)]">
+                <p className="animate-pulse-glow inline-block rounded-full border border-[var(--color-primary)]/30 bg-[var(--color-primary)]/10 px-4 py-2 text-sm text-[var(--color-primary)]">
                   Analyzing your sign...
                 </p>
               </div>
@@ -276,10 +270,10 @@ export function NativeSignPracticePage() {
           )}
 
           {phase === "result" && result && (
-            <div className="grid min-h-[220px] place-items-center rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-[var(--color-panel-soft)]/40 px-6 py-10 text-center">
+            <div className="grid min-h-[220px] place-items-center rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-[var(--color-surface-soft)]/40 px-6 py-10 text-center">
               <p
                 className={`text-sm font-semibold ${
-                  result.correct ? "text-[var(--color-success)]" : "text-[var(--color-warm)]"
+                  result.correct ? "text-[var(--color-success)]" : "text-[var(--color-streak)]"
                 }`}
               >
                 Clip recorded — see your result below.
@@ -289,7 +283,7 @@ export function NativeSignPracticePage() {
 
           {predictError && (
             <p
-              className="rounded-2xl border border-[var(--color-warm)]/30 bg-[var(--color-warm)]/10 px-4 py-2 text-sm text-[var(--color-warm)]"
+              className="rounded-2xl border border-[var(--color-streak)]/30 bg-[var(--color-streak)]/10 px-4 py-2 text-sm text-[var(--color-streak)]"
               role="alert"
             >
               {predictError}
@@ -304,27 +298,27 @@ export function NativeSignPracticePage() {
             className={`rounded-[var(--radius-panel)] border p-5 text-center ${
               result.correct
                 ? "border-[var(--color-success)]/30 bg-[var(--color-success)]/[0.06]"
-                : "border-[var(--color-warm)]/30 bg-[var(--color-warm)]/[0.06]"
+                : "border-[var(--color-streak)]/30 bg-[var(--color-streak)]/[0.06]"
             }`}
           >
             <p
               className={`text-sm font-medium ${
-                result.correct ? "text-[var(--color-success)]" : "text-[var(--color-warm)]"
+                result.correct ? "text-[var(--color-success)]" : "text-[var(--color-streak)]"
               }`}
             >
               {result.correct ? "Correct!" : "Not quite"}
             </p>
-            <h3 className="mt-2 font-display text-3xl text-[#eef4f0]">{result.prediction}</h3>
+            <h3 className="mt-2 font-display text-3xl text-[var(--color-ink)]">{result.prediction}</h3>
             <p className="mt-1 text-xs uppercase tracking-[0.1em] text-[var(--color-muted)]">
               {(result.confidence * 100).toFixed(1)}% confidence
             </p>
             {result.correct ? (
-              <p className="mt-3 text-lg font-semibold text-[var(--color-accent)]">+{result.xp_earned} XP</p>
+              <p className="mt-3 text-lg font-semibold text-[var(--color-primary)]">+{result.xp_earned} XP</p>
             ) : (
               <p className="mt-3 text-sm text-[var(--color-muted)]">No correctness XP — try again</p>
             )}
             {result.new_achievements.length > 0 && (
-              <p className="mt-1 text-sm font-medium text-[var(--color-warm)]">
+              <p className="mt-1 text-sm font-medium text-[var(--color-streak)]">
                 New badge{result.new_achievements.length > 1 ? "s" : ""}:{" "}
                 {result.new_achievements.map((item) => item.name).join(", ")}
               </p>
@@ -332,21 +326,21 @@ export function NativeSignPracticePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
-            <div className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] px-3 py-2">
+            <div className="rounded-[var(--radius-control)] border border-[var(--color-border-soft)] px-3 py-2">
               <p className="text-xs text-[var(--color-muted)]">Expected</p>
-              <p className="font-semibold text-[#eef4f0]">{result.expected_sign.gloss}</p>
+              <p className="font-semibold text-[var(--color-ink)]">{result.expected_sign.gloss}</p>
             </div>
-            <div className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] px-3 py-2">
+            <div className="rounded-[var(--radius-control)] border border-[var(--color-border-soft)] px-3 py-2">
               <p className="text-xs text-[var(--color-muted)]">Predicted</p>
-              <p className="font-semibold text-[#eef4f0]">{result.prediction}</p>
+              <p className="font-semibold text-[var(--color-ink)]">{result.prediction}</p>
             </div>
-            <div className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] px-3 py-2">
+            <div className="rounded-[var(--radius-control)] border border-[var(--color-border-soft)] px-3 py-2">
               <p className="text-xs text-[var(--color-muted)]">Response time</p>
-              <p className="font-semibold text-[#eef4f0]">{result.response_time}ms</p>
+              <p className="font-semibold text-[var(--color-ink)]">{result.response_time}ms</p>
             </div>
-            <div className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] px-3 py-2">
+            <div className="rounded-[var(--radius-control)] border border-[var(--color-border-soft)] px-3 py-2">
               <p className="text-xs text-[var(--color-muted)]">Mastery now</p>
-              <p className="font-semibold text-[#eef4f0]">{progress ? `${Math.round(progress.mastery)}%` : "—"}</p>
+              <p className="font-semibold text-[var(--color-ink)]">{progress ? `${Math.round(progress.mastery)}%` : "—"}</p>
             </div>
           </div>
 
@@ -358,10 +352,10 @@ export function NativeSignPracticePage() {
               <ul className="mt-2 space-y-1.5">
                 {result.top_k.map((item) => (
                   <li key={item.gloss} className="flex items-center gap-3">
-                    <span className="w-20 shrink-0 text-sm text-[var(--color-mist)]">{item.gloss}</span>
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-ink)]">
+                    <span className="w-20 shrink-0 text-sm text-[var(--color-ink-soft)]">{item.gloss}</span>
+                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
                       <div
-                        className="h-full rounded-full bg-[var(--color-accent)]"
+                        className="h-full rounded-full bg-[var(--color-primary)]"
                         style={{ width: `${item.confidence * 100}%` }}
                       />
                     </div>
@@ -374,8 +368,8 @@ export function NativeSignPracticePage() {
             </div>
           )}
 
-          <div className="border-t border-[var(--color-line-soft)] pt-5 text-center">
-            <p className="text-base font-semibold text-[#eef4f0]">{result.correct ? "Great job!" : "Try again"}</p>
+          <div className="border-t border-[var(--color-border-soft)] pt-5 text-center">
+            <p className="text-base font-semibold text-[var(--color-ink)]">{result.correct ? "Great job!" : "Try again"}</p>
             <div className="mt-3 flex flex-wrap justify-center gap-3">
               {result.correct ? (
                 <>
@@ -421,10 +415,10 @@ function StepTracker({ phase, watched }: { phase: Phase; watched: boolean }) {
             <span
               className={`rounded-full border px-3 py-1 text-xs font-medium uppercase tracking-[0.08em] transition ${
                 status === "active"
-                  ? "border-[var(--color-accent)]/40 bg-[var(--color-accent)]/15 text-[var(--color-accent)]"
+                  ? "border-[var(--color-primary)]/40 bg-[var(--color-primary)]/15 text-[var(--color-primary)]"
                   : status === "done"
                     ? "border-[var(--color-success)]/30 bg-[var(--color-success)]/10 text-[var(--color-success)]"
-                    : "border-[var(--color-line)] text-[var(--color-muted)]"
+                    : "border-[var(--color-border)] text-[var(--color-muted)]"
               }`}
             >
               {status === "done" ? "✓ " : ""}
@@ -480,17 +474,17 @@ function ReferencePanel({
   return (
     <Card
       className={`flex min-w-0 flex-col space-y-4 transition-shadow ${
-        pulse ? "animate-pulse-glow ring-2 ring-[var(--color-accent)]/50" : ""
+        pulse ? "animate-pulse-glow ring-2 ring-[var(--color-primary)]/50" : ""
       }`}
       style={{ scrollMarginTop: "5rem" }}
     >
       <div ref={panelRef} />
       <SectionHeader title="Reference" description="Learn the sign before you copy it." />
-      <p className="-mt-2 font-display text-2xl text-[#eef4f0]">{sign.display_name}</p>
+      <p className="-mt-2 font-display text-2xl text-[var(--color-ink)]">{sign.display_name}</p>
 
       {reference.available && reference.video_url ? (
         <div className="space-y-2">
-          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-black">
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-black">
             {embedUrl ? (
               <>
                 {embedState !== "loaded" && (
@@ -502,17 +496,17 @@ function ReferencePanel({
                     aria-hidden={embedState === "loading"}
                   >
                     {embedState === "loading" ? (
-                      <span className="animate-pulse-glow rounded-full border border-[var(--color-accent)]/30 bg-[var(--color-accent)]/10 px-4 py-2 text-xs text-[var(--color-accent)]">
+                      <span className="animate-pulse-glow rounded-full bg-white/15 px-4 py-2 text-xs text-white">
                         Loading reference...
                       </span>
                     ) : (
                       <div className="px-6 text-center">
-                        <p className="text-sm text-[var(--color-mist)]">This reference couldn&rsquo;t load.</p>
+                        <p className="text-sm text-white/85">This reference couldn&rsquo;t load.</p>
                         <a
                           href={reference.video_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-2 inline-block text-xs font-medium text-[var(--color-accent)] hover:underline"
+                          className="mt-2 inline-block text-xs font-medium text-white underline"
                         >
                           Open source instead ↗
                         </a>
@@ -534,18 +528,18 @@ function ReferencePanel({
                 href={reference.video_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-[var(--color-panel-soft)] to-[var(--color-panel)] px-6 text-center transition hover:from-[var(--color-panel)] hover:to-[var(--color-ink)]"
+                className="flex h-full w-full flex-col items-center justify-center gap-3 bg-gradient-to-br from-[var(--color-surface-soft)] to-[var(--color-surface)] px-6 text-center transition hover:from-[var(--color-surface)] hover:to-[var(--color-ink)]"
               >
                 <span className="text-5xl" aria-hidden="true">
                   ▶
                 </span>
-                <p className="text-sm font-semibold text-[#eef4f0]">Watch &ldquo;{sign.display_name}&rdquo;</p>
+                <p className="text-sm font-semibold text-[var(--color-ink)]">Watch &ldquo;{sign.display_name}&rdquo;</p>
                 <StatusChip tone="accent">Open source ↗</StatusChip>
               </a>
             )}
           </div>
           <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--color-muted)]">Watch carefully</p>
-          {tip && <p className="text-sm leading-relaxed text-[var(--color-mist)]">{tip}</p>}
+          {tip && <p className="text-sm leading-relaxed text-[var(--color-ink-soft)]">{tip}</p>}
           {reference.license_note && <p className="text-xs text-[var(--color-muted)]">{reference.license_note}</p>}
           {/* For the link-out case the card above IS the open-source link -- a second
               copy of the same link right below it would just be noise. Only the
@@ -555,24 +549,24 @@ function ReferencePanel({
               href={reference.video_url ?? undefined}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-block text-xs font-medium text-[var(--color-accent)] hover:underline"
+              className="inline-block text-xs font-medium text-[var(--color-primary)] hover:underline"
             >
               Open source ↗
             </a>
           )}
         </div>
       ) : (
-        <div className="aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-dashed border-[var(--color-line)] bg-gradient-to-br from-[var(--color-panel-soft)] to-[var(--color-panel)]">
+        <div className="aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-dashed border-[var(--color-border)] bg-gradient-to-br from-[var(--color-surface-soft)] to-[var(--color-surface)]">
           <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
             <span className="animate-hand-wave text-5xl" aria-hidden="true">
               🤟
             </span>
             <StatusChip tone="neutral">Reference video coming soon</StatusChip>
-            <p className="max-w-xs text-sm leading-relaxed text-[var(--color-mist)]">
+            <p className="max-w-xs text-sm leading-relaxed text-[var(--color-ink-soft)]">
               No verified reference video is connected for &ldquo;{sign.display_name}&rdquo; yet. Once an approved
               source is added to the catalog, it will play here automatically.
             </p>
-            <div className="flex items-center gap-1 text-[var(--color-accent)]" aria-hidden="true">
+            <div className="flex items-center gap-1 text-[var(--color-primary)]" aria-hidden="true">
               <span className="animate-motion-arrow">›</span>
               <span className="animate-motion-arrow" style={{ animationDelay: "0.25s" }}>
                 ›
