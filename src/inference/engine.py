@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from pathlib import Path
 from typing import Any
 
@@ -30,10 +31,13 @@ class Predictor:
         self.transform = eval_transforms(self.image_size)
 
     def predict_pil(self, image: Image.Image, top_k: int = 3) -> dict[str, Any]:
+        started = time.perf_counter()
         rgb = image.convert("RGB")
         tensor = self.transform(rgb).unsqueeze(0).to(self.device)
         with torch.no_grad():
             logits = self.model(tensor)
+            if self.device.type == "cuda":
+                torch.cuda.synchronize()  # so inference_ms measures the work, not just the launch
         top = softmax_topk(logits, self.class_names, k=top_k)
         best = top[0]
         return {
@@ -41,6 +45,15 @@ class Predictor:
             "confidence": best["confidence"],
             "top_predictions": top,
             "low_confidence": float(best["confidence"]) < CONFIDENCE_THRESHOLD,
+            # Small, image-free diagnostics. The API only exposes this when asked (?debug=true).
+            "diagnostics": {
+                "input_size": list(rgb.size),
+                "tensor_shape": list(tensor.shape),
+                "tensor_dtype": str(tensor.dtype).replace("torch.", ""),
+                "device": str(self.device),
+                "class_index": int(self.class_names.index(best["label"])),
+                "inference_ms": round((time.perf_counter() - started) * 1000, 1),
+            },
         }
 
     def predict_path(self, image_path: Path, top_k: int = 3) -> dict[str, Any]:

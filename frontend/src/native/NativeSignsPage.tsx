@@ -3,6 +3,7 @@ import { Card, EmptyState, PageLayout, PrimaryButton, ProgressBar, StatusChip } 
 import { useToast } from "../components/Toast";
 import { useGame } from "../game/GameContext";
 import { getNativeProgress, getNativeSigns, type NativeProgress, type NativeSign } from "./api";
+import { Glyph } from "../components/Icon";
 
 export function NativeSignsPage() {
   const { push } = useToast();
@@ -216,7 +217,7 @@ function HeroSection() {
       <div className="relative">
         <div className="flex flex-wrap items-center gap-3">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-[var(--radius-panel)] bg-white/15 text-3xl">
-            🤟
+            <Glyph value="🤟" />
           </span>
           <StatusChip tone="neutral">
             <span className="text-[var(--color-native)]">ISOLATED SIGN RECOGNITION</span>
@@ -258,7 +259,7 @@ function StatCard({
   return (
     <Card className="lift-hover flex items-center gap-4">
       <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[var(--color-native-soft)] text-2xl">
-        {icon}
+        <Glyph value={icon} />
       </span>
       <div>
         <p className="font-display text-3xl font-bold text-[var(--color-ink)]">{value}</p>

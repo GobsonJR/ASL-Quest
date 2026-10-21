@@ -15,6 +15,7 @@ const startPractice = vi.fn();
 const beginSession = vi.fn();
 const navigate = vi.fn();
 const push = vi.fn();
+let mockPracticeLetter: string | null = null;
 
 function outcome(overrides: Partial<PracticeOutcome> = {}): PracticeOutcome {
   return {
@@ -37,7 +38,7 @@ vi.mock("../game/GameContext", () => ({
       letterStats: emptyLetterStats(),
     },
     level: 1,
-    practiceLetter: null,
+    practiceLetter: mockPracticeLetter,
     challengeMode: "none",
     beginSession,
     nextPracticeLetter,
@@ -61,10 +62,11 @@ vi.mock("../components/CameraPractice", () => ({
     targetLetter: string;
     active: boolean;
     attemptKey?: number;
+    recognizer?: string;
     onCorrect: (elapsedMs: number, confidence: number) => void;
     onIncorrect: (predicted: string) => void;
   }) => (
-    <div data-testid="camera-practice" data-active={String(props.active)} data-attempt-key={props.attemptKey}>
+    <div data-testid="camera-practice" data-active={String(props.active)} data-attempt-key={props.attemptKey} data-recognizer={props.recognizer}>
       <span>target:{props.targetLetter}</span>
       <button onClick={() => props.onCorrect(1200, 0.87)}>fire-correct</button>
       <button onClick={() => props.onIncorrect("S")}>fire-incorrect</button>
@@ -73,6 +75,7 @@ vi.mock("../components/CameraPractice", () => ({
 }));
 
 beforeEach(() => {
+  mockPracticeLetter = null;
   markCorrect.mockReset().mockReturnValue(outcome());
   markIncorrect.mockReset();
   // PracticePage calls nextPracticeLetter() twice on mount (the lazy
@@ -88,6 +91,36 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+});
+
+describe("PracticePage: experimental recognizer comparison", () => {
+  const LOADED = { loaded: true, model_file: "landmark_L2_s0.joblib", model: "logreg", trained_on: null, error: null };
+
+  it("uses ResNet and shows no switch when no experimental model is configured", () => {
+    render(<PracticePage ready backendError={null} />);
+    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
+    expect(screen.queryByRole("radiogroup", { name: "Recognizer" })).toBeNull();
+  });
+
+  it("ignores an experimental model that failed to load", () => {
+    render(<PracticePage ready backendError={null} experimentalLandmark={{ ...LOADED, loaded: false, error: "not found" }} />);
+    expect(screen.queryByRole("radiogroup", { name: "Recognizer" })).toBeNull();
+    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
+  });
+
+  it("starts on ResNet, switches to the landmark recognizer on request, and can return to ResNet", () => {
+    render(<PracticePage ready backendError={null} experimentalLandmark={LOADED} />);
+    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
+    expect(screen.getByRole("radio", { name: /ResNet/ })).toBeChecked();
+
+    fireEvent.click(screen.getByRole("radio", { name: /Hand landmarks/ }));
+    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "landmarks");
+    expect(screen.getByRole("alert")).toHaveTextContent(/Experimental recognizer active/);
+
+    fireEvent.click(screen.getByRole("button", { name: "Back to ResNet" }));
+    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
+    expect(screen.queryByRole("alert")).toBeNull();
+  });
 });
 
 describe("PracticePage: success state", () => {
@@ -173,5 +206,34 @@ describe("PracticePage: practice again", () => {
     expect(screen.getByTestId("camera-practice").getAttribute("data-attempt-key")).not.toBe(attemptKeyBefore);
     // No second XP award just from retrying.
     expect(markCorrect).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("PracticePage: lesson introduction and exits", () => {
+  it("shows the lesson intro for a chosen letter and only starts the camera after Start lesson", () => {
+    mockPracticeLetter = "C";
+    render(<PracticePage ready backendError={null} />);
+    expect(screen.getByTestId("lesson-intro")).toHaveTextContent("Letter C");
+    expect(screen.getByTestId("lesson-intro")).toHaveTextContent(/objective/i);
+    expect(screen.queryByTestId("camera-practice")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /start lesson/i }));
+    expect(screen.getByTestId("camera-practice")).toHaveTextContent("target:C");
+    expect(screen.queryByTestId("lesson-intro")).toBeNull();
+  });
+
+  it("Back to Learn on the intro goes to the Learn page", () => {
+    mockPracticeLetter = "C";
+    render(<PracticePage ready backendError={null} />);
+    fireEvent.click(screen.getAllByRole("button", { name: /back to learn/i })[0]);
+    expect(navigate).toHaveBeenCalledWith("learn");
+  });
+
+  it("free practice skips the intro and the completion screen offers Back to Learn", () => {
+    render(<PracticePage ready backendError={null} />);
+    expect(screen.queryByTestId("lesson-intro")).toBeNull();
+    fireEvent.click(screen.getByText("fire-correct"));
+    fireEvent.click(screen.getAllByRole("button", { name: /back to learn/i })[0]);
+    expect(navigate).toHaveBeenCalledWith("learn");
   });
 });

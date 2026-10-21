@@ -19,7 +19,9 @@ export function LetterProgressStrip({ nodes }: { nodes: LearningPathNode[] }) {
             ? "bg-[var(--color-success)] text-white"
             : node.status === "current"
               ? "animate-pulse-glow bg-[var(--color-primary)] text-white"
-              : "bg-[var(--color-locked-soft)] text-[var(--color-locked)]";
+              : node.status === "available"
+                ? "bg-[var(--color-native)] text-white"
+                : "bg-[var(--color-locked-soft)] text-[var(--color-locked)]";
         return (
           <span
             key={node.letter}

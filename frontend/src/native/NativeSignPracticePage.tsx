@@ -21,6 +21,7 @@ import {
   type NativeSignProgressEntry,
 } from "./api";
 import { NativeVideoCapture } from "./NativeVideoCapture";
+import { Glyph } from "../components/Icon";
 
 type Phase = "capture" | "processing" | "result";
 
@@ -209,7 +210,7 @@ export function NativeSignPracticePage() {
         <div className="relative">
           <div className="flex flex-wrap items-center gap-2">
             <StatusChip tone="neutral">
-              <span className="text-[var(--color-native)]">🎥 NATIVE SIGN PRACTICE</span>
+              <span className="text-[var(--color-native)]">NATIVE SIGN PRACTICE</span>
             </StatusChip>
             {sign.category && <StatusChip tone="neutral">{sign.category}</StatusChip>}
             {sign.difficulty && <StatusChip tone="neutral">{sign.difficulty}</StatusChip>}
@@ -559,7 +560,7 @@ function ReferencePanel({
         <div className="aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-dashed border-[var(--color-border)] bg-gradient-to-br from-[var(--color-surface-soft)] to-[var(--color-surface)]">
           <div className="flex h-full flex-col items-center justify-center gap-3 px-6 text-center">
             <span className="animate-hand-wave text-5xl" aria-hidden="true">
-              🤟
+              <Glyph value="🤟" />
             </span>
             <StatusChip tone="neutral">Reference video coming soon</StatusChip>
             <p className="max-w-xs text-sm leading-relaxed text-[var(--color-ink-soft)]">

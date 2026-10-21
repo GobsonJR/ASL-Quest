@@ -44,7 +44,7 @@ export function WordsPage() {
   return (
     <PageLayout>
       <PageHeader
-        eyebrow="🧩 Word Spelling"
+        eyebrow="Word Spelling"
         title="Choose a word to practice"
         description="Spell words letter-by-letter using the same A–Z handshapes you already know. This is not native ASL word recognition."
       />
@@ -86,7 +86,7 @@ export function WordsPage() {
                 <li>Complete the word</li>
               </ol>
             </div>
-            {localWord.tip && <p className="text-sm text-[var(--color-muted)]">💡 {localWord.tip}</p>}
+            {localWord.tip && <p className="text-sm text-[var(--color-muted)]">{localWord.tip}</p>}
             {selectedWord.progress && selectedWord.progress.attempts > 0 && (
               <p className="text-sm text-[var(--color-ink-soft)]">
                 {selectedWord.progress.completions} completions · {selectedWord.progress.mastery}% mastery

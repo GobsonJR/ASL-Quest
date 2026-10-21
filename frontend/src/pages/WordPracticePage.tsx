@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Card, PageHeader, Panel, SecondaryButton, StatusChip } from "../components/AppShell";
 import { CameraPractice } from "../components/CameraPractice";
 import { WordCompleteOverlay } from "../components/CelebrationOverlay";
+import { useSignoEmit } from "../components/signo/SignoContext";
 import { useToast } from "../components/Toast";
 import { useGame } from "../game/GameContext";
 import { getWordById, nextWordId, WORD_CATALOG } from "../words/catalog";
@@ -32,6 +33,7 @@ export function WordPracticePage({
     markWordChallengeComplete,
   } = useGame();
   const { push } = useToast();
+  const emit = useSignoEmit();
 
   const word = getWordById(practiceWordId ?? "") ?? WORD_CATALOG[0];
   const letters = word.letters;
@@ -92,6 +94,7 @@ export function WordPracticePage({
         resume_index: 0,
       });
       applyWordXp(result.xp_earned, result.new_achievements);
+      emit({ type: "word_complete", word: word.word, xp: result.xp_earned });
       setCompletionXp(result.xp_earned);
       if (lastInQueue) {
         markWordChallengeComplete();
@@ -159,7 +162,7 @@ export function WordPracticePage({
         </div>
 
         <PageHeader
-          eyebrow="🧩 Spell the word"
+          eyebrow="Spell the word"
           title={word.word}
           description="Spell this word one static alphabet sign at a time. The model recognizes letters, not the whole word at once."
           compact
@@ -194,7 +197,7 @@ export function WordPracticePage({
               <p className="mt-4 text-sm text-[var(--color-ink-soft)]">
                 {letters.map((letter, letterIndex) => (
                   <span key={`${letter}-status-${letterIndex}`} className="mr-3">
-                    {letter} {letterIndex < index || phase === "complete" ? "✅" : "○"}
+                    {letter} {letterIndex < index || phase === "complete" ? "" : "○"}
                   </span>
                 ))}
               </p>

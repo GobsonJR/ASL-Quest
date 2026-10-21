@@ -35,3 +35,10 @@ outputs/asl_citizen_native_10/diagnostics/**/*.png
 # is not) — never the assets themselves. See deployment/README.md.
 deployment/database/*.db
 
+
+# Vercel CLI project link (local only)
+.vercel
+
+# Live-request diagnostic captures contain your camera frames (hand/room): never commit them
+outputs/diagnostics/live_requests*/
+outputs/diagnostics/frames/

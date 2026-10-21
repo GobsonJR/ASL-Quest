@@ -1,5 +1,6 @@
 import {
   BADGES,
+  BEGINNER_LETTERS,
   DAILY_TARGET,
   LEARNING_CORRECT,
   LETTERS,
@@ -91,24 +92,49 @@ export function getMasteryPercent(correct: number): number {
 
 // Powers the A-Z Learning Path (AlphabetLearningPath): a letter is
 // "completed" once it hits the same MASTERED_CORRECT bar used everywhere
-// else (getMasteryTier/getLetterStatus), the first non-mastered letter in
-// A-Z order is "current", and everything after it is "locked" *in this path
-// view only* -- pickPracticeLetter, markCorrect/markIncorrect and the rest of
-// free practice are completely unaffected, and completed/current letters
-// stay fully practiceable (see PracticePage/startPractice). No new progress
-// state; this only re-reads state.letterStats.
+// else (getMasteryTier/getLetterStatus). *In this path view only*:
+//   - BEGINNER_LETTERS (C, D, F, H, O -- picked from the current model's
+//     per-class benchmark, see constants.ts) are unlocked from the start.
+//     The first not-yet-mastered one (in A-Z order) is "current" (the
+//     suggested next step); the rest are "available" -- unlocked and fully
+//     practiceable, just not highlighted. None of this is a second mastery
+//     system: it only re-reads state.letterStats.
+//   - Every other letter is "locked" until ALL beginner letters are
+//     completed, at which point the existing sequential behavior resumes:
+//     the first not-yet-mastered remaining letter (A-Z order) becomes
+//     "current" and the rest stay "locked".
+// pickPracticeLetter, markCorrect/markIncorrect and the rest of free
+// practice are completely unaffected, and completed/current/available
+// letters stay fully practiceable (see PracticePage/startPractice).
 export function getLearningPathNodes(state: GameState): LearningPathNode[] {
-  let currentAssigned = false;
+  const allBeginnersMastered = BEGINNER_LETTERS.every(
+    (letter) => (state.letterStats[letter]?.correct ?? 0) >= MASTERED_CORRECT
+  );
+
+  let beginnerCurrentAssigned = false;
+  let postBeginnerCurrentAssigned = false;
+
   return LETTERS.map((letter) => {
     const correct = state.letterStats[letter]?.correct ?? 0;
     const masteryPercent = getMasteryPercent(correct);
+
     if (correct >= MASTERED_CORRECT) {
       return { letter, status: "completed" as const, correct, masteryPercent };
     }
-    if (!currentAssigned) {
-      currentAssigned = true;
+
+    if (BEGINNER_LETTERS.includes(letter)) {
+      if (!beginnerCurrentAssigned) {
+        beginnerCurrentAssigned = true;
+        return { letter, status: "current" as const, correct, masteryPercent };
+      }
+      return { letter, status: "available" as const, correct, masteryPercent };
+    }
+
+    if (allBeginnersMastered && !postBeginnerCurrentAssigned) {
+      postBeginnerCurrentAssigned = true;
       return { letter, status: "current" as const, correct, masteryPercent };
     }
+
     return { letter, status: "locked" as const, correct, masteryPercent };
   });
 }

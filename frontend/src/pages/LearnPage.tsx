@@ -13,36 +13,8 @@ import { useToast } from "../components/Toast";
 import { LETTERS } from "../game/constants";
 import { useGame } from "../game/GameContext";
 import { getLearningPathNodes, lettersMasteredCount } from "../game/gamification";
-import { referenceImageAlt, referenceImageSrc } from "./alphabetFeedback";
-
-const SIGN_HINTS: Record<string, string> = {
-  A: "Make a fist with thumb alongside.",
-  B: "Four fingers up, thumb tucked in.",
-  C: "Curve your hand like the letter C.",
-  D: "Index up, other fingers curled to thumb.",
-  E: "All fingertips touch thumb.",
-  F: "Index and thumb form a circle, other fingers up.",
-  G: "Index and thumb point sideways.",
-  H: "Index and middle finger point sideways.",
-  I: "Pinky up, other fingers in a fist.",
-  J: "Pinky up — hold a static J shape (not motion).",
-  K: "Index and middle in a V, thumb between them.",
-  L: "Thumb and index form an L.",
-  M: "Three fingers over thumb in fist.",
-  N: "Two fingers over thumb in fist.",
-  O: "Fingers and thumb form a circle.",
-  P: "Like K but pointing down.",
-  Q: "Like G but pointing down.",
-  R: "Index and middle crossed.",
-  S: "Closed fist with thumb over fingers.",
-  T: "Thumb tucked between index and middle.",
-  U: "Index and middle up together.",
-  V: "Index and middle spread in a V.",
-  W: "Three fingers up in a W shape.",
-  X: "Index finger bent like a hook.",
-  Y: "Thumb and pinky extended.",
-  Z: "Index points — hold a static Z shape (not motion).",
-};
+import { SIGN_HINTS, referenceImageAlt, referenceImageSrc } from "./alphabetFeedback";
+import { Glyph } from "../components/Icon";
 
 export function LearnPage() {
   const { state, startPractice, navigate } = useGame();
@@ -54,8 +26,8 @@ export function LearnPage() {
   const allCompleted = masteredCount >= LETTERS.length;
   const progressPercent = (masteredCount / LETTERS.length) * 100;
 
-  function handleLocked(letter: string, previousLetter: string) {
-    push(`Complete ${previousLetter} first to unlock ${letter}.`, "info");
+  function handleLocked(_letter: string, reason: string) {
+    push(reason, "info");
   }
 
   return (
@@ -67,7 +39,7 @@ export function LearnPage() {
           aria-selected={true}
           className="rounded-[var(--radius-pill)] bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white"
         >
-          🔤 Alphabet
+          Alphabet
         </button>
         <button
           type="button"
@@ -76,7 +48,7 @@ export function LearnPage() {
           className="rounded-[var(--radius-pill)] border-2 border-[var(--color-border)] px-5 py-2 text-sm font-semibold text-[var(--color-ink-soft)] transition hover:border-[var(--color-primary-soft)]"
           onClick={() => navigate("words")}
         >
-          🧩 Words
+          Words
         </button>
         <button
           type="button"
@@ -85,14 +57,14 @@ export function LearnPage() {
           className="rounded-[var(--radius-pill)] border-2 border-[var(--color-border)] px-5 py-2 text-sm font-semibold text-[var(--color-ink-soft)] transition hover:border-[var(--color-primary-soft)]"
           onClick={() => navigate("native")}
         >
-          🎥 Native Signs
+          Native Signs
         </button>
       </div>
 
       <PageHeader
         eyebrow="Your ASL Journey"
         title="Master the A–Z alphabet"
-        description="Work through the alphabet in order, one handshape at a time. Static signs only — dynamic J and Z motion is not supported."
+        description="Learn signs step by step and build your confidence — start with beginner-friendly handshapes, then work through the rest of the alphabet. Static signs only; dynamic J and Z motion is not supported."
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
@@ -100,21 +72,21 @@ export function LearnPage() {
           {allCompleted ? (
             <Card className="space-y-4 text-center">
               <p className="text-3xl" aria-hidden="true">
-                🎉
+                <Glyph value="🎉" />
               </p>
               <h2 className="font-display text-2xl md:text-3xl">Alphabet complete!</h2>
               <p className="text-sm text-[var(--color-ink-soft)]">
                 You've completed all {LETTERS.length} ASL letters. Keep any of them sharp any time.
               </p>
               {state.unlockedBadges.includes("alphabet_master") && (
-                <p className="text-sm font-semibold text-[var(--color-xp)]">🏅 Alphabet Master badge unlocked</p>
+                <p className="text-sm font-semibold text-[var(--color-xp)]">Alphabet Master badge unlocked</p>
               )}
               <PrimaryButton onClick={() => startPractice()}>Practice Any Letter</PrimaryButton>
             </Card>
           ) : (
             currentNode && (
               <Card className="space-y-4">
-                <SectionLabel>👋 Continue learning</SectionLabel>
+                <SectionLabel>Continue learning</SectionLabel>
                 <div className="flex items-start gap-4">
                   <div className="w-24 shrink-0 overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] p-2">
                     <img
@@ -148,14 +120,14 @@ export function LearnPage() {
               {masteredCount} / {LETTERS.length} letters completed
             </p>
             <ProgressBar percent={progressPercent} showPercent={false} />
-            <p className="text-sm text-[var(--color-ink-soft)]">🔥 {state.streak}-day streak</p>
+            <p className="text-sm text-[var(--color-ink-soft)]">{state.streak}-day streak</p>
           </Card>
         </div>
 
         <section>
           <SectionHeader
             title="Learning path"
-            description="Complete a letter to unlock the next. Completed letters stay open for a revisit any time."
+            description="Start with easier-to-recognize handshapes, build confidence, then unlock more challenging signs. Completed letters stay open for a revisit any time."
           />
           <AlphabetLearningPath
             nodes={nodes}

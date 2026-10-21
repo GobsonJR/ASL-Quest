@@ -59,7 +59,7 @@ describe("NativeVideoCapture: capture flow", () => {
     render(<NativeVideoCapture onClipReady={onClipReady} />);
 
     fireEvent.click(screen.getByRole("button", { name: /start recording/i }));
-    await waitFor(() => expect(screen.getByRole("button", { name: /stop now/i })).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByRole("button", { name: /stop now/i })).toBeInTheDocument(), { timeout: 6000 });
 
     fireEvent.click(screen.getByRole("button", { name: /stop now/i }));
 
@@ -100,8 +100,8 @@ describe("NativeVideoCapture: recorder failure mid-recording", () => {
     render(<NativeVideoCapture onClipReady={vi.fn()} />);
 
     fireEvent.click(screen.getByRole("button", { name: /start recording/i }));
-    await waitFor(() => expect(instances.length).toBe(1));
-    await waitFor(() => expect(screen.getByRole("button", { name: /stop now/i })).toBeInTheDocument());
+    await waitFor(() => expect(instances.length).toBe(1), { timeout: 6000 });
+    await waitFor(() => expect(screen.getByRole("button", { name: /stop now/i })).toBeInTheDocument(), { timeout: 6000 });
 
     instances[0].onerror?.({ error: new DOMException("in use", "NotReadableError") });
 

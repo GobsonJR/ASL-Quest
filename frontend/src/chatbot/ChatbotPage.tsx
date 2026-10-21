@@ -8,6 +8,7 @@ import {
   StatusChip,
 } from "../components/AppShell";
 import { useToast } from "../components/Toast";
+import { Glyph } from "../components/Icon";
 import {
   createConversation,
   fetchChatbotStatus,
@@ -45,7 +46,7 @@ function AuraAvatar({ size = "md" }: { size?: "sm" | "md" }) {
   const dimensions = size === "sm" ? "h-7 w-7 text-xs" : "h-11 w-11 text-base";
   return (
     <span
-      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dim)] font-display font-semibold text-white shadow-[0_0_20px_rgba(76,95,234,0.35)] ${dimensions}`}
+      className={`grid shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-dim)] font-display font-semibold text-white shadow-[0_0_20px_rgba(88,204,2,0.35)] ${dimensions}`}
       aria-hidden="true"
     >
       A
@@ -405,7 +406,7 @@ function MessageBubble({
                 disabled={voted}
                 aria-label="Mark this AURA response as helpful"
               >
-                👍
+                <Glyph value="👍" />
               </button>
               <button
                 type="button"
@@ -414,7 +415,7 @@ function MessageBubble({
                 disabled={voted}
                 aria-label="Mark this AURA response as not helpful"
               >
-                👎
+                <Glyph value="👎" />
               </button>
             </span>
           )}

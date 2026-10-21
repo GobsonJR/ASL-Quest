@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Outfit:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 /* ASL-Quest design system -- a bright, friendly "learning journey" identity.
@@ -8,48 +8,48 @@
    Same CSS custom-property NAMES are reused by ~30 component files below --
    see individual component files for how each token is applied. */
 @theme {
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fredoka", ui-sans-serif, system-ui, sans-serif;
 
   /* Surfaces */
-  --color-canvas: #f6f7fd;
+  --color-canvas: #f7f9f5;
   --color-surface: #ffffff;
-  --color-surface-soft: #f1f2fa;
-  --color-surface-sunken: #e9ebf6;
-  --color-border: #e3e6f3;
-  --color-border-soft: #edeff9;
+  --color-surface-soft: #f1f5ee;
+  --color-surface-sunken: #e8eee3;
+  --color-border: #e5e7eb;
+  --color-border-soft: #eef0ed;
 
   /* Text */
-  --color-ink: #232842;
-  --color-ink-soft: #565c7d;
-  --color-muted: #8b90ac;
+  --color-ink: #263238;
+  --color-ink-soft: #55657a;
+  --color-muted: #64748b;
 
   /* Brand -- primary action color */
-  --color-primary: #4c5fea;
-  --color-primary-dim: #3a49c4;
-  --color-primary-soft: #eceffe;
+  --color-primary: #58cc02;
+  --color-primary-dim: #46a302;
+  --color-primary-soft: #e3f7cf;
 
   /* Semantic accents, used consistently by purpose (see design system) */
-  --color-success: #17b884;
-  --color-success-soft: #e1f8ef;
-  --color-xp: #ffb020;
-  --color-xp-soft: #fff4d9;
-  --color-streak: #ff7a45;
-  --color-streak-soft: #ffe9de;
-  --color-native: #8b5fe8;
-  --color-native-soft: #f2ecfe;
-  --color-danger: #f0475c;
-  --color-danger-soft: #fde8eb;
-  --color-locked: #b6bbd1;
-  --color-locked-soft: #f1f2f7;
+  --color-success: #46a302;
+  --color-success-soft: #e3f7cf;
+  --color-xp: #ff9600;
+  --color-xp-soft: #fff0d6;
+  --color-streak: #ff6b57;
+  --color-streak-soft: #ffe6e2;
+  --color-native: #1cb0f6;
+  --color-native-soft: #def3fd;
+  --color-danger: #ea2b2b;
+  --color-danger-soft: #ffe1e1;
+  --color-locked: #afafaf;
+  --color-locked-soft: #f0f0f0;
 
   /* Legacy alias kept only because a couple of not-yet-migrated call sites in
      older components may still resolve --color-warm before this redesign is
      fully rolled out; equal to --color-streak (same role: warm highlight/
      warning). New code should use --color-streak directly. */
-  --color-warm: #ff7a45;
+  --color-warm: #ff6b57;
 
-  --radius-panel: 1.5rem;
+  --radius-panel: 1.25rem;
   --radius-control: 1rem;
   --radius-pill: 999px;
 }
@@ -62,10 +62,7 @@ body,
 
 body {
   margin: 0;
-  background:
-    radial-gradient(900px 480px at 12% -12%, rgba(76, 95, 234, 0.07) 0%, transparent 55%),
-    radial-gradient(700px 380px at 100% 0%, rgba(139, 95, 232, 0.06) 0%, transparent 50%),
-    var(--color-canvas);
+  background: var(--color-canvas);
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -156,10 +153,10 @@ input {
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(76, 95, 234, 0.28);
+    box-shadow: 0 0 0 0 rgba(88, 204, 2, 0.28);
   }
   50% {
-    box-shadow: 0 0 22px 4px rgba(76, 95, 234, 0.16);
+    box-shadow: 0 0 22px 4px rgba(88, 204, 2, 0.16);
   }
 }
 
@@ -177,7 +174,7 @@ input {
 }
 
 .shimmer-bar {
-  background: linear-gradient(90deg, var(--color-primary) 0%, #7c8bf5 50%, var(--color-primary) 100%);
+  background: linear-gradient(90deg, var(--color-primary) 0%, #7ee035 50%, var(--color-primary) 100%);
   background-size: 200% 100%;
   animation: shimmer 2.5s ease-in-out infinite;
 }
@@ -279,8 +276,8 @@ input {
    shadow instead of backdrop-blur over a dark background. */
 .glass-panel {
   background: var(--color-surface);
-  border: 1px solid var(--color-border-soft);
-  box-shadow: 0 1px 2px rgba(35, 40, 66, 0.04), 0 12px 28px -14px rgba(35, 40, 66, 0.16);
+  border: 2px solid var(--color-border);
+  box-shadow: 0 2px 0 0 var(--color-border);
 }
 
 .card-hover {

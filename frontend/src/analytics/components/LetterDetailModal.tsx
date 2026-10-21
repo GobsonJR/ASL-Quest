@@ -1,4 +1,5 @@
 import { Card, PrimaryButton, SectionLabel } from "../../components/AppShell";
+import { Dialog } from "../../components/Dialog";
 import type { LetterDetail } from "../api";
 import { LineChart } from "./charts";
 
@@ -16,8 +17,8 @@ export function LetterDetailModal({
   if (!detail && !loading) return null;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-end bg-black/70 px-4 py-6 backdrop-blur-sm md:place-items-center" role="dialog" aria-modal="true">
-      <Card className="max-h-[85vh] w-full max-w-2xl overflow-y-auto">
+    <Dialog label="Letter detail" onClose={onClose} className="w-full max-w-2xl">
+      <Card className="max-h-[85vh] w-full overflow-y-auto">
         {loading || !detail ? (
           <p className="text-[var(--color-ink-soft)]">Loading letter analytics...</p>
         ) : (
@@ -82,6 +83,6 @@ export function LetterDetailModal({
           </>
         )}
       </Card>
-    </div>
+    </Dialog>
   );
 }

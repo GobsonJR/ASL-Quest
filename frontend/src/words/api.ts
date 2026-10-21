@@ -1,7 +1,6 @@
 import { authHeaders } from "../auth/token";
 import { parseError } from "../shared/httpError";
-
-const API = "/api";
+import { API_BASE as API } from "../config";
 
 export type WordLetterBreakdown = {
   letter: string;

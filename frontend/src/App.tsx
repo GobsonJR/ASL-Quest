@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { healthCheck, type HealthResponse } from "./api";
+import { BACKEND_NOT_CONFIGURED } from "./config";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { AppShell } from "./components/AppShell";
 import { MigrationPrompt } from "./components/MigrationPrompt";
+import { SignoCompanion } from "./components/signo/SignoCompanion";
+import { SignoProvider } from "./components/signo/SignoContext";
 import { GameProvider, useGame } from "./game/GameContext";
+import { AlphabetPage } from "./pages/AlphabetPage";
 import { AchievementsPage } from "./pages/AchievementsPage";
 import { LoginPage, RegisterPage } from "./pages/AuthPages";
 import { ChallengesPage } from "./pages/ChallengesPage";
@@ -21,6 +25,7 @@ import { AdminPage } from "./pages/AdminPage";
 import { MentorDashboard } from "./admin/MentorDashboard";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { CollectPage } from "./collect/CollectPage";
 
 function SyncNotifier() {
   const { syncStatus } = useAuth();
@@ -55,7 +60,11 @@ function AuthenticatedApp() {
       })
       .catch(() => {
         setHealth(null);
-        setHealthError("Backend unavailable. Start FastAPI on port 8000.");
+        setHealthError(
+          BACKEND_NOT_CONFIGURED
+            ? "The recognition service is not configured for this deployment (VITE_API_BASE_URL is not set)."
+            : "Backend unavailable. Start FastAPI on port 8000."
+        );
       });
   }, []);
 
@@ -80,15 +89,17 @@ function AuthenticatedApp() {
       {migrationOffer && (
         <MigrationPrompt onImport={handleImport} onDismiss={dismissMigration} loading={importing} />
       )}
+      <SignoProvider>
       <AppShell ready={ready} backendNote={backendNote}>
         {page === "home" && <HomePage />}
         {page === "learn" && <LearnPage />}
+        {page === "alphabet" && <AlphabetPage />}
         {page === "words" && <WordsPage />}
         {page === "practice" &&
           (practiceKind === "word" ? (
             <WordPracticePage ready={ready} backendError={healthError} />
           ) : (
-            <PracticePage ready={ready} backendError={healthError} />
+            <PracticePage ready={ready} backendError={healthError} experimentalLandmark={health?.experimental_landmark ?? null} />
           ))}
         {page === "native" && <NativeSignsPage />}
         {page === "native-practice" && <NativeSignPracticePage />}
@@ -99,8 +110,11 @@ function AuthenticatedApp() {
         {page === "profile" && <ProfilePage />}
         {page === "settings" && <SettingsPage />}
         {page === "admin" && <AdminPage />}
+        {page === "collect" && import.meta.env.DEV && <CollectPage />}
         {page === "mentor-dashboard" && <MentorDashboard />}
       </AppShell>
+      <SignoCompanion />
+      </SignoProvider>
     </>
   );
 }

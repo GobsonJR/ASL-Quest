@@ -1,16 +1,25 @@
-import { useEffect, useState } from "react";
-import { Card, EmptyState, PrimaryButton, SecondaryButton } from "../components/AppShell";
+import { useEffect, useRef, useState } from "react";
+import { Card, EmptyState, PrimaryButton, ProgressBar, SecondaryButton } from "../components/AppShell";
 import { AlphabetReferencePanel } from "../components/AlphabetReferencePanel";
 import { CameraPractice } from "../components/CameraPractice";
 import { CelebrationOverlay, LevelUpOverlay } from "../components/CelebrationOverlay";
 import { LetterProgressStrip } from "../components/LetterProgressStrip";
 import { MissionCard } from "../components/MissionCard";
+import { RecognizerSwitch } from "../components/RecognizerSwitch";
+import type { ExperimentalLandmarkInfo, RecognizerChoice } from "../api";
+import { useSignoEmit } from "../components/signo/SignoContext";
 import { useToast } from "../components/Toast";
-import { BADGES, DAILY_TARGET } from "../game/constants";
+import { BADGES, DAILY_TARGET, MASTERED_CORRECT } from "../game/constants";
 import { getLearningPathNodes, lettersMasteredCount } from "../game/gamification";
 import { useGame } from "../game/GameContext";
 import type { PracticeOutcome } from "../game/types";
-import { buildIncorrectFeedback, pickEncouragement } from "./alphabetFeedback";
+import {
+  SIGN_HINTS,
+  buildIncorrectFeedback,
+  pickEncouragement,
+  referenceImageAlt,
+  referenceImageSrc,
+} from "./alphabetFeedback";
 
 const CHALLENGE_LABELS = {
   none: "Free practice",
@@ -27,10 +36,16 @@ function badgeTitle(id: string): string {
 export function PracticePage({
   ready,
   backendError,
+  experimentalLandmark = null,
 }: {
   ready: boolean;
   backendError: string | null;
+  /** Set only when the backend has an experimental landmark model loaded; enables the developer comparison switch. */
+  experimentalLandmark?: ExperimentalLandmarkInfo | null;
 }) {
+  // ResNet is always the starting recognizer; it is never remembered across page loads.
+  const [recognizer, setRecognizer] = useState<RecognizerChoice>("resnet");
+  const activeRecognizer: RecognizerChoice = experimentalLandmark?.loaded ? recognizer : "resnet";
   const {
     state,
     level,
@@ -44,13 +59,14 @@ export function PracticePage({
     navigate,
   } = useGame();
   const { push } = useToast();
+  const emit = useSignoEmit();
 
   const [targetLetter, setTargetLetter] = useState(() => nextPracticeLetter());
   const [phase, setPhase] = useState<"playing" | "success">("playing");
   const [outcome, setOutcome] = useState<PracticeOutcome | null>(null);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [cameraStatus, setCameraStatus] = useState("Show your hand ✋");
+  const [cameraStatus, setCameraStatus] = useState("Show your hand");
   // Set once per correct detection, from the same prediction the model used
   // to confirm the sign -- shown as a small secondary line in the
   // celebration, never as the primary success message.
@@ -66,6 +82,10 @@ export function PracticePage({
   // Presentational only -- how many tries the learner has had on the current
   // letter, shown on MissionCard. Never touches game state/XP.
   const [attemptNumber, setAttemptNumber] = useState(1);
+  // Lesson introduction: shown when a learner opens a specific letter from
+  // Learn/Alphabet (not for challenges, free practice, or "Next letter").
+  const [introDone, setIntroDone] = useState(false);
+  const skipIntroRef = useRef(false);
 
   useEffect(() => {
     if (!sessionStarted) {
@@ -80,14 +100,17 @@ export function PracticePage({
     setOutcome(null);
     setConfidence(null);
     setIncorrectFeedback(null);
-    setCameraStatus("Show your hand ✋");
+    setCameraStatus("Show your hand");
     setAttemptKey((key) => key + 1);
     setAttemptNumber(1);
+    setIntroDone(skipIntroRef.current);
+    skipIntroRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [practiceLetter, challengeMode]);
 
   function handleCorrect(elapsedMs: number, detectedConfidence: number) {
     const result = markCorrect(targetLetter, elapsedMs);
+    emit({ type: "sign_correct", letter: targetLetter, xp: result.xpGained });
     setOutcome(result);
     setConfidence(detectedConfidence);
     setEncouragement(pickEncouragement(targetLetter));
@@ -105,19 +128,21 @@ export function PracticePage({
 
   function handleIncorrect(predictedLetter: string) {
     markIncorrect(targetLetter, predictedLetter);
+    emit({ type: "sign_incorrect", letter: targetLetter, predicted: predictedLetter });
     setIncorrectFeedback({ predicted: predictedLetter });
     setAttemptNumber((value) => value + 1);
   }
 
   function handleNext() {
     const next = nextPracticeLetter();
+    skipIntroRef.current = true;
     setTargetLetter(next);
     setPhase("playing");
     setOutcome(null);
     setConfidence(null);
     setIncorrectFeedback(null);
     setShowLevelUp(false);
-    setCameraStatus("Show your hand ✋");
+    setCameraStatus("Show your hand");
     setAttemptKey((key) => key + 1);
     setAttemptNumber(1);
     startPractice(next, challengeMode);
@@ -133,7 +158,7 @@ export function PracticePage({
     setConfidence(null);
     setIncorrectFeedback(null);
     setShowLevelUp(false);
-    setCameraStatus("Show your hand ✋");
+    setCameraStatus("Show your hand");
     setAttemptKey((key) => key + 1);
     setAttemptNumber(1);
   }
@@ -144,6 +169,19 @@ export function PracticePage({
   const letterCorrect = state.letterStats?.[targetLetter]?.correct ?? 0;
   const masteredCount = lettersMasteredCount(state);
   const pathNodes = getLearningPathNodes(state);
+  const showIntro = practiceLetter !== null && challengeMode === "none" && !introDone;
+
+  // Tell SIGNO what is genuinely happening: a lesson intro is on screen, or the
+  // camera lesson has started. (Recognition results are reported separately, from
+  // the real onCorrect/onIncorrect callbacks.)
+  useEffect(() => {
+    if (showIntro) emit({ type: "lesson_opened", letter: targetLetter });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showIntro, targetLetter]);
+  useEffect(() => {
+    if (!showIntro && ready && phase === "playing") emit({ type: "practice_started", letter: targetLetter });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showIntro, ready, phase, targetLetter]);
 
   return (
     <>
@@ -161,12 +199,74 @@ export function PracticePage({
             ← Back to Learning
           </button>
           <span>
-            Level {level} · ⭐ {state.xp} XP · 🔥 {state.streak}d streak
+            Level {level} · {state.xp} XP · {state.streak}d streak
             {challengeMode === "daily" ? ` · ${dailyProgress}` : ""}
           </span>
         </div>
 
+        {showIntro ? (
+          <Card className="mx-auto max-w-2xl space-y-5" data-testid="lesson-intro">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-[0.14em] text-[var(--color-primary-dim)]">
+                Lesson
+              </p>
+              <h1 className="mt-1 font-display text-3xl font-bold text-[var(--color-ink)]">Letter {targetLetter}</h1>
+              <p className="mt-2 text-base text-[var(--color-ink-soft)]">
+                Objective: form the letter {targetLetter} so the camera recognizes it. Each confirmed sign earns XP; a
+                letter is complete after {MASTERED_CORRECT} correct signs.
+              </p>
+            </div>
+            <div className="flex items-start gap-4">
+              <div className="w-28 shrink-0 overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] p-2">
+                <img
+                  src={referenceImageSrc(targetLetter)}
+                  alt={referenceImageAlt(targetLetter)}
+                  className="h-auto w-full"
+                  width={100}
+                  height={131}
+                />
+              </div>
+              <div className="min-w-0 flex-1 space-y-3">
+                <p className="text-sm font-semibold text-[var(--color-ink)]">
+                  {SIGN_HINTS[targetLetter] ?? `Match the ${targetLetter} handshape.`}
+                </p>
+                <ol className="space-y-1.5 pl-4 text-sm text-[var(--color-ink-soft)] [list-style:decimal]">
+                  <li>Allow camera access when prompted.</li>
+                  <li>Form the letter clearly in frame, with good light.</li>
+                  <li>Hold steady until the app confirms your sign.</li>
+                </ol>
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <div className="flex justify-between text-sm font-bold text-[var(--color-ink)]">
+                <span>Your progress</span>
+                <span className="tabular-nums text-[var(--color-muted)]">
+                  {Math.min(letterCorrect, MASTERED_CORRECT)} / {MASTERED_CORRECT}
+                </span>
+              </div>
+              <ProgressBar percent={(Math.min(letterCorrect, MASTERED_CORRECT) / MASTERED_CORRECT) * 100} showPercent={false} />
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <PrimaryButton onClick={() => setIntroDone(true)}>Start lesson</PrimaryButton>
+              <SecondaryButton onClick={() => navigate("learn")}>Back to Learn</SecondaryButton>
+            </div>
+          </Card>
+        ) : (
+        <>
         <MissionCard challengeLabel={challengeLabel} attemptNumber={attemptNumber} streak={state.streak} />
+
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-sm font-bold text-[var(--color-ink)]">
+            <span>Letter {targetLetter}</span>
+            <span className="tabular-nums text-[var(--color-muted)]">
+              {Math.min(letterCorrect, MASTERED_CORRECT)} / {MASTERED_CORRECT} correct to complete
+            </span>
+          </div>
+          <ProgressBar
+            percent={(Math.min(letterCorrect, MASTERED_CORRECT) / MASTERED_CORRECT) * 100}
+            showPercent={false}
+          />
+        </div>
 
         <div className="space-y-2">
           <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-muted)]">
@@ -189,10 +289,13 @@ export function PracticePage({
                   backendError ??
                   "Start the FastAPI backend on port 8000, then refresh to practice with your camera."
                 }
-                action={<SecondaryButton onClick={() => navigate("home")}>Back to home</SecondaryButton>}
+                action={<SecondaryButton onClick={() => navigate("learn")}>Back to Learn</SecondaryButton>}
               />
             ) : (
+              <div className="space-y-3">
+              <RecognizerSwitch info={experimentalLandmark} value={activeRecognizer} onChange={setRecognizer} />
               <CameraPractice
+                recognizer={activeRecognizer}
                 targetLetter={targetLetter}
                 attemptKey={attemptKey}
                 active={phase === "playing"}
@@ -202,6 +305,7 @@ export function PracticePage({
                 onIncorrect={handleIncorrect}
                 onStatusChange={setCameraStatus}
               />
+              </div>
             )}
           </Card>
 
@@ -212,6 +316,7 @@ export function PracticePage({
                 outcome={outcome}
                 onNext={handleNext}
                 onPracticeAgain={handlePracticeAgain}
+                onBack={() => navigate("learn")}
                 streak={state.streak}
                 confidence={confidence}
                 encouragement={encouragement}
@@ -248,13 +353,18 @@ export function PracticePage({
                 </details>
 
                 <div className="flex flex-wrap gap-3">
-                  <SecondaryButton onClick={() => navigate("home")}>Back home</SecondaryButton>
+                  <SecondaryButton onClick={() => navigate("learn")}>Back to Learn</SecondaryButton>
+                  <SecondaryButton onClick={() => emit({ type: "hint_requested", letter: targetLetter })}>
+                    Give me a hint
+                  </SecondaryButton>
                   <PrimaryButton onClick={handleNext}>Skip letter</PrimaryButton>
                 </div>
               </>
             )}
           </div>
         </div>
+        </>
+        )}
       </div>
     </>
   );

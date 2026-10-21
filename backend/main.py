@@ -11,9 +11,10 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.database import init_db
-from backend.routers import achievements, analytics, auth, admin, challenges, chatbot, ml, native, practice, progress, recommendations, users, words
+from backend.routers import achievements, analytics, auth, admin, challenges, chatbot, collect, ml, native, practice, progress, recommendations, users, words
+from backend.services.experimental_recognizer import load_experimental_landmarks
 from backend.services.progress import seed_achievements
-from backend.settings import CORS_ORIGINS
+from backend.settings import CORS_ORIGINS, EXPERIMENTAL_LANDMARK_MODEL, HAND_DETECTION_CONFIDENCE, LANDMARK_MODEL_PATH, RECOGNIZER
 from src.config import BEST_MODEL_PATH, LEGACY_MODEL_PATH
 from src.inference.engine import Predictor
 from src.inference.hands import HandDetector
@@ -44,6 +45,7 @@ app.include_router(admin.router)
 app.include_router(words.router)
 app.include_router(native.router)
 app.include_router(chatbot.router)
+app.include_router(collect.router)  # development only: 404 unless ASL_QUEST_DEV_COLLECT=1
 
 
 @app.on_event("startup")
@@ -60,7 +62,7 @@ def startup() -> None:
     error: str | None = None
     try:
         predictor_instance = Predictor(model_path=path if path.exists() else None)
-        hand_detector_instance = HandDetector(static_image_mode=True)
+        hand_detector_instance = HandDetector(static_image_mode=True, detection_confidence=HAND_DETECTION_CONFIDENCE)
         print(f"Loaded model from {predictor_instance.model_path} on {predictor_instance.device}")
         if not hand_detector_instance.available:
             print(f"Hand detector unavailable: {hand_detector_instance.error}")
@@ -69,6 +71,27 @@ def startup() -> None:
         print(f"Model not loaded: {error}")
 
     ml.set_runtime(predictor_instance, hand_detector_instance, error)
+
+    # Optional alternative recognizer. Default stays "resnet"; "landmarks" must be chosen explicitly and fails loudly.
+    if RECOGNIZER == "landmarks":
+        try:
+            from src.landmarks.classifier import LandmarkClassifier
+
+            ml.set_recognizer("landmarks", LandmarkClassifier(LANDMARK_MODEL_PATH))
+            print(f"Recognizer: landmarks ({LANDMARK_MODEL_PATH})")
+        except Exception as exc:
+            ml.set_recognizer("landmarks", None, f"Could not load the landmark model {LANDMARK_MODEL_PATH}: {exc}")
+            print(ml.landmark_error)
+    elif RECOGNIZER != "resnet":
+        ml.set_recognizer("resnet", None, f"Unknown ASL_QUEST_RECOGNIZER={RECOGNIZER!r}; using resnet")
+        print(ml.landmark_error)
+
+    # Experimental landmark model for live side-by-side comparison (/predict?recognizer=landmarks). Off unless configured;
+    # a failure to load only disables the comparison and never affects the ResNet.
+    if EXPERIMENTAL_LANDMARK_MODEL:
+        classifier, why_not = load_experimental_landmarks(EXPERIMENTAL_LANDMARK_MODEL)
+        ml.set_experimental_landmarks(classifier, why_not)
+        print(f"Experimental landmark recognizer: {classifier.path.name if classifier else 'NOT loaded - ' + str(why_not)}")
 
 
 def health() -> dict:

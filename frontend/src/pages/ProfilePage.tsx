@@ -31,7 +31,7 @@ export function ProfilePage() {
       <div className="flex flex-col gap-6 md:flex-row md:items-center">
         <Avatar name={profile.avatar_initial || profile.username} size="lg" />
         <div>
-          <PageHeader eyebrow="👤 Your profile" title={profile.username} description={profile.email} compact />
+          <PageHeader eyebrow="Your profile" title={profile.username} description={profile.email} compact />
           <p className="mt-2 text-sm text-[var(--color-muted)]">
             Member since {new Date(profile.created_at).toLocaleDateString()}
           </p>

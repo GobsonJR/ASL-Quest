@@ -1,6 +1,5 @@
 import { authHeaders } from "../auth/token";
-
-const API = "/api";
+import { API_BASE as API } from "../config";
 
 export type ChatbotScope = "in_scope" | "off_topic" | null;
 export type ChatbotProviderStatus = "ok" | "not_configured" | "error" | "rate_limited" | "timeout" | null;

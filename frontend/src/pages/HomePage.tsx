@@ -15,6 +15,7 @@ import {
 import { useAuth } from "../auth/AuthContext";
 import { DAILY_TARGET, XP_CORRECT, XP_DAILY_COMPLETE } from "../game/constants";
 import { useGame } from "../game/GameContext";
+import { Glyph } from "../components/Icon";
 import {
   getContinueLetter,
   getMasteryPercent,
@@ -61,7 +62,7 @@ export function HomePage() {
       {/* Hero: greeting + strong "continue learning" CTA */}
       <div>
         <p className="font-display text-xl text-[var(--color-ink-soft)] md:text-2xl">
-          {timeOfDayGreeting()}, {user?.username ?? "there"} 👋
+          {timeOfDayGreeting()}, {user?.username ?? "there"}
         </p>
         <h1 className="mt-1 font-display text-3xl font-semibold text-[var(--color-ink)] md:text-4xl">
           Ready for another sign?
@@ -124,7 +125,7 @@ export function HomePage() {
             <p className="mt-2 text-sm text-[var(--color-ink-soft)]">
               {(getWordById(wordRecs.continue_word.word_id)?.letters ?? wordRecs.continue_word.word.split("")).map((letter, idx) => (
                 <span key={`${letter}-${idx}`} className="mr-3">
-                  {letter} {idx < (wordRecs.continue_word?.resume_index ?? 0) ? "✅" : "○"}
+                  {letter} {idx < (wordRecs.continue_word?.resume_index ?? 0) ? "" : "○"}
                 </span>
               ))}
             </p>
@@ -136,7 +137,7 @@ export function HomePage() {
       {/* Today's goal */}
       <Card>
         <SectionHeader
-          title="🎯 Today's goal"
+          title="Today's goal"
           description={`Sign ${DAILY_TARGET} letters correctly${!daily.completed ? ` for +${XP_DAILY_COMPLETE} XP` : " — done for today!"}`}
         />
         <div className="mt-4">
@@ -156,7 +157,7 @@ export function HomePage() {
       {/* Your journey preview */}
       <Card>
         <SectionHeader
-          title="🗺️ Your journey"
+          title="Your journey"
           description={`${learned} letters learned · ${mastered} mastered`}
           action={<SecondaryButton onClick={() => navigate("learn")}>View path →</SecondaryButton>}
         />
@@ -185,7 +186,7 @@ export function HomePage() {
 
       {/* Quick practice */}
       <div>
-        <SectionHeader title="⚡ Quick practice" description="Jump straight into a learning mode." />
+        <SectionHeader title="Quick practice" description="Jump straight into a learning mode." />
         <div className="mt-4 grid gap-4 sm:grid-cols-3">
           <QuickPracticeCard
             icon="🔤"
@@ -231,7 +232,7 @@ export function HomePage() {
 
       {/* Streak / XP / achievements strip */}
       <div>
-        <SectionHeader title="🏆 Your stats" />
+        <SectionHeader title="Your stats" />
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon="⭐" label="Level" value={level} tone="primary" />
           <StatCard icon="🔥" label="Streak" value={`${state.streak}d`} tone="streak" />
@@ -246,7 +247,7 @@ export function HomePage() {
       {state.recentAchievements.length > 0 && (
         <Card>
           <SectionHeader
-            title="🏅 Recent badges"
+            title="Recent badges"
             action={
               <button
                 type="button"
@@ -260,7 +261,7 @@ export function HomePage() {
           <ul className="mt-4 space-y-3">
             {state.recentAchievements.slice(0, 3).map((item) => (
               <li key={`${item.id}-${item.unlockedAt}`} className="flex items-center justify-between gap-3 text-sm">
-                <span className="font-semibold text-[var(--color-ink)]">🏅 {item.title}</span>
+                <span className="font-semibold text-[var(--color-ink)]">{item.title}</span>
                 <span className="text-[var(--color-muted)]">{new Date(item.unlockedAt).toLocaleDateString()}</span>
               </li>
             ))}
@@ -296,7 +297,7 @@ function QuickPracticeCard({
       onClick={onClick}
     >
       <span className={`grid h-12 w-12 place-items-center rounded-2xl text-2xl ${tones[tone]}`} aria-hidden="true">
-        {icon}
+        <Glyph value={icon} />
       </span>
       <span className="font-display text-base font-semibold text-[var(--color-ink)]">{label}</span>
       <span className="text-sm text-[var(--color-ink-soft)]">{description}</span>

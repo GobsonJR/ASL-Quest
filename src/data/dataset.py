@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, Dataset, Subset
 from torchvision import datasets
 
 from src.config import BATCH_SIZE, NUM_WORKERS, SPLITS_PATH, TEST_RATIO, TRAIN_RATIO, VAL_RATIO
-from src.data.preprocessing import eval_transforms, train_transforms
+from src.data.preprocessing import eval_transforms, train_transforms_for
 
 
 _NUM_RE = re.compile(r"(\d+)(?=\.[^.]+$)")
@@ -83,8 +83,12 @@ def build_dataloaders(
     num_workers: int = NUM_WORKERS,
     max_per_class: int | None = None,
     image_size: int = 224,
+    augment: str = "default",
+    eval_workers: int | None = None,
 ) -> tuple[DataLoader, DataLoader, DataLoader, list[str], dict[str, list[int]]]:
-    train_base = load_image_folder(data_dir, train_transforms(image_size))
+    # Augmentation is attached to the TRAIN dataset object only; val/test share the file list but use
+    # eval_transforms, so no augmented copy of any image can reach validation or test.
+    train_base = load_image_folder(data_dir, train_transforms_for(augment, image_size))
     eval_base = load_image_folder(data_dir, eval_transforms(image_size))
 
     samples = train_base.samples
@@ -110,6 +114,10 @@ def build_dataloaders(
 
     pin = True
     persistent = num_workers > 0
+    # Validation/test have no augmentation, so they can be loaded in-process (eval_workers=0) on
+    # memory-starved machines where every extra worker process costs ~1.6 GB. Default: same as training.
+    eval_workers = num_workers if eval_workers is None else eval_workers
+    eval_persistent = eval_workers > 0
     train_loader = DataLoader(
         Subset(train_base, train_idx),
         batch_size=batch_size,
@@ -122,17 +130,17 @@ def build_dataloaders(
         Subset(eval_base, val_idx),
         batch_size=batch_size,
         shuffle=False,
-        num_workers=num_workers,
+        num_workers=eval_workers,
         pin_memory=pin,
-        persistent_workers=persistent,
+        persistent_workers=eval_persistent,
     )
     test_loader = DataLoader(
         Subset(eval_base, test_idx),
         batch_size=batch_size,
         shuffle=False,
-        num_workers=num_workers,
+        num_workers=eval_workers,
         pin_memory=pin,
-        persistent_workers=persistent,
+        persistent_workers=eval_persistent,
     )
     return train_loader, val_loader, test_loader, list(train_base.classes), splits
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getLearningPathNodes } from "./gamification";
 import { createInitialState } from "./storage";
-import { LETTERS, MASTERED_CORRECT } from "./constants";
+import { BEGINNER_LETTERS, LETTERS, MASTERED_CORRECT } from "./constants";
 import type { GameState } from "./types";
 
 function withMastered(letters: string[]): GameState {
@@ -19,47 +19,86 @@ describe("getLearningPathNodes", () => {
     expect(nodes).toHaveLength(26);
   });
 
-  it("starts with A current and the rest locked", () => {
+  it("initial roadmap has exactly 5 beginner-unlocked letters: 1 current + 4 available, and 21 locked", () => {
     const nodes = getLearningPathNodes(createInitialState());
-    expect(nodes[0]).toMatchObject({ letter: "A", status: "current" });
-    for (const node of nodes.slice(1)) {
-      expect(node.status).toBe("locked");
+
+    const current = nodes.filter((n) => n.status === "current");
+    const available = nodes.filter((n) => n.status === "available");
+    const locked = nodes.filter((n) => n.status === "locked");
+
+    expect(current).toHaveLength(1);
+    expect(available).toHaveLength(4);
+    expect(locked).toHaveLength(21);
+
+    const unlockedLetters = [...current, ...available].map((n) => n.letter).sort();
+    expect(unlockedLetters).toEqual([...BEGINNER_LETTERS].sort());
+  });
+
+  it("the first beginner letter (A-Z order) is current, the rest of the beginner set is available", () => {
+    const nodes = getLearningPathNodes(createInitialState());
+    const firstBeginner = [...BEGINNER_LETTERS].sort()[0];
+    const node = nodes.find((n) => n.letter === firstBeginner)!;
+    expect(node.status).toBe("current");
+
+    for (const letter of BEGINNER_LETTERS) {
+      if (letter === firstBeginner) continue;
+      const beginnerNode = nodes.find((n) => n.letter === letter)!;
+      expect(beginnerNode.status).toBe("available");
     }
   });
 
-  it("marks A completed and advances B to current once A is mastered", () => {
-    const nodes = getLearningPathNodes(withMastered(["A"]));
-    expect(nodes[0]).toMatchObject({ letter: "A", status: "completed" });
-    expect(nodes[1]).toMatchObject({ letter: "B", status: "current" });
-    for (const node of nodes.slice(2)) {
-      expect(node.status).toBe("locked");
+  it("non-beginner letters stay locked until every beginner letter is mastered", () => {
+    const nodes = getLearningPathNodes(createInitialState());
+    for (const node of nodes) {
+      if (!BEGINNER_LETTERS.includes(node.letter)) {
+        expect(node.status).toBe("locked");
+      }
     }
   });
 
-  it("advances correctly across multiple completed letters", () => {
-    const nodes = getLearningPathNodes(withMastered(["A", "B", "C"]));
-    expect(nodes[0].status).toBe("completed");
-    expect(nodes[1].status).toBe("completed");
-    expect(nodes[2].status).toBe("completed");
-    expect(nodes[3]).toMatchObject({ letter: "D", status: "current" });
-    for (const node of nodes.slice(4)) {
-      expect(node.status).toBe("locked");
+  it("mastering one beginner letter marks it completed and the rest remain unlocked (never locked)", () => {
+    const firstBeginner = [...BEGINNER_LETTERS].sort()[0];
+    const nodes = getLearningPathNodes(withMastered([firstBeginner]));
+    const completedNode = nodes.find((n) => n.letter === firstBeginner)!;
+    expect(completedNode.status).toBe("completed");
+
+    for (const letter of BEGINNER_LETTERS) {
+      if (letter === firstBeginner) continue;
+      const node = nodes.find((n) => n.letter === letter)!;
+      expect(["current", "available"]).toContain(node.status);
+    }
+
+    // non-beginner letters are still locked -- mastering one beginner letter
+    // doesn't open the rest of the alphabet.
+    for (const node of nodes) {
+      if (!BEGINNER_LETTERS.includes(node.letter)) {
+        expect(node.status).toBe("locked");
+      }
     }
   });
 
-  it("reflects real out-of-order progress instead of hiding it: a mastered letter is always completed", () => {
-    // Free practice (pickPracticeLetter) lets a learner practice any letter,
-    // not just the path's current one, so mastery can legitimately land out
-    // of A-Z order (e.g. C mastered before B). The path must show that
-    // truthfully -- never lock a letter the learner has actually mastered --
-    // while "current" still tracks the first not-yet-mastered letter.
-    const nodes = getLearningPathNodes(withMastered(["A", "C"]));
-    expect(nodes[0].status).toBe("completed"); // A
-    expect(nodes[1].status).toBe("current"); // B: first non-mastered letter
-    expect(nodes[2].status).toBe("completed"); // C: mastered, stays completed even though B isn't yet
-    expect(nodes[2].correct).toBe(MASTERED_CORRECT);
-    for (const node of nodes.slice(3)) {
-      expect(node.status).toBe("locked");
+  it("mastering letters out of beginner order still updates real progress for each one", () => {
+    const outOfOrder = [...BEGINNER_LETTERS].sort().slice(-1); // last beginner letter alphabetically
+    const nodes = getLearningPathNodes(withMastered(outOfOrder));
+    const node = nodes.find((n) => n.letter === outOfOrder[0])!;
+    expect(node.status).toBe("completed");
+    expect(node.correct).toBe(MASTERED_CORRECT);
+  });
+
+  it("unlocks sequential progression into the rest of the alphabet only once all 5 beginner letters are completed", () => {
+    const nodes = getLearningPathNodes(withMastered(BEGINNER_LETTERS));
+
+    for (const letter of BEGINNER_LETTERS) {
+      expect(nodes.find((n) => n.letter === letter)!.status).toBe("completed");
+    }
+
+    const firstNonBeginner = LETTERS.find((letter) => !BEGINNER_LETTERS.includes(letter))!;
+    expect(nodes.find((n) => n.letter === firstNonBeginner)!.status).toBe("current");
+
+    for (const node of nodes) {
+      if (!BEGINNER_LETTERS.includes(node.letter) && node.letter !== firstNonBeginner) {
+        expect(node.status).toBe("locked");
+      }
     }
   });
 

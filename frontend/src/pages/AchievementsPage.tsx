@@ -2,6 +2,7 @@ import { Divider, PageHeader, PageLayout, ProgressBar, SectionHeader, StatusChip
 import { BADGES } from "../game/constants";
 import { useGame } from "../game/GameContext";
 import { getBadgeProgress } from "../game/gamification";
+import { Glyph } from "../components/Icon";
 
 export function AchievementsPage() {
   const { state } = useGame();
@@ -11,7 +12,7 @@ export function AchievementsPage() {
     <PageLayout>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <PageHeader
-          eyebrow="🏅 Your collection"
+          eyebrow="Your collection"
           title="Badges & milestones"
           description="Unlock badges by practicing consistently and completing challenges."
         />
@@ -40,13 +41,13 @@ export function AchievementsPage() {
                 }`}
                 aria-hidden="true"
               >
-                {badge.icon}
+                <Glyph value={badge.icon} />
               </div>
               <div>
                 <h3 className="text-base font-bold text-[var(--color-ink)]">{badge.title}</h3>
                 <p className="mt-1 text-sm text-[var(--color-ink-soft)]">{badge.description}</p>
               </div>
-              <StatusChip tone={unlocked ? "success" : "neutral"}>{unlocked ? "✓ Earned" : "🔒 Locked"}</StatusChip>
+              <StatusChip tone={unlocked ? "success" : "neutral"}>{unlocked ? "✓ Earned" : "Locked"}</StatusChip>
 
               {!unlocked && progress && progress.target > 1 && (
                 <div className="mt-1 w-full">
@@ -68,11 +69,11 @@ export function AchievementsPage() {
       <section>
         <SectionHeader title="How to earn more" />
         <ul className="mt-4 space-y-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">
-          <li>🔥 Practice daily to build your streak.</li>
-          <li>🔤 Sign different letters to reach alphabet milestones.</li>
-          <li>⚡ Complete the speed challenge for Speed Signer.</li>
-          <li>✨ Finish a daily challenge with zero mistakes for Perfect Practice.</li>
-          <li>🧩 Spell complete words with sequential alphabet signs to unlock Word Starter and Word Learner.</li>
+          <li>Practice daily to build your streak.</li>
+          <li>Sign different letters to reach alphabet milestones.</li>
+          <li>Complete the speed challenge for Speed Signer.</li>
+          <li>Finish a daily challenge with zero mistakes for Perfect Practice.</li>
+          <li>Spell complete words with sequential alphabet signs to unlock Word Starter and Word Learner.</li>
         </ul>
       </section>
     </PageLayout>

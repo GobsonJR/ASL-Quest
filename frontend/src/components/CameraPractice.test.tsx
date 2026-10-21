@@ -104,6 +104,32 @@ describe("CameraPractice correct-detection locking", () => {
   });
 });
 
+describe("CameraPractice recognizer choice", () => {
+  async function firstRequestOptions(recognizer?: "resnet" | "landmarks") {
+    vi.mocked(predictImage).mockImplementation(respondAfterTick(response({ prediction: "B" })));
+    const { unmount } = render(
+      <CameraPractice targetLetter="A" active ready backendError={null} onCorrect={vi.fn()} onIncorrect={vi.fn()} frameIntervalMs={1} {...(recognizer ? { recognizer } : {})} />
+    );
+    await settleVideo();
+    await waitFor(() => expect(predictImage).toHaveBeenCalled());
+    const options = vi.mocked(predictImage).mock.calls[0][2] as Record<string, unknown>;
+    unmount();
+    return options;
+  }
+
+  it("sends no recognizer parameter by default, so ResNet requests are exactly what they were before", async () => {
+    expect(await firstRequestOptions()).not.toHaveProperty("recognizer");
+  });
+
+  it("sends no recognizer parameter when ResNet is chosen explicitly", async () => {
+    expect(await firstRequestOptions("resnet")).not.toHaveProperty("recognizer");
+  });
+
+  it("asks for the experimental landmark recognizer only when it is chosen", async () => {
+    expect(await firstRequestOptions("landmarks")).toMatchObject({ recognizer: "landmarks", requireHand: true });
+  });
+});
+
 describe("CameraPractice wrong-detection feedback", () => {
   it("reports the stable wrong letter once (debounced) with a learner-friendly status, not raw prediction text", async () => {
     vi.mocked(predictImage).mockImplementation(respondAfterTick(response({ prediction: "S" })));

@@ -341,24 +341,187 @@ These historical numbers were produced by `evaluate.py` running inference on the
 
 ## Evaluation metrics — current production checkpoint
 
-`models/best_model.pth` currently refers to a **recovered/retrained** production checkpoint — the original checkpoint above was lost and this one was retrained from `dataset/asl_alphabet_train/` using the same architecture, preprocessing, and evaluation procedure. Its controlled test result, on the same 11,700-image sequential holdout:
+`models/best_model.pth` is a **webcam-robustness fine-tune (19 Oct 2026)** of the recovered/retrained checkpoint that preceded it. The original 97.91% checkpoint was lost; its replacement (below, "previous") was retrained from `dataset/asl_alphabet_train/`. The previous checkpoint was fine-tuned for 3 epochs (seed 42, lr 5e-5) with `--augment robust` (mirroring, scale/rotation, lighting, blur, JPEG artifacts, noise, occlusion; training images only) because measurements showed it failed on mirrored hands (C: 0% correct, mean over all letters 37%) and on small hands (see "Diagnosing live webcam recognition"). Same 11,700-image sequential holdout, same images for both:
 
-| Metric | Value |
-| --- | --- |
-| Test images | 11,700 (450 per class) |
-| Overall accuracy | **90.91%** |
-| Macro precision | **93.65%** |
-| Macro recall | **90.91%** |
-| Macro F1 | **90.22%** |
+| Metric | Previous checkpoint | Current (`best_model.pth`) |
+| --- | --- | --- |
+| Test images | 11,700 (450 per class) | 11,700 (450 per class) |
+| Overall accuracy | 90.91% | **94.08%** |
+| Macro precision | 93.65% | **95.87%** |
+| Macro recall | 90.91% | **94.08%** |
+| Macro F1 | 90.22% | **93.49%** |
+| C precision / recall / F1 | 1.000 / 1.000 / 1.000 | 1.000 / 1.000 / 1.000 |
+| Robustness, mean over letters: mirrored / hand at 0.4x size / noise | 37% / 32% / 92% | **93% / 74% / 92%** |
 
-Weakest per-class recall / accuracy on this holdout:
+Weakest per-class recall on this holdout (current): X 18.44%, T 82.89%, M 84.89%, S 91.56%, J 92.89%, Z 94.00%.
+Known regression: X recall fell from 35.33% (read mostly as A) to 18.44% (now read mostly as I), which also lowers I's precision to 0.55; the held-out X frames appear to differ from the training X frames, so X needs more varied training data. S rose from 27.78% to 91.56% and V from 69.78% to 99.33%.
 
-- S: 27.78%
-- X: 35.33%
-- V: 69.78%
-- Y: 79.11%
+The previous checkpoint is kept at `models/backup/best_model_before_robust_20261019.pth` (git-ignored, like all weights). To roll back: copy it over `models/best_model.pth` and restart the backend. Its evaluation files are in `outputs/evaluation_before_robust/`; `outputs/diagnostics/checkpoint_comparison_v2.json` has the full head-to-head, and `scripts/compare_checkpoints.py` reproduces it.
 
-These current numbers were produced by `evaluate.py` running inference on the same holdout images and are recorded in `outputs/evaluation/metrics.json`. They are not hand-entered.
+These numbers were produced by `evaluate.py` (and cross-checked by `scripts/compare_checkpoints.py`) on the same holdout images and are recorded in `outputs/evaluation/metrics.json`. They are not hand-entered. **They do not prove live-webcam accuracy**: the holdout comes from the same recording setup as the training photos.
+
+## Diagnosing live webcam recognition
+
+The held-out test set comes from the same recording setup as the training photos (one room, one
+camera angle, the forearm visible, the hand shown side-on), so a letter can score 100% there and
+still fail on a real webcam. These tools separate "the model is wrong" from "the live input is
+different" (measured results for C are in the table below):
+
+```powershell
+# 1. Per-letter metrics, confusion row/column, label/duplicate/leakage checks (CPU is fine)
+venv311\Scripts\python.exe scripts\diagnose_class.py --letter C --device cpu
+
+# 2. Same-image experiments: standard vs live crop, similar letters, mirror/rotation/size/lighting
+#    (stage 1 finds hands, stage 2 classifies; --server reuses a running backend, no torch needed)
+venv311\Scripts\python.exe scripts\diagnose_c_experiments.py --stage prepare --letter C
+venv311\Scripts\python.exe scripts\diagnose_c_experiments.py --stage classify --letter C --server http://127.0.0.1:8000
+
+# 3. Your own webcam frame: run the frontend in dev mode (npm run dev), open Practice, hold the sign,
+#    open "Technical details" and press "Save last frame". Then:
+venv311\Scripts\python.exe scripts\diagnose_frame.py path\to\frame_C_<time>.jpg
+```
+
+#### Capturing a REAL failing prediction (development only)
+
+To see exactly what the classifier received for a live webcam prediction, start the backend with the capture flag and use the app normally:
+
+```powershell
+$env:ASL_QUEST_DEV_DIAGNOSTICS = "1"
+venv311Scriptspython.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file .env
+cd frontend; npm run dev          # in dev mode every request asks the server to capture itself
+```
+
+Hold the sign in Practice for a few seconds. For each (rate-limited, newest 60 kept) prediction the server writes
+`outputs/diagnostics/live_requests/<id>/` containing the original frame bytes, the hand box overlay, the exact crop given to
+ResNet18, the normalized model input converted back to an image, and `result.json` (top-5, boxes, sizes, whether the preview was
+mirrored, checkpoint path and hash). All of it comes from the same request. Then run the four-way comparison (original frame /
+classifier crop / mirrored crop / dataset images of the target letter):
+
+```powershell
+venv311Scriptspython.exe scriptsanalyze_live_requests.py --target C --last 12
+```
+
+The capture folder is git-ignored and contains your camera frames; it is never exposed through an endpoint. Without the environment
+variable nothing is written.
+
+#### Finding from a real webcam session (19 Oct 2026, target C)
+
+60 captured requests; in the ~30 where the hand really formed a C, the app sent a crop that contained the hand **and the signer's face, glasses and a patterned couch**. With the current checkpoint (and identical preprocessing) the recorded crops were read as C in 1/30, while the same frames with everything except the hand replaced by a plain wall colour were read as C in 27/30 (`scripts/diagnose_background_dependence.py`). Controls: the same masking on held-out dataset hands of other letters predicts C in only 4-5/100, and on the non-C poses in the session in 1/30. The classifier therefore recognises the handshape but is misled by the scene around it (every training photo is one room with a plain wall). The same crop is classified identically every time (direct inference = server record, 30/30); nudging the crop window by 10% flips the label on real frames (2.9 distinct labels per frame) but never on dataset C (1.0). Dataset C is still recognised 30/30 (mean score 0.98), so a perfect dataset score says nothing about cluttered webcam scenes.
+
+Not fixed by this finding (needs data, not code): a controlled experiment would record labelled webcam frames of every letter from your own camera against varied backgrounds (face visible, different rooms/lighting, left and right hand), keep whole sessions out of validation/test, fine-tune with those added, and compare old vs new with `scripts/compare_checkpoints.py` on a held-out webcam session. Masking hands at inference is NOT a fix: it lowers accuracy on other letters (about 94% to 65-69% on masked dataset hands).
+
+`diagnose_frame.py` reports the hand box (and whether it touches the frame edge), then the top-5
+predictions for the exact live pipeline, the whole frame, and square crops with several paddings,
+each also mirrored, and saves those crops so you can look at what the model was given.
+
+Measured with the deployed checkpoint on held-out dataset images (`scripts/diagnose_c_experiments.py`):
+
+| Input | C accuracy | mean over all letters |
+|---|---|---|
+| standard pipeline / live square crop (pad 0.3, 0.6, 1.0) | 100% | 91% |
+| mirrored (left-handed signer) | **7%** (read as G or Q) | **37%** |
+| rotated ±20° / +45° | 100% / 100% | ~79% / ~24% |
+| hand 0.6× / 0.4× its size in the frame | 100% / 60% | ~73% / ~31% |
+| JPEG q72, darker/brighter, low contrast, noise | 100% | 89–93% |
+
+`python -m src.training.train --augment robust` trains with mirroring, scale/rotation, lighting and
+occlusion augmentation (training images only; validation/test are never augmented). Compare any two
+checkpoints on identical images with `scripts/compare_checkpoints.py`. Use `--eval-workers 0` on
+machines with little free memory.
+
+## Making recognition work in ordinary rooms (real webcam data workflow)
+
+Why: the classifier was trained on photos from one room, and measurements show it is misled by faces, glasses and furniture around the hand
+(see "Finding from a real webcam session"). The fix needs labelled frames from YOUR camera in several rooms. Everything below is repeatable;
+nothing is labelled by the model, and whole rooms are kept out of training so the test measures unseen rooms.
+
+### 1. Collect (development only)
+
+```powershell
+$env:ASL_QUEST_DEV_COLLECT = "1"
+venv311\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file .env
+cd frontend; npm run dev        # open the app > More > Collect data
+```
+
+Per room: start a session (room name, lighting, background, face/glasses). Choose a letter, make the sign, press Capture, check the crop and the
+quality verdict, then press "Yes, this is X, save". Blurry, too-small, too-dark, no-hand and near-duplicate frames are rejected for you (the
+sharpness threshold was calibrated on real captured crops). Use "Capture hold" once per letter per room for a 10-frame hold sequence, which is
+used to measure how stable a held sign is. Frames are saved under `dataset/webcam/` (git-ignored: they contain your face and room).
+
+Suggested protocol: at least **5-6 different rooms or backgrounds** (shelves, curtains, patterned wall, furniture, window light, a person behind
+you; some with glasses, some not), 15-30 varied single frames per letter per room (vary distance, angle, hand position, both hands) and 1-2 hold
+sequences per letter per room. That reaches roughly 100-200 usable frames per letter across training rooms. Keep **at least one whole room only
+for testing** (and one more for validation if you can). Many near-identical frames are worth far less than a few genuinely different ones.
+
+### 2. Export (room-separated, same crop as the live app)
+
+```powershell
+venv311\Scripts\python.exe scripts\export_webcam_dataset.py --auto
+# or choose: --test-rooms kitchen --val-rooms hall
+```
+The report lists per-split letter coverage, skipped frames, leakage checks, and whether the hand you declared agrees with MediaPipe's handedness.
+With only one room it refuses to pretend it can test generalisation.
+
+### 3. Baseline, then two approaches, then compare on the SAME unseen rooms
+
+```powershell
+# the current model on your unseen rooms
+venv311\Scripts\python.exe scripts\evaluate_webcam.py --approach resnet --checkpoint models\best_model.pth --name resnet_current
+
+# Approach A: fine-tune the image model with the original dataset + your webcam crops
+venv311\Scripts\python.exe -m src.training.train --augment robust --init-from models\best_model.pth --webcam-export dataset\webcam_export `
+  --epochs 4 --lr 5e-5 --batch-size 32 --num-workers 0 --eval-workers 0 `
+  --best-model models\experiments\az_webcam_best.pth --last-model models\experiments\az_webcam_last.pth `
+  --history outputs\experiments\az_webcam_history.json --curves outputs\experiments\az_webcam_curves.png
+venv311\Scripts\python.exe scripts\evaluate_webcam.py --approach resnet --checkpoint models\experiments\az_webcam_best.pth --name resnet_webcam
+
+# Approach B: MediaPipe landmark classifier (no images, no torch)
+venv311\Scripts\python.exe scripts\train_landmark_classifier.py
+venv311\Scripts\python.exe scripts\evaluate_webcam.py --approach landmarks --name landmarks
+
+venv311\Scripts\python.exe scripts\compare_approaches.py outputs\evaluation_webcam\resnet_current.json outputs\evaluation_webcam\resnet_webcam.json outputs\evaluation_webcam\landmarks.json
+```
+`evaluate_webcam.py` reports accuracy, macro-F1, per-letter precision/recall/F1, the confusion matrix, the share rejected as uncertain, accuracy among
+accepted predictions, accuracy per room / background / hand / distance / lighting, latency, and, on hold sequences, how soon the app's own
+confirmation rule fires and how often it confirms a WRONG letter. Read the wrong confirmations: an approach that confidently confirms wrong letters
+is worse than one that abstains. Do not choose on a single number.
+
+### 3b. Try a landmark model live, side by side with the ResNet (experimental, per request)
+
+```powershell
+$env:ASL_QUEST_EXPERIMENTAL_LANDMARK_MODEL = "models/experiments/landmark_L2_s0.joblib"   # must be a .joblib under modelsvenv311\Scripts\python.exe -m uvicorn backend.main:app --host 127.0.0.1 --port 8000 --env-file .env
+```
+ResNet stays the default for every request. When the model loads, `/health` reports `experimental_landmark` and the Practice page shows a
+"Recognizer · developer comparison" box with **ResNet (default)** and **Hand landmarks (experimental)**; it starts on ResNet on every page load and
+**Back to ResNet** is one click. `POST /predict?recognizer=landmarks` asks for the experimental engine for that one call; without the parameter nothing
+changes. A missing or incompatible file only hides the box (the reason is in `/health`), and a hand the detector cannot find, unusable landmarks or a
+model error return a normal "no hand" answer or a 503 for that frame instead of crashing the request. Practice results still count toward progress while
+the experimental engine is selected. Frames sent by the camera are JPEG quality 0.72, slightly lower than the 0.92 of collected frames; in a measured run
+about 5% of frames lost hand detection at 0.72, so expect a little more "no hand" than the offline evaluation shows.
+
+### 4. Promote only with evidence; roll back in one command
+
+```powershell
+# Approach A winner: the gate refuses unless it beats the current model on the same rooms and confirms no more wrong letters
+venv311\Scripts\python.exe scripts\promote_checkpoint.py --candidate models\experiments\az_webcam_best.pth `
+  --eval-candidate outputs\evaluation_webcam\resnet_webcam.json --eval-current outputs\evaluation_webcam\resnet_current.json
+venv311\Scripts\python.exe scripts\promote_checkpoint.py --rollback         # undo (the current model is backed up every time)
+
+# Approach B winner: switch the API instead (default is the image model)
+$env:ASL_QUEST_RECOGNIZER = "landmarks"     # uses models\landmark_classifier.joblib; fails loudly (503) if it cannot load
+```
+Restart the backend after either. `/health` reports `recognizer`, `landmark_model_loaded`, and the checkpoint path. The previous production model is
+also kept at `models/backup/best_model_before_robust_20261019.pth`.
+
+### 5. Demo checklist (ordinary room)
+
+1. Start the backend and open http://localhost:5173; confirm `/health` shows `model_loaded: true` and `hand_detection_available: true`.
+2. Practice > a letter: the chips should show "Hand detected" and a live "Reading".
+3. Good conditions help every recognizer: even front lighting, hand about an arm's length away filling roughly a third of the frame, fingers visible.
+4. If the sign is uncertain the app says so (it never accepts below 0.70 confidence); hold steady for about a second.
+5. Try letters you collected plus a couple you did not, with a face and furniture in view; keep the Technical details panel open in dev to show
+   the "no hand / uncertain / recognized" rates.
+6. Know the limits: J and Z need motion and are only recognised as held shapes; X, T and M have been weak in measurements.
 
 ## Limitations
 
@@ -367,6 +530,6 @@ These current numbers were produced by `evaluate.py` running inference on the sa
 - **Dynamic J and Z are not supported.** The model may still output “J” or “Z” from a still pose; it does not use temporal motion.
 - Live MediaPipe cropping can miss hands (including some already-cropped dataset photos). The UI then shows **No hand detected** instead of guessing.
 - Webcam/live predictions use a 0.70 confidence threshold and a 7-frame majority vote to reduce flicker. This does not add a fixed sleep delay; the next frame is sent after the previous response.
-- The deployed classifier was trained with `RandomHorizontalFlip` in the legacy pipeline. Current training code no longer uses that augmentation; a v2 retrain has not been run.
+- The default training policy (`--augment default`) has no horizontal flip. The deployed checkpoint is a fine-tune with `--augment robust`, which adds mirroring and other webcam-style augmentation (see the production-checkpoint section). It was validated only on dataset images and perturbed copies of them, **not on real webcam frames**: collect labelled frames from your own camera (dev "Save last frame" button) before trusting it for a new environment.
 - `dataset/asl_alphabet_test` is not a valid benchmark.
 - Exact-duplicate leakage across the sequential split has not been fully hashed in this pass (`scripts/check_split_leakage.py` can do that; it is slow on 78,000 files).

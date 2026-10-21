@@ -4,6 +4,7 @@ import { useGame } from "../game/GameContext";
 import { lettersLearnedCount } from "../game/gamification";
 import { fetchWordChallenge } from "../words/api";
 import { useEffect, useState } from "react";
+import { Glyph } from "../components/Icon";
 
 const DIFFICULTY: Record<string, string> = {
   daily: "Easy",
@@ -41,7 +42,7 @@ export function ChallengesPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="🎯 Today's missions"
+        eyebrow="Today's missions"
         title="Game modes & bonus XP"
         description="Complete challenges to level up faster, maintain your streak, and unlock badges."
       />
@@ -61,7 +62,7 @@ export function ChallengesPage() {
             <Card key={challenge.id} hover className="flex h-full flex-col">
               <div className="flex items-start justify-between gap-3">
                 <div className="text-4xl" aria-hidden="true">
-                  {challenge.icon}
+                  <Glyph value={challenge.icon} />
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <StatusChip tone="neutral">{DIFFICULTY[challenge.id]}</StatusChip>

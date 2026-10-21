@@ -1,0 +1,438 @@
+/* SIGNO: all motion is transform/opacity only. Moods are driven by [data-mood] on the <svg>.
+   Everything animated is disabled by data-effects="off" and prefers-reduced-motion (the face
+   still changes -- only movement stops). */
+
+.signo {
+  overflow: visible;
+  display: block;
+}
+
+.signo * {
+  transform-box: view-box;
+}
+
+/* ---------- face variants: crossfade -------------------------------------- */
+.signo-eyes-open,
+.signo-eyes-happy,
+.signo-eyes-closed,
+.signo-mouth,
+.signo-brow,
+.signo-zzz,
+.signo-think,
+.signo-sparks {
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.signo-eyes-open {
+  opacity: 1;
+}
+
+.signo[data-mood="happy"] .signo-eyes-open,
+.signo[data-mood="celebrating"] .signo-eyes-open,
+.signo[data-mood="sleepy"] .signo-eyes-open {
+  opacity: 0;
+}
+.signo[data-mood="happy"] .signo-eyes-happy,
+.signo[data-mood="celebrating"] .signo-eyes-happy {
+  opacity: 1;
+}
+.signo[data-mood="sleepy"] .signo-eyes-closed {
+  opacity: 1;
+}
+
+/* mouths */
+.signo .signo-mouth-smile,
+.signo[data-mood="idle"] .signo-mouth-smile,
+.signo[data-mood="curious"] .signo-mouth-smile,
+.signo[data-mood="explaining"] .signo-mouth-smile {
+  opacity: 1;
+}
+.signo[data-mood="happy"] .signo-mouth-smile,
+.signo[data-mood="celebrating"] .signo-mouth-smile,
+.signo[data-mood="thinking"] .signo-mouth-smile,
+.signo[data-mood="encouraging"] .signo-mouth-smile,
+.signo[data-mood="listening"] .signo-mouth-smile,
+.signo[data-mood="sleepy"] .signo-mouth-smile {
+  opacity: 0;
+}
+.signo[data-mood="happy"] .signo-mouth-open,
+.signo[data-mood="celebrating"] .signo-mouth-open {
+  opacity: 1;
+}
+.signo[data-mood="thinking"] .signo-mouth-o {
+  opacity: 1;
+}
+.signo[data-mood="encouraging"] .signo-mouth-soft,
+.signo[data-mood="listening"] .signo-mouth-soft {
+  opacity: 1;
+}
+.signo[data-mood="sleepy"] .signo-mouth-flat {
+  opacity: 1;
+}
+
+/* brows */
+.signo[data-mood="encouraging"] .signo-brow,
+.signo[data-mood="curious"] .signo-brow-r {
+  opacity: 1;
+}
+.signo[data-mood="curious"] .signo-brow-r {
+  transform: translateY(-2px);
+}
+
+/* overlays */
+.signo[data-mood="sleepy"] .signo-zzz,
+.signo[data-mood="thinking"] .signo-think,
+.signo[data-mood="celebrating"] .signo-sparks,
+.signo[data-mood="happy"] .signo-sparks {
+  opacity: 1;
+}
+
+/* ---------- pupils (where SIGNO looks) ------------------------------------ */
+.signo-pupils {
+  transition: transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+}
+.signo[data-mood="curious"] .signo-pupils {
+  transform: translate(3px, -2px);
+}
+.signo[data-mood="thinking"] .signo-pupils {
+  transform: translate(3px, -4px);
+}
+.signo[data-mood="explaining"] .signo-pupils {
+  transform: translate(0, 1px);
+}
+.signo[data-mood="listening"] .signo-pupils {
+  transform: translate(0, 0) scale(1.06);
+  transform-origin: 60px 60px;
+}
+
+/* ---------- body: springy pose changes ------------------------------------ */
+.signo-tilt {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform-origin: 60px 104px;
+}
+.signo[data-mood="curious"] .signo-tilt {
+  transform: rotate(6deg);
+}
+.signo[data-mood="encouraging"] .signo-tilt {
+  transform: rotate(-3deg);
+}
+.signo[data-mood="sleepy"] .signo-tilt {
+  transform: rotate(-4deg) translateY(2px);
+}
+
+.signo-breathe {
+  transform-origin: 60px 104px;
+}
+
+.signo-arm {
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.signo-arm-l {
+  transform-origin: 28px 66px;
+  transform: rotate(8deg);
+}
+.signo-arm-r {
+  transform-origin: 92px 66px;
+  transform: rotate(-8deg);
+}
+.signo[data-mood="happy"] .signo-arm-l,
+.signo[data-mood="celebrating"] .signo-arm-l {
+  transform: rotate(140deg);
+}
+.signo[data-mood="happy"] .signo-arm-r,
+.signo[data-mood="celebrating"] .signo-arm-r {
+  transform: rotate(-140deg);
+}
+.signo[data-mood="encouraging"] .signo-arm-l {
+  transform: rotate(18deg);
+}
+.signo[data-mood="encouraging"] .signo-arm-r {
+  transform: rotate(-18deg);
+}
+.signo[data-mood="thinking"] .signo-arm-r {
+  transform: rotate(-150deg) translate(-4px, 6px);
+}
+.signo[data-mood="explaining"] .signo-arm-r {
+  transform: rotate(-70deg);
+}
+.signo[data-mood="sleepy"] .signo-arm-l,
+.signo[data-mood="sleepy"] .signo-arm-r {
+  transform: rotate(0deg);
+}
+
+.signo-leaf {
+  transform-origin: 60px 30px;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.signo[data-mood="sleepy"] .signo-leaf {
+  transform: rotate(-12deg) scale(0.94);
+}
+.signo[data-mood="happy"] .signo-leaf,
+.signo[data-mood="celebrating"] .signo-leaf {
+  transform: scale(1.08) translateY(-1px);
+}
+
+/* ---------- looping animations (subtle) ----------------------------------- */
+@keyframes signo-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.012, 0.986);
+  }
+}
+@keyframes signo-blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.08);
+  }
+}
+@keyframes signo-leaf-sway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+@keyframes signo-dot {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes signo-z {
+  0% {
+    opacity: 0;
+    transform: translate(0, 4px);
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(3px, -6px);
+  }
+}
+
+.signo[data-effects="on"] .signo-breathe {
+  animation: signo-breathe 4.2s ease-in-out infinite;
+}
+.signo[data-effects="on"] .signo-eyes {
+  transform-origin: 60px 58px;
+  animation: signo-blink 5.5s ease-in-out infinite;
+}
+.signo[data-effects="on"][data-mood="idle"] .signo-leaf,
+.signo[data-effects="on"][data-mood="listening"] .signo-leaf {
+  animation: signo-leaf-sway 5s ease-in-out infinite;
+}
+.signo[data-effects="on"][data-mood="sleepy"] .signo-breathe {
+  animation-duration: 6.5s;
+}
+.signo[data-effects="on"][data-mood="sleepy"] .signo-eyes {
+  animation: none;
+}
+.signo[data-effects="on"] .signo-dot {
+  animation: signo-dot 1.2s ease-in-out infinite;
+}
+.signo[data-effects="on"] .signo-dot2 {
+  animation-delay: 0.2s;
+}
+.signo[data-effects="on"] .signo-dot3 {
+  animation-delay: 0.4s;
+}
+.signo[data-effects="on"] .signo-z {
+  animation: signo-z 2.6s ease-in-out infinite;
+}
+.signo[data-effects="on"] .signo-z2 {
+  animation-delay: 1.1s;
+}
+
+/* ---------- one-shot animations (replayed via key={pulse}) ---------------- */
+@keyframes signo-hop {
+  0% {
+    transform: translateY(0) scale(1, 1);
+  }
+  25% {
+    transform: translateY(-10px) scale(0.97, 1.04);
+  }
+  55% {
+    transform: translateY(0) scale(1.05, 0.94);
+  }
+  75% {
+    transform: translateY(-3px);
+  }
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+}
+@keyframes signo-squish {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  40% {
+    transform: scale(1.1, 0.88);
+  }
+  70% {
+    transform: scale(0.96, 1.05);
+  }
+}
+@keyframes signo-sway {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  30% {
+    transform: rotate(-7deg);
+  }
+  70% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes signo-spark {
+  0% {
+    opacity: 0;
+    transform: scale(0.2) rotate(0deg);
+  }
+  35% {
+    opacity: 1;
+    transform: scale(1.15) rotate(20deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.6) rotate(60deg) translateY(-6px);
+  }
+}
+.signo[data-effects="on"][data-mood="happy"] .signo-hop,
+.signo[data-effects="on"][data-mood="celebrating"] .signo-hop,
+.signo[data-effects="on"][data-reaction="bounce"] .signo-hop {
+  transform-origin: 60px 104px;
+  animation: signo-hop 0.7s cubic-bezier(0.3, 0.7, 0.4, 1) 1;
+}
+.signo[data-effects="on"][data-mood="celebrating"] .signo-hop {
+  animation-iteration-count: 2;
+}
+.signo[data-effects="on"][data-reaction="squish"] .signo-hop {
+  transform-origin: 60px 104px;
+  animation: signo-squish 0.6s ease-out 1;
+}
+.signo[data-effects="on"][data-reaction="sway"] .signo-hop {
+  transform-origin: 60px 104px;
+  animation: signo-sway 0.8s ease-in-out 1;
+}
+.signo[data-effects="on"] .signo-spark {
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: signo-spark 1.1s ease-out both;
+}
+.signo[data-effects="on"] .signo-spark2 {
+  animation-delay: 0.12s;
+}
+.signo[data-effects="on"] .signo-spark3 {
+  animation-delay: 0.24s;
+}
+.signo[data-effects="on"] .signo-spark4 {
+  animation-delay: 0.36s;
+}
+
+/* The sparks should not hang around as static shapes when animation is off. */
+.signo[data-effects="off"] .signo-sparks {
+  opacity: 0 !important;
+}
+
+/* ---------- launcher / panel / bubble ------------------------------------- */
+@keyframes signo-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes signo-bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes signo-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.signo-panel-enter {
+  animation: signo-panel-in 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.signo-bubble-enter {
+  animation: signo-bubble-in 0.2s ease-out both;
+}
+.signo-tip-ring {
+  animation: signo-ring 1.8s ease-out infinite;
+}
+
+[data-signo-effects="off"] .signo-panel-enter,
+[data-signo-effects="off"] .signo-bubble-enter,
+[data-signo-effects="off"] .signo-tip-ring {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signo *,
+  .signo-panel-enter,
+  .signo-bubble-enter,
+  .signo-tip-ring {
+    animation: none !important;
+    transition: none !important;
+  }
+  .signo .signo-sparks {
+    opacity: 0 !important;
+  }
+}
+
+/* Panel docking. Explicit media queries (rather than utility variants) so the cascade order is
+   guaranteed: mobile = above the bottom nav; tablet/desktop = bottom-right above the launcher;
+   >=1500px = docked to the LEFT of the right-hand progress sidebar so it never covers it. */
+.signo-dock {
+  position: fixed;
+  z-index: 40;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: calc(4.75rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 48rem) {
+  .signo-dock {
+    left: auto;
+    right: 1.5rem;
+    bottom: 6rem;
+    width: 24rem;
+  }
+}
+@media (min-width: 1500px) {
+  .signo-dock {
+    bottom: 1.5rem;
+    right: calc(max(0px, (100vw - 88rem) / 2) + 21rem);
+  }
+}

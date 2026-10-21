@@ -1,7 +1,7 @@
 import type { GameState } from "../game/types";
 import { authHeaders } from "../auth/token";
+import { API_BASE as API } from "../config";
 
-const API = "/api";
 export type AnalyticsRange = "7d" | "30d" | "90d" | "12m" | "all";
 export type HeatmapRange = "3m" | "6m" | "12m";
 

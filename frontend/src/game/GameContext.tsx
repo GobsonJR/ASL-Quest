@@ -58,7 +58,7 @@ const GameContext = createContext<GameContextValue | null>(null);
 export function GameProvider({ children }: { children: ReactNode }) {
   const { user, setSyncStatus } = useAuth();
   const [state, setState] = useState<GameState>(() => createInitialState());
-  const [page, setPage] = useState<NavPage>("home");
+  const [page, setPage] = useState<NavPage>("learn");
   const [practiceLetter, setPracticeLetter] = useState<string | null>(null);
   const [practiceKind, setPracticeKind] = useState<PracticeKind>("letter");
   const [practiceWordId, setPracticeWordId] = useState<string | null>(null);

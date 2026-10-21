@@ -22,6 +22,7 @@ import {
 } from "../analytics/api";
 import { fetchWord, type WordItem } from "../words/api";
 import { ActivityHeatmap, DateRangeFilter, HeatmapRangeFilter, LineChart } from "../analytics/components/charts";
+import { Dialog } from "../components/Dialog";
 import { LetterDetailModal } from "../analytics/components/LetterDetailModal";
 import { LETTERS } from "../game/constants";
 import { useGame } from "../game/GameContext";
@@ -128,7 +129,7 @@ export function ProgressPage() {
     <PageLayout>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <PageHeader
-          eyebrow="📈 Your journey"
+          eyebrow="Your journey"
           title="Your learning progress"
           description="Every metric below comes from your saved practice history."
         />
@@ -533,8 +534,12 @@ export function ProgressPage() {
       )}
 
       {selectedWordId && wordDetail?.progress && (
-        <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 px-4" role="dialog" aria-modal="true">
-          <Card className="w-full max-w-lg">
+        <Dialog
+          label="Word detail"
+          onClose={() => { setSelectedWordId(null); setWordDetail(null); }}
+          className="w-full max-w-lg"
+        >
+          <Card className="w-full">
             <div className="flex items-start justify-between">
               <div>
                 <SectionLabel>Word detail</SectionLabel>
@@ -569,7 +574,7 @@ export function ProgressPage() {
               Practice {wordDetail.word}
             </PrimaryButton>
           </Card>
-        </div>
+        </Dialog>
       )}
     </PageLayout>
   );

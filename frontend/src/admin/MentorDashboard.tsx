@@ -17,6 +17,7 @@ import { useToast } from "../components/Toast";
 import { useAuth } from "../auth/AuthContext";
 import { useGame } from "../game/GameContext";
 import { fetchMentorDashboard, type MentorDashboard, type MentorStudent } from "./api";
+import { Glyph } from "../components/Icon";
 
 // Validated (scripts/validate_palette.js, all-adjacent-pairs PASS on this app's
 // dark panel surface) fixed categorical order — never cycled/reassigned per
@@ -24,13 +25,13 @@ import { fetchMentorDashboard, type MentorDashboard, type MentorStudent } from "
 // UI accent tokens (--color-primary etc.), which are too light to clear the
 // chart-mark lightness band, so these are chart-only steps in the same hue
 // family as the brand where possible.
-const CATEGORY_COLORS = ["#4c5fea", "#8b5fe8", "#ff7a45", "#17b884", "#ffb020"];
-const OTHER_COLOR = "#b6bbd1";
-const CHART_TEXT = "#8b90ac";
-const CHART_GRID = "#e3e6f3";
-const ACCENT = "#4c5fea";
-const SUCCESS = "#17b884";
-const WARM = "#ff7a45";
+const CATEGORY_COLORS = ["#58cc02", "#1cb0f6", "#ff6b57", "#46a302", "#ff9600"];
+const OTHER_COLOR = "#afafaf";
+const CHART_TEXT = "#64748b";
+const CHART_GRID = "#e5e7eb";
+const ACCENT = "#58cc02";
+const SUCCESS = "#46a302";
+const WARM = "#ff6b57";
 
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -337,7 +338,7 @@ function StatTile({
       <div className="relative">
         {icon && (
           <span className="mb-1 block text-xl" aria-hidden="true">
-            {icon}
+            <Glyph value={icon} />
           </span>
         )}
         <p className="font-display text-3xl tabular-nums text-[var(--color-ink)]">
@@ -435,8 +436,8 @@ function MagnitudeBarChart({
           <XAxis dataKey="label" tick={{ fill: CHART_TEXT, fontSize: 11 }} axisLine={{ stroke: CHART_GRID }} tickLine={false} />
           <YAxis tick={{ fill: CHART_TEXT, fontSize: 11 }} axisLine={{ stroke: CHART_GRID }} tickLine={false} allowDecimals={false} />
           <Tooltip
-            cursor={{ fill: "rgba(76,95,234,0.06)" }}
-            contentStyle={{ background: "#ffffff", border: "1px solid #e3e6f3", borderRadius: 10, fontSize: 12 }}
+            cursor={{ fill: "rgba(88,204,2,0.08)" }}
+            contentStyle={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 10, fontSize: 12 }}
             labelStyle={{ color: "var(--color-ink)" }}
             formatter={(value) => [value, valueLabel]}
           />
@@ -476,7 +477,7 @@ function CategoryPieChart({ items, animate }: { items: Array<{ label: string; va
             formatter={(value) => <span style={{ color: CHART_TEXT, fontSize: 12 }}>{value}</span>}
           />
           <Tooltip
-            contentStyle={{ background: "#ffffff", border: "1px solid #e3e6f3", borderRadius: 10, fontSize: 12 }}
+            contentStyle={{ background: "#ffffff", border: "1px solid #e5e7eb", borderRadius: 10, fontSize: 12 }}
             labelStyle={{ color: "var(--color-ink)" }}
           />
         </PieChart>

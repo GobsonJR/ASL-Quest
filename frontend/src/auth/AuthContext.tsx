@@ -10,6 +10,7 @@ import {
   type UserProfile,
 } from "./api";
 import { clearToken } from "./token";
+import { DEMO_MODE } from "../config";
 import { loadGameState, saveGameState } from "../game/storage";
 import type { GameState } from "../game/types";
 
@@ -32,19 +33,29 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// Only used when DEMO_MODE is on (frontend-only deployment). Not a real account.
+const DEMO_USER: UserProfile = {
+  id: 0,
+  username: "Demo learner",
+  email: "demo@local",
+  role: "user",
+  created_at: new Date(0).toISOString(),
+};
+
 function localProgressIsMeaningful(state: GameState): boolean {
   if (state.xp > 0 || state.totalCorrect > 0 || state.sessions > 0) return true;
   return Object.values(state.letterStats).some((stats) => stats.attempts > 0 || stats.correct > 0);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserProfile | null>(DEMO_MODE ? DEMO_USER : null);
+  const [loading, setLoading] = useState(!DEMO_MODE);
   const [authView, setAuthView] = useState<AuthView>("login");
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [migrationOffer, setMigrationOffer] = useState(false);
 
   useEffect(() => {
+    if (DEMO_MODE) return;
     restoreSession()
       .then(async (profile) => {
         setUser(profile);
@@ -81,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
+    if (DEMO_MODE) return; // no session to end in demo mode
     logoutUser();
     clearToken();
     setUser(null);

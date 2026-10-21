@@ -77,11 +77,49 @@ def get_chatbot_local_model() -> str:
     return os.getenv("CHATBOT_LOCAL_MODEL", "").strip() or "qwen3:4b"
 
 
+def _hand_detection_confidence() -> float:
+    """MediaPipe min detection/presence confidence for the live hand cropper (0.05-0.95).
+
+    0.35 was chosen from scripts/diagnose_crop_strategies.py-style measurements: it found more hands
+    than MediaPipe's 0.5 default with no false positives on hand-free frames. Raise it if the app
+    starts "seeing" hands that are not there in your room.
+    """
+    raw = os.getenv("ASL_QUEST_HAND_DETECTION_CONFIDENCE", "").strip()
+    try:
+        value = float(raw) if raw else 0.35
+    except ValueError:
+        value = 0.35
+    return min(0.95, max(0.05, value))
+
+
+HAND_DETECTION_CONFIDENCE = _hand_detection_confidence()
+
+# Development-only: save the exact classifier input of live predictions to a local folder (see
+# backend/services/live_diagnostics.py). OFF unless ASL_QUEST_DEV_DIAGNOSTICS is 1/true/yes.
+DEV_DIAGNOSTICS = os.getenv("ASL_QUEST_DEV_DIAGNOSTICS", "").strip().lower() in {"1", "true", "yes"}
+DEV_DIAGNOSTICS_DIR = Path(__file__).resolve().parent.parent / "outputs" / "diagnostics" / "live_requests"
+
+# Trailing slashes are stripped: browsers send the Origin header without one, so
+# "https://app.vercel.app/" would never match "https://app.vercel.app".
 CORS_ORIGINS = [
-    origin.strip()
+    origin.strip().rstrip("/")
     for origin in (
         os.getenv("ASL_QUEST_CORS_ORIGINS", "").strip()
         or "http://127.0.0.1:5173,http://localhost:5173"
     ).split(",")
     if origin.strip()
 ]
+
+# Development-only labelled webcam data collection (see backend/services/webcam_dataset.py and routers/collect.py).
+# OFF unless ASL_QUEST_DEV_COLLECT is 1/true/yes. dataset/ is git-ignored: collected frames contain your face and room.
+# Which recognizer answers /predict: "resnet" (the image classifier, default) or "landmarks" (the MediaPipe-landmark
+# classifier, models/landmark_classifier.joblib). Switch only after scripts/compare_approaches.py shows it is better on unseen rooms.
+RECOGNIZER = os.getenv("ASL_QUEST_RECOGNIZER", "resnet").strip().lower() or "resnet"
+LANDMARK_MODEL_PATH = Path(os.getenv("ASL_QUEST_LANDMARK_MODEL", "").strip() or Path(__file__).resolve().parent.parent / "models" / "landmark_classifier.joblib")
+
+# EXPERIMENTAL side-by-side comparison: a landmark model (a .joblib under models/) that clients may request per call with
+# /predict?recognizer=landmarks while "resnet" stays the default for everyone. Empty (default) = feature off, nothing is loaded.
+EXPERIMENTAL_LANDMARK_MODEL = os.getenv("ASL_QUEST_EXPERIMENTAL_LANDMARK_MODEL", "").strip()
+
+DEV_COLLECT = os.getenv("ASL_QUEST_DEV_COLLECT", "").strip().lower() in {"1", "true", "yes"}
+WEBCAM_DATASET_DIR = Path(__file__).resolve().parent.parent / "dataset" / "webcam"

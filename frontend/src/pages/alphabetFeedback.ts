@@ -54,3 +54,34 @@ export function pickEncouragement(letter: string, random: () => number = Math.ra
   const index = Math.min(ENCOURAGEMENTS.length - 1, Math.floor(random() * ENCOURAGEMENTS.length));
   return ENCOURAGEMENTS[index].replace("{letter}", letter.trim().toUpperCase());
 }
+
+/** One-line handshape cue per letter, shared by the Learn and Alphabet pages. J and Z
+ * are taught as static shapes only -- the classifier does not recognize their motion. */
+export const SIGN_HINTS: Record<string, string> = {
+  A: "Make a fist with thumb alongside.",
+  B: "Four fingers up, thumb tucked in.",
+  C: "Curve your hand like the letter C.",
+  D: "Index up, other fingers curled to thumb.",
+  E: "All fingertips touch thumb.",
+  F: "Index and thumb form a circle, other fingers up.",
+  G: "Index and thumb point sideways.",
+  H: "Index and middle finger point sideways.",
+  I: "Pinky up, other fingers in a fist.",
+  J: "Pinky up — hold a static J shape (not motion).",
+  K: "Index and middle in a V, thumb between them.",
+  L: "Thumb and index form an L.",
+  M: "Three fingers over thumb in fist.",
+  N: "Two fingers over thumb in fist.",
+  O: "Fingers and thumb form a circle.",
+  P: "Like K but pointing down.",
+  Q: "Like G but pointing down.",
+  R: "Index and middle crossed.",
+  S: "Closed fist with thumb over fingers.",
+  T: "Thumb tucked between index and middle.",
+  U: "Index and middle up together.",
+  V: "Index and middle spread in a V.",
+  W: "Three fingers up in a W shape.",
+  X: "Index finger bent like a hook.",
+  Y: "Thumb and pinky extended.",
+  Z: "Index points — hold a static Z shape (not motion).",
+};

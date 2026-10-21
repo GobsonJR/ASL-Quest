@@ -1,7 +1,6 @@
 import type { GameState } from "../game/types";
 import { authHeaders, clearToken, setToken } from "./token";
-
-const API = "/api";
+import { API_BASE as API } from "../config";
 
 export type UserProfile = {
   id: number;
@@ -70,12 +69,27 @@ export type AuthResponse = {
 
 export type SyncStatus = "idle" | "syncing" | "synced" | "offline" | "error";
 
-async function parseError(response: Response, fallback: string): Promise<string> {
+export async function parseError(response: Response, fallback: string): Promise<string> {
   try {
     const payload = await response.json();
-    return payload.detail ?? fallback;
-  } catch {
+    const detail = payload?.detail;
+    if (typeof detail === "string" && detail) return detail;
+    // FastAPI validation errors (422) send a list of { msg, loc, ... } objects.
+    if (Array.isArray(detail) && typeof detail[0]?.msg === "string") return detail[0].msg;
     return fallback;
+  } catch {
+    // Non-JSON body (e.g. a plain-text 404/502 from a proxy or host).
+    return fallback;
+  }
+}
+
+/** fetch() that turns a network-level failure (backend asleep/unreachable, CORS blocked, offline)
+ * into a readable message instead of the browser's bare "Failed to fetch". */
+async function fetchApi(path: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(`${API}${path}`, init);
+  } catch {
+    throw new Error("Can't reach the ASL Quest server. Check your connection and try again in a moment.");
   }
 }
 
@@ -86,11 +100,15 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (tokenHeaders.Authorization) {
     headers.set("Authorization", tokenHeaders.Authorization);
   }
-  const response = await fetch(`${API}${path}`, { ...init, headers });
+  const response = await fetchApi(path, { ...init, headers });
   if (!response.ok) {
-    throw new Error(await parseError(response, "Request failed."));
+    throw new Error(await parseError(response, `Request failed (${response.status}).`));
   }
-  return response.json();
+  try {
+    return (await response.json()) as T;
+  } catch {
+    throw new Error("The server sent an unexpected response. Please try again.");
+  }
 }
 
 export async function registerUser(input: {

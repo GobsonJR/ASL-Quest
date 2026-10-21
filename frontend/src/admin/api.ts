@@ -1,6 +1,5 @@
 import { authHeaders } from "../auth/token";
-
-const API = "/api";
+import { API_BASE as API } from "../config";
 
 export type MentorOverview = {
   total_users: number;

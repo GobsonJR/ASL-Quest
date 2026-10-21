@@ -46,8 +46,10 @@ export type MasteryTier = "Beginner" | "Learning" | "Mastered";
 
 // Duolingo-style sequential view over the existing per-letter mastery data
 // (see getLearningPathNodes in gamification.ts) -- a UI derivation only, not
-// a new piece of progress state.
-export type LearningPathNodeStatus = "completed" | "current" | "locked";
+// a new piece of progress state. "available" covers the beginner-unlocked
+// letters (BEGINNER_LETTERS) that aren't the single highlighted "current"
+// one -- still fully practiceable, just not the suggested next step.
+export type LearningPathNodeStatus = "completed" | "current" | "available" | "locked";
 
 export type LearningPathNode = {
   letter: string;

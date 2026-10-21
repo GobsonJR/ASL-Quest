@@ -9,11 +9,68 @@ from PIL import Image
 from src.config import HAND_LANDMARKER_PATH
 
 
+# Minimum side (pixels) of the square window handed to the classifier. Guards against a degenerate
+# landmark box (e.g. all points collapsing) producing a 1-pixel "crop".
+MIN_CROP_SIDE = 32
+
+
 @dataclass
 class HandCrop:
     image: Image.Image
+    # Square crop window actually given to the model, clipped to the frame (for drawing an overlay).
     box: tuple[int, int, int, int] | None
     detected: bool
+    # Raw MediaPipe landmark bounding box (before padding/squaring), for diagnostics only.
+    hand_box: tuple[float, float, float, float] | None = None
+
+
+@dataclass
+class HandObservation:
+    """Full MediaPipe result for one hand, for the landmark classifier and for dataset export."""
+
+    landmarks: list[tuple[float, float, float]]  # 21 points, x/y normalised to the image, z relative depth
+    handedness: str | None  # MediaPipe's raw label "Left"/"Right"
+    handedness_score: float | None
+
+    @property
+    def actual_hand(self) -> str | None:
+        """"left"/"right" for the person's real hand in an UNMIRRORED camera frame.
+
+        MediaPipe labels hands as if the image were a mirrored selfie, so for the camera-native (unmirrored)
+        frames this app uses, its "Left" is the person's right hand and vice versa.
+        """
+        if self.handedness is None:
+            return None
+        return {"Left": "right", "Right": "left"}.get(self.handedness)
+
+
+def square_window(
+    box: tuple[float, float, float, float], padding: float, min_side: int = MIN_CROP_SIDE
+) -> tuple[int, int, int, int]:
+    """Square, aspect-preserving window centred on a hand box.
+
+    The classifier was trained on whole, roughly square photos and then resizes its input to a
+    square. Cropping to the landmark rectangle and stretching it to 224x224 distorts the hand
+    (measured: 69.9% vs 92.9% accuracy on the same held-out images, see
+    scripts/diagnose_crop_strategies.py). `padding` is the margin added on every side as a fraction
+    of the larger box side. The returned window may extend past the frame; crop_square() fills that.
+    """
+    x1, y1, x2, y2 = box
+    side = max(max(x2 - x1, y2 - y1) * (1 + 2 * padding), float(min_side))
+    half = int(round(side / 2))
+    cx, cy = int(round((x1 + x2) / 2)), int(round((y1 + y2) / 2))
+    return cx - half, cy - half, cx + half, cy + half
+
+
+def crop_square(rgb: np.ndarray, window: tuple[int, int, int, int]) -> Image.Image:
+    """Crop `window` from `rgb`; any part outside the frame is edge-replicated (never black bars)."""
+    left, top, right, bottom = window
+    h, w = rgb.shape[:2]
+    pad_l, pad_t = max(0, -left), max(0, -top)
+    pad_r, pad_b = max(0, right - w), max(0, bottom - h)
+    if pad_l or pad_t or pad_r or pad_b:
+        rgb = np.pad(rgb, ((pad_t, pad_b), (pad_l, pad_r), (0, 0)), mode="edge")
+    return Image.fromarray(np.ascontiguousarray(rgb[top + pad_t : bottom + pad_t, left + pad_l : right + pad_l]))
 
 
 class HandDetector:
@@ -102,27 +159,39 @@ class HandDetector:
         rgb = np.array(image.convert("RGB"))
         return self.crop_rgb(rgb, padding=padding)
 
-    def crop_rgb(self, rgb: np.ndarray, padding: float = 0.30) -> HandCrop:
+    def landmark_box(self, rgb: np.ndarray) -> tuple[float, float, float, float] | None:
+        """Pixel bounding box (x1, y1, x2, y2) of the detected hand's landmarks, or None."""
         rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
-        pil_full = Image.fromarray(rgb)
         landmarks = self._landmarks(rgb)
         if not landmarks:
-            return HandCrop(image=pil_full, box=None, detected=False)
-
+            return None
         h, w, _ = rgb.shape
         xs = [point[0] * w for point in landmarks]
         ys = [point[1] * h for point in landmarks]
-        x1, x2 = min(xs), max(xs)
-        y1, y2 = min(ys), max(ys)
-        bw, bh = max(x2 - x1, 1.0), max(y2 - y1, 1.0)
-        x1 = max(0, int(x1 - bw * padding))
-        y1 = max(0, int(y1 - bh * padding))
-        x2 = min(w, int(x2 + bw * padding))
-        y2 = min(h, int(y2 + bh * padding))
-        if x2 <= x1 or y2 <= y1:
+        return min(xs), min(ys), max(xs), max(ys)
+
+    def crop_rgb(self, rgb: np.ndarray, padding: float = 0.30, observation: HandObservation | None = None) -> HandCrop:
+        """Square crop around the hand. Pass `observation` (from observe()) to reuse one detection for crop and landmarks."""
+        rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
+        pil_full = Image.fromarray(rgb)
+        if observation is not None:
+            h, w = rgb.shape[:2]
+            xs = [p[0] * w for p in observation.landmarks]
+            ys = [p[1] * h for p in observation.landmarks]
+            hand_box = (min(xs), min(ys), max(xs), max(ys))
+        else:
+            hand_box = self.landmark_box(rgb)
+        if hand_box is None:
             return HandCrop(image=pil_full, box=None, detected=False)
-        crop = pil_full.crop((x1, y1, x2, y2))
-        return HandCrop(image=crop, box=(x1, y1, x2, y2), detected=True)
+
+        h, w, _ = rgb.shape
+        window = square_window(hand_box, padding)
+        left, top, right, bottom = window
+        clipped = (max(0, left), max(0, top), min(w, right), min(h, bottom))
+        if clipped[2] <= clipped[0] or clipped[3] <= clipped[1]:
+            # The hand box lies entirely outside the frame: treat as not detected.
+            return HandCrop(image=pil_full, box=None, detected=False)
+        return HandCrop(image=crop_square(rgb, window), box=clipped, detected=True, hand_box=hand_box)
 
     def _landmarks(self, rgb: np.ndarray) -> list[tuple[float, float]] | None:
         if self._legacy_hands is not None:
@@ -141,6 +210,35 @@ class HandDetector:
         if not result.hand_landmarks:
             return None
         return [(lm.x, lm.y) for lm in result.hand_landmarks[0]]
+
+    def observe(self, rgb: np.ndarray) -> HandObservation | None:
+        """Landmarks (x, y, z) and handedness of the most confident hand, or None."""
+        rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
+        if self._legacy_hands is not None:
+            result = self._legacy_hands.process(rgb)
+            if not result.multi_hand_landmarks:
+                return None
+            points = [(lm.x, lm.y, lm.z) for lm in result.multi_hand_landmarks[0].landmark]
+            label = score = None
+            if result.multi_handedness:
+                label = result.multi_handedness[0].classification[0].label
+                score = float(result.multi_handedness[0].classification[0].score)
+            return HandObservation(points, label, score)
+        if self._landmarker is None or self._mp_image_cls is None or self._image_format is None:
+            return None
+        mp_image = self._mp_image_cls(self._image_format, rgb)
+        if self._video_mode:
+            self._timestamp_ms += 33
+            result = self._landmarker.detect_for_video(mp_image, self._timestamp_ms)
+        else:
+            result = self._landmarker.detect(mp_image)
+        if not result.hand_landmarks:
+            return None
+        label = score = None
+        if result.handedness and result.handedness[0]:
+            label = result.handedness[0][0].category_name
+            score = float(result.handedness[0][0].score)
+        return HandObservation([(lm.x, lm.y, lm.z) for lm in result.hand_landmarks[0]], label, score)
 
     def close(self) -> None:
         if self._legacy_hands is not None:

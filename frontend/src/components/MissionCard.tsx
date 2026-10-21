@@ -17,13 +17,13 @@ export function MissionCard({
     <Card className="flex flex-wrap items-center justify-between gap-3 !bg-[var(--color-primary-soft)] !border-transparent py-4">
       <div>
         <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-primary-dim)]">
-          🎯 Your mission · {challengeLabel}
+          Your mission · {challengeLabel}
         </p>
         <p className="mt-1 text-base font-semibold text-[var(--color-ink)]">Get this sign right</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <StatusChip tone="neutral">Attempt {attemptNumber}</StatusChip>
-        {streak > 0 && <StatusChip tone="warning">🔥 {streak}-day streak</StatusChip>}
+        {streak > 0 && <StatusChip tone="warning">{streak}-day streak</StatusChip>}
       </div>
     </Card>
   );

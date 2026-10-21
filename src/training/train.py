@@ -30,8 +30,10 @@ from src.config import (
     WEIGHT_DECAY,
 )
 from src.data.dataset import build_dataloaders
+from src.data.preprocessing import eval_transforms, robust_train_transforms
+from src.data.webcam import WebcamCropDataset, mixed_train_loader
 from src.models.resnet18 import build_resnet18
-from src.utils.checkpoint import build_checkpoint, save_checkpoint
+from src.utils.checkpoint import build_checkpoint, load_checkpoint, save_checkpoint
 from src.utils.device import print_device_info, seed_everything
 
 
@@ -104,6 +106,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--batch-size", type=int, default=BATCH_SIZE)
     parser.add_argument("--lr", type=float, default=LEARNING_RATE)
     parser.add_argument("--num-workers", type=int, default=NUM_WORKERS)
+    parser.add_argument(
+        "--eval-workers",
+        type=int,
+        default=None,
+        help="DataLoader workers for validation/test (default: same as --num-workers). Use 0 on low-memory machines.",
+    )
+    parser.add_argument(
+        "--init-from",
+        type=Path,
+        default=None,
+        help="start from an existing checkpoint (same architecture and class order) instead of ImageNet weights, e.g. to fine-tune with --augment robust",
+    )
     parser.add_argument("--max-per-class", type=int, default=None)
     parser.add_argument("--patience", type=int, default=EARLY_STOP_PATIENCE)
     parser.add_argument("--seed", type=int, default=SEED)
@@ -111,6 +125,16 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--last-model", type=Path, default=V2_LAST_MODEL_PATH)
     parser.add_argument("--history", type=Path, default=OUTPUTS_DIR / "training_history.json")
     parser.add_argument("--curves", type=Path, default=OUTPUTS_DIR / "training_curves.png")
+    parser.add_argument(
+        "--augment",
+        choices=["default", "robust"],
+        default="default",
+        help="training augmentation policy; 'robust' adds mirroring, scale/rotation, lighting and occlusion (see src/data/preprocessing.py)",
+    )
+    parser.add_argument("--webcam-export", type=Path, default=None, help="dataset/webcam_export produced by scripts/export_webcam_dataset.py: mix real webcam crops into training")
+    parser.add_argument("--webcam-share", type=float, default=0.3, help="fraction of each epoch drawn from webcam crops")
+    parser.add_argument("--epoch-samples", type=int, default=20000, help="images per epoch when mixing webcam data")
+    parser.add_argument("--webcam-val-weight", type=float, default=0.5, help="weight of unseen-room webcam validation accuracy in model selection (the rest is the original validation split)")
     parser.add_argument("--no-amp", action="store_true", help="Disable CUDA mixed precision training")
     return parser.parse_args()
 
@@ -125,7 +149,27 @@ def main() -> None:
         batch_size=args.batch_size,
         num_workers=args.num_workers,
         max_per_class=args.max_per_class,
+        augment=args.augment,
+        eval_workers=args.eval_workers,
     )
+    webcam_val_loader = None
+    webcam_info: dict | None = None
+    if args.webcam_export is not None:
+        # Webcam crops are augmented like the (robust) original images; validation crops never are.
+        webcam_train = WebcamCropDataset(args.webcam_export, "train", robust_train_transforms())
+        webcam_val = WebcamCropDataset(args.webcam_export, "val", eval_transforms(), kinds=("single",))
+        train_loader = mixed_train_loader(
+            train_loader.dataset, webcam_train, batch_size=args.batch_size, webcam_share=args.webcam_share,
+            epoch_samples=args.epoch_samples, num_workers=args.num_workers,
+        )
+        if len(webcam_val) > 0:
+            webcam_val_loader = torch.utils.data.DataLoader(webcam_val, batch_size=args.batch_size, num_workers=0)
+        rooms = sorted({r["room"] for r in webcam_train.rows})
+        webcam_info = {"export": str(args.webcam_export), "train_crops": len(webcam_train), "val_crops": len(webcam_val),
+                       "train_rooms": rooms, "share": args.webcam_share}
+        print(f"Webcam data: {len(webcam_train)} train crops from rooms {rooms}, {len(webcam_val)} validation crops (unseen rooms)")
+        if len(webcam_val) == 0:
+            print("WARNING: no webcam validation room; model selection uses the original validation split only")
     num_classes = len(class_names)
     print(f"Classes ({num_classes}): {class_names}")
     print(f"Train images: {len(splits['train'])}")
@@ -134,7 +178,13 @@ def main() -> None:
     print(f"Batch size:   {args.batch_size}")
     print(f"Epochs:       {args.epochs}")
 
-    model = build_resnet18(num_classes=num_classes, pretrained=True).to(device)
+    model = build_resnet18(num_classes=num_classes, pretrained=args.init_from is None).to(device)
+    if args.init_from is not None:
+        init = load_checkpoint(args.init_from, map_location=device)
+        if init["class_names"] != class_names:
+            raise SystemExit(f"--init-from class order {init['class_names']} differs from the dataset {class_names}")
+        model.load_state_dict(init["model_state_dict"])
+        print(f"Initialised from {args.init_from}")
     criterion = nn.CrossEntropyLoss()
     optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=WEIGHT_DECAY)
     scheduler = CosineAnnealingLR(optimizer, T_max=args.epochs)
@@ -144,6 +194,7 @@ def main() -> None:
 
     history = {"train_loss": [], "val_loss": [], "train_acc": [], "val_acc": []}
     best_acc = -1.0
+    best_score = -1.0
     stale = 0
 
     for epoch in range(1, args.epochs + 1):
@@ -152,6 +203,12 @@ def main() -> None:
             model, train_loader, criterion, device, optimizer, scaler=scaler, use_amp=use_amp
         )
         val_loss, val_acc = run_epoch(model, val_loader, criterion, device, use_amp=use_amp)
+        webcam_val_acc = None
+        if webcam_val_loader is not None:
+            _, webcam_val_acc = run_epoch(model, webcam_val_loader, criterion, device, use_amp=use_amp)
+            print(f"Webcam (unseen-room) Val Acc: {webcam_val_acc:.2f}%")
+        # Model selection: original validation alone, or blended with unseen-room webcam validation.
+        score = val_acc if webcam_val_acc is None else (1 - args.webcam_val_weight) * val_acc + args.webcam_val_weight * webcam_val_acc
         scheduler.step()
 
         history["train_loss"].append(train_loss)
@@ -171,11 +228,22 @@ def main() -> None:
             "best_val_accuracy": max(best_acc, val_acc),
             "split_sizes": {name: len(indices) for name, indices in splits.items()},
             "mixed_precision": use_amp,
-            "training_policy": "sequential per-class split; no horizontal flip",
+            "training_policy": (
+                "sequential per-class split; no horizontal flip"
+                if args.augment == "default"
+                else "sequential per-class split; robust augmentation (flip, affine, colour, blur, JPEG, noise, erasing) on train only"
+            ),
+            "augment": args.augment,
+            "webcam": webcam_info,
+            "webcam_val_accuracy": webcam_val_acc,
+            "selection_score": score,
+            "init_from": str(args.init_from) if args.init_from else None,
+            "seed": args.seed,
         }
         save_checkpoint(build_checkpoint(model, class_names, extra), args.last_model)
 
-        if val_acc > best_acc:
+        if score > best_score:
+            best_score = score
             best_acc = val_acc
             stale = 0
             extra["best_val_accuracy"] = best_acc

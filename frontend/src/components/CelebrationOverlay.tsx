@@ -2,6 +2,8 @@ import { BADGES } from "../game/constants";
 import type { PracticeOutcome } from "../game/types";
 import { LetterMasteryBar } from "./LetterMasteryBar";
 import { PrimaryButton, SecondaryButton } from "./AppShell";
+import { Dialog } from "./Dialog";
+import { Glyph } from "./Icon";
 
 function badgeTitle(id: string): string {
   return BADGES.find((badge) => badge.id === id)?.title ?? id.replace(/_/g, " ");
@@ -18,6 +20,8 @@ export function CelebrationOverlay({
   outcome,
   onNext,
   onPracticeAgain,
+  onBack,
+  backLabel = "Back to Learn",
   nextLabel = "Next Letter →",
   streak,
   confidence,
@@ -29,6 +33,9 @@ export function CelebrationOverlay({
   outcome: PracticeOutcome;
   onNext: () => void;
   onPracticeAgain?: () => void;
+  /** Optional exit route (PracticePage passes "Back to Learn"). */
+  onBack?: () => void;
+  backLabel?: string;
   nextLabel?: string;
   streak?: number;
   confidence?: number | null;
@@ -48,7 +55,7 @@ export function CelebrationOverlay({
       aria-live="polite"
     >
       <p className="text-5xl" aria-hidden="true">
-        🎉
+        <Glyph value="🎉" />
       </p>
       <p className="mt-2 text-sm font-bold uppercase tracking-[0.08em] text-[var(--color-success)]">
         Yes! You got it!
@@ -59,11 +66,11 @@ export function CelebrationOverlay({
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         <span className="rounded-full bg-[var(--color-xp)] px-3 py-1 text-sm font-bold text-white">
-          ⭐ +{outcome.xpGained} XP
+          +{outcome.xpGained} XP
         </span>
         {typeof streak === "number" && streak > 0 && (
           <span className="rounded-full bg-[var(--color-streak-soft)] px-3 py-1 text-sm font-bold text-[var(--color-streak)]">
-            🔥 {streak}-day streak
+            {streak}-day streak
           </span>
         )}
         {outcome.leveledUp && (
@@ -80,7 +87,7 @@ export function CelebrationOverlay({
 
       {outcome.badgesUnlocked.length > 0 && (
         <div className="mt-4 text-sm font-bold text-[var(--color-xp)]">
-          🏅 New badge{outcome.badgesUnlocked.length > 1 ? "s" : ""}: {outcome.badgesUnlocked.map(badgeTitle).join(", ")}
+          New badge{outcome.badgesUnlocked.length > 1 ? "s" : ""}: {outcome.badgesUnlocked.map(badgeTitle).join(", ")}
         </div>
       )}
 
@@ -109,6 +116,7 @@ export function CelebrationOverlay({
             Practice again
           </SecondaryButton>
         )}
+        {onBack && <SecondaryButton onClick={onBack}>{backLabel}</SecondaryButton>}
         <PrimaryButton onClick={onNext} ariaLabel="Move to the next letter">
           {nextLabel}
         </PrimaryButton>
@@ -125,14 +133,9 @@ export function LevelUpOverlay({
   onDismiss: () => void;
 }) {
   return (
-    <div
-      className="fixed inset-0 z-50 grid place-items-center bg-[var(--color-ink)]/40 px-4 backdrop-blur-sm"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="level-up-title"
-    >
-      <div className="w-full max-w-sm animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-xp)]/30 bg-[var(--color-surface)] p-8 text-center shadow-2xl">
-        <p className="text-5xl" aria-hidden="true">🎊</p>
+    <Dialog labelledBy="level-up-title" onClose={onDismiss} className="w-full max-w-sm">
+      <div className="w-full animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-xp)]/30 bg-[var(--color-surface)] p-8 text-center shadow-2xl">
+        <p className="text-5xl" aria-hidden="true"><Glyph value="🎊" /></p>
         <p className="mt-2 text-sm font-bold uppercase tracking-wide text-[var(--color-xp)]">Level up!</p>
         <h2 id="level-up-title" className="mt-2 font-display text-4xl font-bold text-[var(--color-ink)]">
           Level {level}
@@ -146,7 +149,7 @@ export function LevelUpOverlay({
           Keep learning
         </button>
       </div>
-    </div>
+    </Dialog>
   );
 }
 
@@ -171,19 +174,19 @@ export function WordCompleteOverlay({
 }) {
   return (
     <div className="animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-success)]/25 bg-[var(--color-success-soft)] p-6 text-center">
-      <p className="text-5xl" aria-hidden="true">🎉</p>
+      <p className="text-5xl" aria-hidden="true"><Glyph value="🎉" /></p>
       <p className="mt-2 text-sm font-bold uppercase tracking-wide text-[var(--color-success)]">{word} completed!</p>
       <h2 className="mt-2 font-display text-3xl font-bold text-[var(--color-ink)] md:text-4xl">{word}</h2>
       <p className="mt-3 flex flex-wrap justify-center gap-3 text-sm text-[var(--color-ink-soft)]" aria-label="Completed letters">
         {letters.map((letter, index) => (
           <span key={`${letter}-${index}`}>
-            {letter} ✅
+            {letter}
           </span>
         ))}
       </p>
       <p className="mt-3 text-sm text-[var(--color-ink-soft)]">{accuracyLabel}</p>
       {challengeSummary && <p className="mt-1 text-sm text-[var(--color-muted)]">{challengeSummary}</p>}
-      <p className="mt-4 text-lg font-bold text-[var(--color-xp)]">⭐ +{xp} XP</p>
+      <p className="mt-4 text-lg font-bold text-[var(--color-xp)]">+{xp} XP</p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <button
           type="button"

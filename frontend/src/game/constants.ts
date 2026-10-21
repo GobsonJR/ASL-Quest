@@ -1,5 +1,16 @@
 export const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
+// Beginner-friendly subset of LETTERS, unlocked from the start on the A-Z
+// Learning Path. Selected from outputs/evaluation/per_class_metrics.csv
+// (controlled_sequential_holdout benchmark for the current ResNet18 model):
+// C, D, F, H, O are the only letters with perfect precision/recall/f1 (1.0)
+// in that benchmark, are static handshapes (no motion), and are visually
+// distinct from one another. A was excluded despite 100% recall because its
+// precision is only 0.55 (other handshapes are frequently misread as A in
+// the same benchmark), matching the live "shows S for A" symptom that
+// prompted this change.
+export const BEGINNER_LETTERS = ["C", "D", "F", "H", "O"];
+
 export const STORAGE_KEY = "asl-learning-progress-v1";
 
 export const XP_PER_LEVEL = 1000;
@@ -24,6 +35,7 @@ export const LEARNING_CORRECT = 3;
 export type NavPage =
   | "home"
   | "learn"
+  | "alphabet"
   | "words"
   | "practice"
   | "native"
@@ -35,7 +47,8 @@ export type NavPage =
   | "profile"
   | "settings"
   | "admin"
-  | "mentor-dashboard";
+  | "mentor-dashboard"
+  | "collect";
 
 export type BadgeDefinition = {
   id: string;

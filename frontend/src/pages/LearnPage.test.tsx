@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { LearnPage } from "./LearnPage";
 import { createInitialState } from "../game/storage";
-import { MASTERED_CORRECT, LETTERS } from "../game/constants";
+import { BEGINNER_LETTERS, MASTERED_CORRECT, LETTERS } from "../game/constants";
 import type { GameState } from "../game/types";
 
 const startPractice = vi.fn();
@@ -39,19 +39,19 @@ afterEach(() => {
 });
 
 describe("LearnPage: Continue Learning card", () => {
-  it("shows the A reference image and hint before anything is practiced", () => {
+  it("shows the first beginner letter (C) reference image and hint before anything is practiced", () => {
     render(<LearnPage />);
-    const img = screen.getByRole("img", { name: /handshape for the letter a/i });
-    expect(img).toHaveAttribute("src", "/asl-reference/a.svg");
-    expect(screen.getByText("Letter A")).toBeInTheDocument();
+    const img = screen.getByRole("img", { name: /handshape for the letter c/i });
+    expect(img).toHaveAttribute("src", "/asl-reference/c.svg");
+    expect(screen.getByText("Letter C")).toBeInTheDocument();
   });
 
   it("Continue launches practice for the current letter", () => {
-    mockState = withMastered(["A", "B"]);
+    mockState = withMastered(["C"]);
     render(<LearnPage />);
-    expect(screen.getByText("Letter C")).toBeInTheDocument();
+    expect(screen.getByText("Letter D")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Continue →" }));
-    expect(startPractice).toHaveBeenCalledWith("C");
+    expect(startPractice).toHaveBeenCalledWith("D");
   });
 });
 
@@ -61,7 +61,7 @@ describe("LearnPage: progress summary", () => {
     mockState.streak = 5;
     render(<LearnPage />);
     expect(screen.getByText(`3 / ${LETTERS.length} letters completed`)).toBeInTheDocument();
-    expect(screen.getByText("🔥 5-day streak")).toBeInTheDocument();
+    expect(screen.getByText("5-day streak")).toBeInTheDocument();
   });
 
   it("reflects zero progress honestly when nothing has been practiced yet", () => {
@@ -76,17 +76,32 @@ describe("LearnPage: learning path integration", () => {
       throw new Error("must not call window.alert()");
     });
     render(<LearnPage />);
-    fireEvent.click(screen.getByRole("button", { name: /letter c, locked\./i }));
-    expect(push).toHaveBeenCalledWith("Complete B first to unlock C.", "info");
+    fireEvent.click(screen.getByRole("button", { name: /letter a, locked\./i }));
+    expect(push).toHaveBeenCalledWith(expect.stringMatching(/beginner signs/i), "info");
     expect(alertSpy).not.toHaveBeenCalled();
     alertSpy.mockRestore();
   });
 
-  it("a completed letter in the path launches practice for that exact letter", () => {
-    mockState = withMastered(["A"]);
+  it("a completed beginner letter in the path launches practice for that exact letter", () => {
+    mockState = withMastered(["C"]);
     render(<LearnPage />);
-    fireEvent.click(screen.getByRole("button", { name: /letter a, completed\./i }));
-    expect(startPractice).toHaveBeenCalledWith("A");
+    fireEvent.click(screen.getByRole("button", { name: /letter c, completed\./i }));
+    expect(startPractice).toHaveBeenCalledWith("C");
+  });
+
+  it("all 4 non-current beginner letters are available (not completed, not locked)", () => {
+    render(<LearnPage />);
+    const firstBeginner = [...BEGINNER_LETTERS].sort()[0];
+    for (const letter of BEGINNER_LETTERS) {
+      if (letter === firstBeginner) continue;
+      expect(screen.getByRole("button", { name: new RegExp(`letter ${letter.toLowerCase()}, available\\.`, "i") })).toBeInTheDocument();
+    }
+  });
+
+  it("practicing an unlocked beginner letter out of order (e.g. Y is not selected, but any beginner letter can be clicked directly) updates that exact letter", () => {
+    render(<LearnPage />);
+    fireEvent.click(screen.getByRole("button", { name: /letter o, available\./i }));
+    expect(startPractice).toHaveBeenCalledWith("O");
   });
 });
 
