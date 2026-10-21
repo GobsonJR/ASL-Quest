@@ -65,23 +65,32 @@ export function LearnPage() {
           type="button"
           role="tab"
           aria-selected={true}
-          className="rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-ink)]"
+          className="rounded-[var(--radius-pill)] bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white"
         >
-          Alphabet
+          🔤 Alphabet
         </button>
         <button
           type="button"
           role="tab"
           aria-selected={false}
-          className="rounded-[var(--radius-control)] border border-[var(--color-line)] px-4 py-2 text-sm font-medium text-[var(--color-mist)]"
+          className="rounded-[var(--radius-pill)] border-2 border-[var(--color-border)] px-5 py-2 text-sm font-semibold text-[var(--color-ink-soft)] transition hover:border-[var(--color-primary-soft)]"
           onClick={() => navigate("words")}
         >
-          Words
+          🧩 Words
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={false}
+          className="rounded-[var(--radius-pill)] border-2 border-[var(--color-border)] px-5 py-2 text-sm font-semibold text-[var(--color-ink-soft)] transition hover:border-[var(--color-primary-soft)]"
+          onClick={() => navigate("native")}
+        >
+          🎥 Native Signs
         </button>
       </div>
 
       <PageHeader
-        eyebrow="Learn"
+        eyebrow="Your ASL Journey"
         title="Master the A–Z alphabet"
         description="Work through the alphabet in order, one handshape at a time. Static signs only — dynamic J and Z motion is not supported."
       />
@@ -94,11 +103,11 @@ export function LearnPage() {
                 🎉
               </p>
               <h2 className="font-display text-2xl md:text-3xl">Alphabet complete!</h2>
-              <p className="text-sm text-[var(--color-mist)]">
+              <p className="text-sm text-[var(--color-ink-soft)]">
                 You've completed all {LETTERS.length} ASL letters. Keep any of them sharp any time.
               </p>
               {state.unlockedBadges.includes("alphabet_master") && (
-                <p className="text-sm font-medium text-[var(--color-warm)]">🏅 Alphabet Master badge unlocked</p>
+                <p className="text-sm font-semibold text-[var(--color-xp)]">🏅 Alphabet Master badge unlocked</p>
               )}
               <PrimaryButton onClick={() => startPractice()}>Practice Any Letter</PrimaryButton>
             </Card>
@@ -107,7 +116,7 @@ export function LearnPage() {
               <Card className="space-y-4">
                 <SectionLabel>👋 Continue learning</SectionLabel>
                 <div className="flex items-start gap-4">
-                  <div className="w-24 shrink-0 overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white p-2">
+                  <div className="w-24 shrink-0 overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] p-2">
                     <img
                       src={referenceImageSrc(currentNode.letter)}
                       alt={referenceImageAlt(currentNode.letter)}
@@ -117,8 +126,8 @@ export function LearnPage() {
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-display text-2xl">Letter {currentNode.letter}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-[var(--color-mist)]">
+                    <h3 className="font-display text-2xl font-semibold text-[var(--color-ink)]">Letter {currentNode.letter}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-[var(--color-ink-soft)]">
                       {SIGN_HINTS[currentNode.letter] ?? `Learn the ${currentNode.letter} handshape.`}
                     </p>
                   </div>
@@ -135,11 +144,11 @@ export function LearnPage() {
 
           <Card className="space-y-3">
             <SectionLabel>Alphabet progress</SectionLabel>
-            <p className="text-sm text-[var(--color-mist)]">
+            <p className="text-sm text-[var(--color-ink-soft)]">
               {masteredCount} / {LETTERS.length} letters completed
             </p>
             <ProgressBar percent={progressPercent} showPercent={false} />
-            <p className="text-sm text-[var(--color-mist)]">🔥 {state.streak}-day streak</p>
+            <p className="text-sm text-[var(--color-ink-soft)]">🔥 {state.streak}-day streak</p>
           </Card>
         </div>
 

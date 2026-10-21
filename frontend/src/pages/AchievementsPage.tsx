@@ -11,7 +11,7 @@ export function AchievementsPage() {
     <PageLayout>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <PageHeader
-          eyebrow="Achievements"
+          eyebrow="🏅 Your collection"
           title="Badges & milestones"
           description="Unlock badges by practicing consistently and completing challenges."
         />
@@ -20,59 +20,59 @@ export function AchievementsPage() {
         </StatusChip>
       </div>
 
-      <ul className="divide-y divide-[var(--color-line-soft)] rounded-[var(--radius-panel)] border border-[var(--color-line)]">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {BADGES.map((badge) => {
           const unlocked = state.unlockedBadges.includes(badge.id);
           const progress = getBadgeProgress(state, badge.id);
 
           return (
-            <li
+            <div
               key={badge.id}
-              className={`flex gap-4 px-4 py-4 md:px-5 ${
-                unlocked ? "border-l-2 border-l-[var(--color-accent)] bg-[var(--color-accent)]/[0.04]" : "opacity-80"
+              className={`animate-pop flex flex-col items-center gap-3 rounded-[var(--radius-panel)] border-2 p-5 text-center ${
+                unlocked
+                  ? "border-[var(--color-xp)]/40 bg-[var(--color-xp-soft)]"
+                  : "border-[var(--color-border-soft)] bg-[var(--color-surface)]"
               }`}
             >
               <div
-                className={`grid h-12 w-12 shrink-0 place-items-center rounded-[var(--radius-control)] text-2xl ${
-                  unlocked ? "bg-[var(--color-accent)]/12" : "bg-[var(--color-panel-soft)] grayscale"
+                className={`grid h-16 w-16 place-items-center rounded-full text-3xl ${
+                  unlocked ? "animate-badge-unlock bg-[var(--color-xp)] shadow-lg" : "bg-[var(--color-locked-soft)] grayscale"
                 }`}
                 aria-hidden="true"
               >
                 {badge.icon}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="text-base font-semibold text-[#eef4f0]">{badge.title}</h3>
-                  <StatusChip tone={unlocked ? "success" : "neutral"}>{unlocked ? "Earned" : "Locked"}</StatusChip>
-                </div>
-                <p className="mt-1 text-sm text-[var(--color-mist)]">{badge.description}</p>
-
-                {!unlocked && progress && progress.target > 1 && (
-                  <div className="mt-3 max-w-md">
-                    <div className="mb-1 flex justify-between text-xs text-[var(--color-muted)]">
-                      <span>
-                        {progress.current} / {progress.target} {progress.label}
-                      </span>
-                    </div>
-                    <ProgressBar percent={(progress.current / progress.target) * 100} showPercent={false} size="sm" />
-                  </div>
-                )}
+              <div>
+                <h3 className="text-base font-bold text-[var(--color-ink)]">{badge.title}</h3>
+                <p className="mt-1 text-sm text-[var(--color-ink-soft)]">{badge.description}</p>
               </div>
-            </li>
+              <StatusChip tone={unlocked ? "success" : "neutral"}>{unlocked ? "✓ Earned" : "🔒 Locked"}</StatusChip>
+
+              {!unlocked && progress && progress.target > 1 && (
+                <div className="mt-1 w-full">
+                  <div className="mb-1 flex justify-between text-xs text-[var(--color-muted)]">
+                    <span>
+                      {progress.current} / {progress.target} {progress.label}
+                    </span>
+                  </div>
+                  <ProgressBar percent={(progress.current / progress.target) * 100} showPercent={false} size="sm" />
+                </div>
+              )}
+            </div>
           );
         })}
-      </ul>
+      </div>
 
       <Divider />
 
       <section>
         <SectionHeader title="How to earn more" />
-        <ul className="mt-4 space-y-2 text-sm leading-relaxed text-[var(--color-mist)]">
-          <li>Practice daily to build your streak.</li>
-          <li>Sign different letters to reach alphabet milestones.</li>
-          <li>Complete the speed challenge for Speed Signer.</li>
-          <li>Finish a daily challenge with zero mistakes for Perfect Practice.</li>
-          <li>Spell complete words with sequential alphabet signs to unlock Word Starter and Word Learner.</li>
+        <ul className="mt-4 space-y-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">
+          <li>🔥 Practice daily to build your streak.</li>
+          <li>🔤 Sign different letters to reach alphabet milestones.</li>
+          <li>⚡ Complete the speed challenge for Speed Signer.</li>
+          <li>✨ Finish a daily challenge with zero mistakes for Perfect Practice.</li>
+          <li>🧩 Spell complete words with sequential alphabet signs to unlock Word Starter and Word Learner.</li>
         </ul>
       </section>
     </PageLayout>

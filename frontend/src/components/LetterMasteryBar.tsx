@@ -17,11 +17,11 @@ export function LetterMasteryBar({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-2">
         {showBadge && <MasteryBadge status={status} />}
-        {showPercent && <span className="text-xs font-semibold text-[var(--color-mist)]">{Math.round(percent)}%</span>}
+        {showPercent && <span className="text-xs font-semibold text-[var(--color-ink-soft)]">{Math.round(percent)}%</span>}
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-[var(--color-ink)]">
+      <div className="h-2.5 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-dim)] transition-all duration-700"
+          className="h-full rounded-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-native)] transition-all duration-700"
           style={{ width: `${percent}%` }}
           role="progressbar"
           aria-valuenow={Math.round(percent)}

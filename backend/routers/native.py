@@ -329,7 +329,11 @@ async def predict_native_sign(
     effective_expected_label = expected_label
     if expected_sign is not None:
         effective_expected_label = expected_sign.gloss
-        correct = result["prediction"].strip().upper() == expected_sign.gloss.strip().upper()
+        expected_norm = expected_sign.gloss.strip().upper()
+        # Lenient for learners: a webcam clip differs from the training footage, so accept the
+        # target when it is in the model's top-3 (not only top-1).
+        top3 = [str(item.get("gloss", "")).strip().upper() for item in (result.get("top_k") or [])[:3]]
+        correct = result["prediction"].strip().upper() == expected_norm or expected_norm in top3
     elif expected_label is not None:
         correct = result["prediction"].strip().upper() == expected_label.strip().upper()
 

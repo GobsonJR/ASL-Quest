@@ -90,7 +90,7 @@ export function ProgressPage() {
   }, [selectedLetter]);
 
   if (loading) {
-    return <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading learning analytics...</div>;
+    return <div className="grid min-h-[40vh] place-items-center text-[var(--color-ink-soft)]">Loading learning analytics...</div>;
   }
 
   if (error || !data) {
@@ -128,8 +128,8 @@ export function ProgressPage() {
     <PageLayout>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <PageHeader
-          eyebrow="Progress"
-          title="Your learning analytics"
+          eyebrow="📈 Your journey"
+          title="Your learning progress"
           description="Every metric below comes from your saved practice history."
         />
         <DateRangeFilter value={range} onChange={setRange} />
@@ -190,7 +190,7 @@ export function ProgressPage() {
                   <li key={item.word_id}>
                     <button type="button" className="flex w-full justify-between text-left" onClick={() => startWordPractice(item.word_id)}>
                       <span>{item.word}</span>
-                      <span className="text-[var(--color-warm)]">{item.accuracy != null ? `${item.accuracy}%` : "—"}</span>
+                      <span className="text-[var(--color-streak)]">{item.accuracy != null ? `${item.accuracy}%` : "—"}</span>
                     </button>
                   </li>
                 ))}
@@ -203,8 +203,8 @@ export function ProgressPage() {
               {data.words.category_progress.map((item) => (
                 <div key={item.category} className="grid grid-cols-[7rem_1fr_3rem] items-center gap-3 text-sm">
                   <span>{item.category}</span>
-                  <div className="h-2 overflow-hidden rounded-full bg-[var(--color-ink)]">
-                    <div className="h-full rounded-full bg-[var(--color-accent)]" style={{ width: `${item.percent}%` }} />
+                  <div className="h-2 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
+                    <div className="h-full rounded-full bg-[var(--color-primary)]" style={{ width: `${item.percent}%` }} />
                   </div>
                   <span className="text-right text-[var(--color-muted)]">{item.percent}%</span>
                 </div>
@@ -234,7 +234,7 @@ export function ProgressPage() {
               .map((entry) => (
                 <div
                   key={entry.sign_id}
-                  className="rounded-xl border border-[var(--color-line-soft)] px-3 py-2 text-sm"
+                  className="rounded-xl border border-[var(--color-border-soft)] px-3 py-2 text-sm"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-semibold">{entry.display_name}</span>
@@ -247,7 +247,7 @@ export function ProgressPage() {
               ))}
           </div>
           {nativeProgress.started_signs === 0 && (
-            <p className="text-sm text-[var(--color-mist)]">
+            <p className="text-sm text-[var(--color-ink-soft)]">
               Practice a native sign to start building your native-sign progress.
             </p>
           )}
@@ -280,7 +280,7 @@ export function ProgressPage() {
             emptyMessage="Accuracy trends appear after a few practice sessions."
           />
           {data.accuracy_trend.delta != null && (
-            <p className="mt-3 text-sm text-[var(--color-mist)]">
+            <p className="mt-3 text-sm text-[var(--color-ink-soft)]">
               {data.accuracy_trend.delta >= 0 ? "↑" : "↓"} {Math.abs(data.accuracy_trend.delta)} percentage points vs previous period
             </p>
           )}
@@ -327,7 +327,7 @@ export function ProgressPage() {
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <SectionLabel>A-Z Mastery Grid</SectionLabel>
           <select
-            className="rounded-full border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-3 py-1.5 text-xs"
+            className="rounded-full border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-3 py-1.5 text-xs"
             value={sort}
             onChange={(event) => setSort(event.target.value as SortMode)}
             aria-label="Sort letters"
@@ -343,11 +343,11 @@ export function ProgressPage() {
             <button
               key={letter.letter}
               type="button"
-              className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] p-3 text-left transition hover:border-[var(--color-accent)]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-accent)]"
+              className="rounded-[var(--radius-control)] border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] p-3 text-left transition hover:border-[var(--color-primary)]/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--color-primary)]"
               onClick={() => setSelectedLetter(letter.letter)}
               aria-label={`Letter ${letter.letter}, ${letter.status}, ${letter.mastery_percent}% mastery`}
             >
-              <span className="font-display text-xl text-[var(--color-accent)]">{letter.letter}</span>
+              <span className="font-display text-xl text-[var(--color-primary)]">{letter.letter}</span>
               <p className="mt-1 text-[0.65rem] uppercase text-[var(--color-muted)]">{letter.status}</p>
               <p className="text-xs font-semibold">{letter.practiced ? `${letter.mastery_percent}%` : "Not practiced"}</p>
             </button>
@@ -360,14 +360,14 @@ export function ProgressPage() {
         <div className="mt-4 space-y-2">
           {sortedLetters.map((letter) => (
             <div key={letter.letter} className="grid grid-cols-[2rem_1fr_4rem] items-center gap-3">
-              <span className="font-display text-lg text-[var(--color-accent)]">{letter.letter}</span>
-              <div className="h-2 overflow-hidden rounded-full bg-[var(--color-ink)]">
+              <span className="font-display text-lg text-[var(--color-primary)]">{letter.letter}</span>
+              <div className="h-2 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
                 <div
-                  className="h-full rounded-full bg-[var(--color-accent)]"
+                  className="h-full rounded-full bg-[var(--color-primary)]"
                   style={{ width: `${letter.accuracy ?? 0}%` }}
                 />
               </div>
-              <span className="text-right text-sm text-[var(--color-mist)]">
+              <span className="text-right text-sm text-[var(--color-ink-soft)]">
                 {letter.practiced && letter.accuracy != null ? `${letter.accuracy}%` : "Not practiced"}
               </span>
             </div>
@@ -380,7 +380,7 @@ export function ProgressPage() {
           <SectionLabel>Your Strongest</SectionLabel>
           <div className="mt-4 space-y-2">
             {data.insights.strongest.map((item) => (
-              <div key={item.letter} className="flex justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2">
+              <div key={item.letter} className="flex justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2">
                 <span>{item.letter}</span>
                 <span className="font-semibold text-[var(--color-success)]">{item.accuracy}%</span>
               </div>
@@ -391,9 +391,9 @@ export function ProgressPage() {
           <SectionLabel>Needs Practice</SectionLabel>
           <div className="mt-4 space-y-2">
             {data.insights.weakest.map((item) => (
-              <div key={item.letter} className="flex justify-between rounded-xl border border-[var(--color-line-soft)] px-3 py-2">
+              <div key={item.letter} className="flex justify-between rounded-xl border border-[var(--color-border-soft)] px-3 py-2">
                 <span>{item.letter}</span>
-                <span className="font-semibold text-[var(--color-warm)]">{item.accuracy}%</span>
+                <span className="font-semibold text-[var(--color-streak)]">{item.accuracy}%</span>
               </div>
             ))}
           </div>
@@ -427,7 +427,7 @@ export function ProgressPage() {
             </div>
           </>
         ) : (
-          <p className="mt-4 text-sm text-[var(--color-mist)]">Keep practicing to unlock response-time trends.</p>
+          <p className="mt-4 text-sm text-[var(--color-ink-soft)]">Keep practicing to unlock response-time trends.</p>
         )}
       </Card>
 
@@ -451,7 +451,7 @@ export function ProgressPage() {
         <SectionLabel>Practice History</SectionLabel>
         <div className="mt-4 flex flex-wrap gap-2">
           <select
-            className="rounded-full border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-3 py-1.5 text-xs"
+            className="rounded-full border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-3 py-1.5 text-xs"
             value={historyLetter}
             onChange={(event) => {
               setHistoryPage(1);
@@ -464,7 +464,7 @@ export function ProgressPage() {
             ))}
           </select>
           <select
-            className="rounded-full border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-3 py-1.5 text-xs"
+            className="rounded-full border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-3 py-1.5 text-xs"
             value={historyResult}
             onChange={(event) => {
               setHistoryPage(1);
@@ -490,7 +490,7 @@ export function ProgressPage() {
             </thead>
             <tbody>
               {history?.items.map((item) => (
-                <tr key={item.id} className="border-t border-[var(--color-line-soft)]">
+                <tr key={item.id} className="border-t border-[var(--color-border-soft)]">
                   <td className="px-2 py-2">{new Date(item.date).toLocaleString()}</td>
                   <td className="px-2 py-2">{item.letter}</td>
                   <td className="px-2 py-2">{item.prediction ?? "—"}</td>
@@ -540,7 +540,7 @@ export function ProgressPage() {
                 <SectionLabel>Word detail</SectionLabel>
                 <h2 className="mt-2 font-display text-4xl">{wordDetail.word}</h2>
               </div>
-              <button type="button" className="text-sm text-[var(--color-mist)]" onClick={() => { setSelectedWordId(null); setWordDetail(null); }}>
+              <button type="button" className="text-sm text-[var(--color-ink-soft)]" onClick={() => { setSelectedWordId(null); setWordDetail(null); }}>
                 Close
               </button>
             </div>

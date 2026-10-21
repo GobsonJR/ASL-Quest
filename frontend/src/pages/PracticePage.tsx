@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Card, EmptyState, PrimaryButton, SecondaryButton, StatusChip } from "../components/AppShell";
+import { Card, EmptyState, PrimaryButton, SecondaryButton } from "../components/AppShell";
 import { AlphabetReferencePanel } from "../components/AlphabetReferencePanel";
 import { CameraPractice } from "../components/CameraPractice";
 import { CelebrationOverlay, LevelUpOverlay } from "../components/CelebrationOverlay";
@@ -50,7 +50,7 @@ export function PracticePage({
   const [outcome, setOutcome] = useState<PracticeOutcome | null>(null);
   const [sessionStarted, setSessionStarted] = useState(false);
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [cameraStatus, setCameraStatus] = useState("Show your hand");
+  const [cameraStatus, setCameraStatus] = useState("Show your hand ✋");
   // Set once per correct detection, from the same prediction the model used
   // to confirm the sign -- shown as a small secondary line in the
   // celebration, never as the primary success message.
@@ -80,7 +80,7 @@ export function PracticePage({
     setOutcome(null);
     setConfidence(null);
     setIncorrectFeedback(null);
-    setCameraStatus("Show your hand");
+    setCameraStatus("Show your hand ✋");
     setAttemptKey((key) => key + 1);
     setAttemptNumber(1);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,7 +117,7 @@ export function PracticePage({
     setConfidence(null);
     setIncorrectFeedback(null);
     setShowLevelUp(false);
-    setCameraStatus("Show your hand");
+    setCameraStatus("Show your hand ✋");
     setAttemptKey((key) => key + 1);
     setAttemptNumber(1);
     startPractice(next, challengeMode);
@@ -133,7 +133,7 @@ export function PracticePage({
     setConfidence(null);
     setIncorrectFeedback(null);
     setShowLevelUp(false);
-    setCameraStatus("Show your hand");
+    setCameraStatus("Show your hand ✋");
     setAttemptKey((key) => key + 1);
     setAttemptNumber(1);
   }
@@ -153,19 +153,15 @@ export function PracticePage({
 
       <div className="space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--color-muted)]">
-          <span>{challengeLabel}</span>
-          <div className="flex gap-2">
-            <StatusChip tone="accent">Letters</StatusChip>
-            <button
-              type="button"
-              className="text-sm text-[var(--color-accent)] hover:underline"
-              onClick={() => navigate("words")}
-            >
-              Words
-            </button>
-          </div>
+          <button
+            type="button"
+            className="font-semibold text-[var(--color-primary)] hover:underline"
+            onClick={() => navigate("learn")}
+          >
+            ← Back to Learning
+          </button>
           <span>
-            Level {level} · {state.xp} XP · {state.streak}d streak
+            Level {level} · ⭐ {state.xp} XP · 🔥 {state.streak}d streak
             {challengeMode === "daily" ? ` · ${dailyProgress}` : ""}
           </span>
         </div>
@@ -173,7 +169,7 @@ export function PracticePage({
         <MissionCard challengeLabel={challengeLabel} attemptNumber={attemptNumber} streak={state.streak} />
 
         <div className="space-y-2">
-          <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-muted)]">
             {masteredCount} / 26 letters mastered
           </p>
           <LetterProgressStrip nodes={pathNodes} />
@@ -235,15 +231,15 @@ export function PracticePage({
                   <div
                     role="status"
                     aria-live="polite"
-                    className="rounded-[var(--radius-panel)] border border-[var(--color-warm)]/30 bg-[var(--color-warm)]/[0.06] px-4 py-3 text-sm text-[var(--color-mist)]"
+                    className="rounded-[var(--radius-panel)] border border-[var(--color-streak)]/25 bg-[var(--color-streak-soft)] px-4 py-3 text-sm text-[var(--color-ink-soft)]"
                   >
-                    <p className="font-semibold text-[var(--color-warm)]">{feedback.headline}</p>
+                    <p className="font-bold text-[var(--color-streak)]">{feedback.headline}</p>
                     <p className="mt-1 leading-relaxed">{feedback.detail}</p>
                   </div>
                 )}
 
-                <details className="rounded-2xl border border-[var(--color-line-soft)] bg-[var(--color-panel-soft)] px-4 py-3 text-sm text-[var(--color-mist)]">
-                  <summary className="cursor-pointer font-medium text-[#eef4f0]">How it works</summary>
+                <details className="rounded-2xl border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-4 py-3 text-sm text-[var(--color-ink-soft)]">
+                  <summary className="cursor-pointer font-semibold text-[var(--color-ink)]">How it works</summary>
                   <ol className="mt-2 space-y-2 pl-4 [list-style:decimal]">
                     <li>Allow camera access when prompted.</li>
                     <li>Form the target letter clearly in frame.</li>

@@ -159,7 +159,7 @@ export function WordPracticePage({
         </div>
 
         <PageHeader
-          eyebrow="Target word"
+          eyebrow="🧩 Spell the word"
           title={word.word}
           description="Spell this word one static alphabet sign at a time. The model recognizes letters, not the whole word at once."
           compact
@@ -168,7 +168,7 @@ export function WordPracticePage({
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)]">
           <div className="order-2 space-y-4 xl:order-1">
             <Panel>
-              <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">Letter sequence</p>
+              <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-muted)]">Letter sequence</p>
               <ol className="mt-4 flex flex-wrap gap-3">
                 {letters.map((letter, letterIndex) => {
                   const done = letterIndex < index || phase === "complete";
@@ -176,12 +176,12 @@ export function WordPracticePage({
                   return (
                     <li
                       key={`${letter}-${letterIndex}`}
-                      className={`grid h-12 w-12 place-items-center rounded-[var(--radius-control)] border text-lg font-semibold ${
+                      className={`grid h-12 w-12 place-items-center rounded-full text-lg font-bold shadow-[0_3px_0_0_rgba(0,0,0,0.06)] ${
                         done
-                          ? "border-[var(--color-success)]/40 bg-[var(--color-success)]/10 text-[var(--color-success)]"
+                          ? "bg-[var(--color-success)] text-white"
                           : current
-                            ? "border-[var(--color-accent)] bg-[var(--color-accent)]/10 text-[var(--color-accent)]"
-                            : "border-[var(--color-line-soft)] text-[var(--color-muted)]"
+                            ? "animate-pulse-glow bg-[var(--color-primary)] text-white"
+                            : "bg-[var(--color-locked-soft)] text-[var(--color-locked)] shadow-none"
                       }`}
                       aria-current={current ? "step" : undefined}
                       aria-label={`${letter}${done ? " complete" : current ? " current" : " upcoming"}`}
@@ -191,12 +191,15 @@ export function WordPracticePage({
                   );
                 })}
               </ol>
-              <p className="mt-4 text-sm text-[var(--color-mist)]">
+              <p className="mt-4 text-sm text-[var(--color-ink-soft)]">
                 {letters.map((letter, letterIndex) => (
                   <span key={`${letter}-status-${letterIndex}`} className="mr-3">
-                    {letter} {letterIndex < index || phase === "complete" ? "✓" : "○"}
+                    {letter} {letterIndex < index || phase === "complete" ? "✅" : "○"}
                   </span>
                 ))}
+              </p>
+              <p className="mt-3 text-xs font-semibold text-[var(--color-muted)]">
+                {Math.min(index, letters.length)} / {letters.length} letters
               </p>
             </Panel>
 
@@ -215,14 +218,15 @@ export function WordPracticePage({
               />
             ) : (
               <Panel className="text-center">
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">Current sign</p>
-                <div className="mx-auto mt-4 grid h-28 w-28 place-items-center rounded-[var(--radius-panel)] border border-[var(--color-line-soft)] bg-[var(--color-ink)] font-display text-6xl text-[var(--color-accent)]">
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-muted)]">Current letter</p>
+                <div className="mx-auto mt-4 grid h-28 w-28 place-items-center rounded-[var(--radius-panel)] bg-[var(--color-primary)] font-display text-6xl font-bold text-white shadow-lg">
                   {currentLetter}
                 </div>
-                <div className="mt-4 flex justify-center">
+                <p className="mt-3 font-display text-lg font-semibold text-[var(--color-ink)]">Show me {currentLetter}</p>
+                <div className="mt-3 flex justify-center">
                   <StatusChip tone="accent">{cameraStatus}</StatusChip>
                 </div>
-                <p className="mt-4 text-sm text-[var(--color-mist)]">
+                <p className="mt-4 text-sm text-[var(--color-ink-soft)]">
                   Make the {currentLetter} sign. Hold steady until it is confirmed, then continue to the next letter.
                 </p>
                 <div className="mt-4 flex flex-wrap justify-center gap-3">

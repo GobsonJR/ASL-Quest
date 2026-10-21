@@ -16,14 +16,14 @@ export function LetterProgressStrip({ nodes }: { nodes: LearningPathNode[] }) {
       {nodes.map((node) => {
         const toneClass =
           node.status === "completed"
-            ? "border-[var(--color-success)]/40 bg-[var(--color-success)]/20 text-[var(--color-success)]"
+            ? "bg-[var(--color-success)] text-white"
             : node.status === "current"
-              ? "animate-pulse-glow border-[var(--color-accent)] bg-[var(--color-accent)]/15 text-[var(--color-accent)]"
-              : "border-[var(--color-line-soft)] bg-transparent text-[var(--color-muted)]";
+              ? "animate-pulse-glow bg-[var(--color-primary)] text-white"
+              : "bg-[var(--color-locked-soft)] text-[var(--color-locked)]";
         return (
           <span
             key={node.letter}
-            className={`grid h-6 w-6 place-items-center rounded-full border text-[0.65rem] font-semibold ${toneClass}`}
+            className={`grid h-6 w-6 place-items-center rounded-full text-[0.65rem] font-bold ${toneClass}`}
             title={`${node.letter}: ${node.status}`}
             aria-label={`${node.letter} ${node.status}`}
           >

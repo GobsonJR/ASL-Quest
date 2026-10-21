@@ -21,16 +21,16 @@ import { fetchMentorDashboard, type MentorDashboard, type MentorStudent } from "
 // Validated (scripts/validate_palette.js, all-adjacent-pairs PASS on this app's
 // dark panel surface) fixed categorical order — never cycled/reassigned per
 // filter, extra categories fold into "Other". Kept separate from the bright
-// UI accent tokens (--color-accent etc.), which are too light to clear the
+// UI accent tokens (--color-primary etc.), which are too light to clear the
 // chart-mark lightness band, so these are chart-only steps in the same hue
 // family as the brand where possible.
-const CATEGORY_COLORS = ["#7a9a30", "#9085e9", "#d95926", "#199e70", "#c98500"];
-const OTHER_COLOR = "#5b6b63";
-const CHART_TEXT = "#8fa399";
-const CHART_GRID = "#223028";
-const ACCENT = "#d7f36a";
-const SUCCESS = "#6ee7a8";
-const WARM = "#f3c16b";
+const CATEGORY_COLORS = ["#4c5fea", "#8b5fe8", "#ff7a45", "#17b884", "#ffb020"];
+const OTHER_COLOR = "#b6bbd1";
+const CHART_TEXT = "#8b90ac";
+const CHART_GRID = "#e3e6f3";
+const ACCENT = "#4c5fea";
+const SUCCESS = "#17b884";
+const WARM = "#ff7a45";
 
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -105,7 +105,7 @@ export function MentorDashboard() {
   if (loading) {
     return (
       <PageLayout>
-        <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading mentor analytics...</div>
+        <div className="grid min-h-[40vh] place-items-center text-[var(--color-ink-soft)]">Loading mentor analytics...</div>
       </PageLayout>
     );
   }
@@ -135,7 +135,7 @@ export function MentorDashboard() {
         <SectionHeader title="A-Z analytics" description="Static alphabet handshape recognition." />
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <p className="mb-3 text-sm font-semibold text-[#eef4f0]">Most practiced letters</p>
+            <p className="mb-3 text-sm font-semibold text-[var(--color-ink)]">Most practiced letters</p>
             <MagnitudeBarChart
               rows={data.az.popular.slice(0, 10).map((r) => ({ label: r.letter, value: r.attempts }))}
               valueLabel="attempts"
@@ -143,15 +143,15 @@ export function MentorDashboard() {
             />
           </Card>
           <Card>
-            <p className="mb-3 text-sm font-semibold text-[#eef4f0]">Most difficult letters (lowest accuracy)</p>
+            <p className="mb-3 text-sm font-semibold text-[var(--color-ink)]">Most difficult letters (lowest accuracy)</p>
             {data.az.difficult.length === 0 ? (
               <EmptyChartMessage text="No accuracy data yet." />
             ) : (
               <ul className="space-y-2">
                 {data.az.difficult.slice(0, 8).map((item) => (
                   <li key={item.letter} className="flex items-center gap-3">
-                    <span className="w-6 shrink-0 font-display text-lg text-[#eef4f0]">{item.letter}</span>
-                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--color-ink)]">
+                    <span className="w-6 shrink-0 font-display text-lg text-[var(--color-ink)]">{item.letter}</span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
                       <div
                         className="h-full rounded-full"
                         style={{ width: `${item.accuracy ?? 0}%`, background: WARM }}
@@ -188,7 +188,7 @@ export function MentorDashboard() {
           />
         </div>
         <Card>
-          <p className="mb-3 text-sm font-semibold text-[#eef4f0]">Most practiced words</p>
+          <p className="mb-3 text-sm font-semibold text-[var(--color-ink)]">Most practiced words</p>
           <MagnitudeBarChart
             rows={data.words.most_practiced.slice(0, 8).map((r) => ({ label: r.word, value: r.sessions }))}
             valueLabel="sessions"
@@ -201,7 +201,7 @@ export function MentorDashboard() {
         <SectionHeader title="Native signs" description="Isolated native ASL sign recognition (I3D)." />
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <p className="mb-3 text-sm font-semibold text-[#eef4f0]">Attempts per sign</p>
+            <p className="mb-3 text-sm font-semibold text-[var(--color-ink)]">Attempts per sign</p>
             <MagnitudeBarChart
               rows={data.native.per_sign.map((r) => ({ label: r.display_name, value: r.attempts }))}
               valueLabel="attempts"
@@ -209,7 +209,7 @@ export function MentorDashboard() {
             />
           </Card>
           <Card>
-            <p className="mb-3 text-sm font-semibold text-[#eef4f0]">Category distribution (attempts)</p>
+            <p className="mb-3 text-sm font-semibold text-[var(--color-ink)]">Category distribution (attempts)</p>
             {data.native.category_distribution.length === 0 ? (
               <EmptyChartMessage text="No native sign attempts yet." />
             ) : (
@@ -221,12 +221,12 @@ export function MentorDashboard() {
           </Card>
         </div>
         <Card>
-          <p className="mb-3 text-sm font-semibold text-[#eef4f0]">Mastery % by sign</p>
+          <p className="mb-3 text-sm font-semibold text-[var(--color-ink)]">Mastery % by sign</p>
           <ul className="grid gap-3 sm:grid-cols-2">
             {data.native.per_sign.map((sign) => (
-              <li key={sign.sign_id} className="rounded-[var(--radius-control)] border border-[var(--color-line-soft)] px-3 py-2">
+              <li key={sign.sign_id} className="rounded-[var(--radius-control)] border border-[var(--color-border-soft)] px-3 py-2">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium text-[#eef4f0]">{sign.display_name}</span>
+                  <span className="font-medium text-[var(--color-ink)]">{sign.display_name}</span>
                   <span className="text-[var(--color-muted)]">{sign.mastery != null ? `${sign.mastery}%` : "—"}</span>
                 </div>
                 <ProgressBar percent={sign.mastery ?? 0} showPercent={false} size="sm" />
@@ -246,8 +246,8 @@ export function MentorDashboard() {
         </div>
         {data.chatbot.positive_feedback + data.chatbot.negative_feedback > 0 && (
           <Card>
-            <p className="mb-3 text-sm font-semibold text-[#eef4f0]">Feedback breakdown</p>
-            <div className="flex h-3 overflow-hidden rounded-full bg-[var(--color-ink)]">
+            <p className="mb-3 text-sm font-semibold text-[var(--color-ink)]">Feedback breakdown</p>
+            <div className="flex h-3 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
               <div
                 className="h-full"
                 style={{
@@ -280,15 +280,7 @@ export function MentorDashboard() {
 
 function HeroSection() {
   return (
-    <div className="glass-panel relative overflow-hidden rounded-[var(--radius-panel)] p-6 md:p-8">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(600px 260px at 15% -10%, rgba(215,243,106,0.16) 0%, transparent 55%), radial-gradient(500px 220px at 100% 10%, rgba(144,133,233,0.12) 0%, transparent 50%)",
-        }}
-        aria-hidden="true"
-      />
+    <div className="relative overflow-hidden rounded-[var(--radius-panel)] bg-[var(--color-surface)] p-6 shadow-[0_1px_2px_rgba(35,40,66,0.04),0_12px_28px_-14px_rgba(35,40,66,0.16)] md:p-8">
       <div className="relative">
         <StatusChip tone="accent">MENTOR ANALYTICS</StatusChip>
         <PageHeader
@@ -334,7 +326,7 @@ function StatTile({
 }) {
   const displayed = useCountUp(value, animate ? 900 : 0);
   const toneColor =
-    tone === "success" ? "var(--color-success)" : tone === "warning" ? "var(--color-warm)" : "var(--color-accent)";
+    tone === "success" ? "var(--color-success)" : tone === "warning" ? "var(--color-streak)" : "var(--color-primary)";
   return (
     <Card className="lift-hover relative overflow-hidden">
       <div
@@ -348,7 +340,7 @@ function StatTile({
             {icon}
           </span>
         )}
-        <p className="font-display text-3xl tabular-nums text-[#eef4f0]">
+        <p className="font-display text-3xl tabular-nums text-[var(--color-ink)]">
           {displayed.toLocaleString()}
           {suffix}
         </p>
@@ -367,7 +359,7 @@ function StudentTable({ students }: { students: MentorStudent[] }) {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-[var(--color-line-soft)] bg-[var(--color-panel-soft)]/60 text-left text-xs uppercase tracking-[0.08em] text-[var(--color-muted)]">
+            <tr className="border-b border-[var(--color-border-soft)] bg-[var(--color-surface-soft)]/60 text-left text-xs uppercase tracking-[0.08em] text-[var(--color-muted)]">
               <th className="px-4 py-3 font-medium">Student</th>
               <th className="px-4 py-3 font-medium">Level</th>
               <th className="px-4 py-3 font-medium">XP</th>
@@ -380,31 +372,31 @@ function StudentTable({ students }: { students: MentorStudent[] }) {
             {students.map((student, index) => (
               <tr
                 key={student.id}
-                className={`border-b border-[var(--color-line-soft)]/60 transition hover:bg-[var(--color-panel-soft)]/50 ${
-                  index % 2 === 1 ? "bg-[var(--color-panel-soft)]/20" : ""
+                className={`border-b border-[var(--color-border-soft)]/60 transition hover:bg-[var(--color-surface-soft)]/50 ${
+                  index % 2 === 1 ? "bg-[var(--color-surface-soft)]/20" : ""
                 }`}
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2.5">
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--color-accent)]/30 to-[var(--color-accent-dim)]/10 text-xs font-semibold text-[var(--color-accent)]">
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[var(--color-primary)]/30 to-[var(--color-primary-dim)]/10 text-xs font-semibold text-[var(--color-primary)]">
                       {student.username.slice(0, 1).toUpperCase()}
                     </span>
-                    <span className="font-medium text-[#eef4f0]">{student.username}</span>
+                    <span className="font-medium text-[var(--color-ink)]">{student.username}</span>
                     {student.role === "admin" && <StatusChip tone="neutral">Admin</StatusChip>}
                   </div>
                 </td>
-                <td className="px-4 py-3 tabular-nums text-[var(--color-mist)]">{student.level}</td>
-                <td className="px-4 py-3 tabular-nums text-[var(--color-mist)]">{student.xp.toLocaleString()}</td>
-                <td className="px-4 py-3 tabular-nums text-[var(--color-mist)]">{student.current_streak}d</td>
-                <td className="px-4 py-3 tabular-nums text-[var(--color-mist)]">
+                <td className="px-4 py-3 tabular-nums text-[var(--color-ink-soft)]">{student.level}</td>
+                <td className="px-4 py-3 tabular-nums text-[var(--color-ink-soft)]">{student.xp.toLocaleString()}</td>
+                <td className="px-4 py-3 tabular-nums text-[var(--color-ink-soft)]">{student.current_streak}d</td>
+                <td className="px-4 py-3 tabular-nums text-[var(--color-ink-soft)]">
                   {student.accuracy != null ? `${student.accuracy}%` : "—"}
                 </td>
                 <td className="px-4 py-3">
                   {student.native_mastery != null ? (
                     <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[var(--color-ink)]">
+                      <div className="h-1.5 w-16 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
                         <div
-                          className="h-full rounded-full bg-[var(--color-accent)]"
+                          className="h-full rounded-full bg-[var(--color-primary)]"
                           style={{ width: `${student.native_mastery}%` }}
                         />
                       </div>
@@ -443,9 +435,9 @@ function MagnitudeBarChart({
           <XAxis dataKey="label" tick={{ fill: CHART_TEXT, fontSize: 11 }} axisLine={{ stroke: CHART_GRID }} tickLine={false} />
           <YAxis tick={{ fill: CHART_TEXT, fontSize: 11 }} axisLine={{ stroke: CHART_GRID }} tickLine={false} allowDecimals={false} />
           <Tooltip
-            cursor={{ fill: "rgba(215,243,106,0.06)" }}
-            contentStyle={{ background: "#17221d", border: "1px solid #2a3b34", borderRadius: 10, fontSize: 12 }}
-            labelStyle={{ color: "#eef4f0" }}
+            cursor={{ fill: "rgba(76,95,234,0.06)" }}
+            contentStyle={{ background: "#ffffff", border: "1px solid #e3e6f3", borderRadius: 10, fontSize: 12 }}
+            labelStyle={{ color: "var(--color-ink)" }}
             formatter={(value) => [value, valueLabel]}
           />
           <Bar dataKey="value" fill={ACCENT} radius={[4, 4, 0, 0]} isAnimationActive={animate} />
@@ -484,8 +476,8 @@ function CategoryPieChart({ items, animate }: { items: Array<{ label: string; va
             formatter={(value) => <span style={{ color: CHART_TEXT, fontSize: 12 }}>{value}</span>}
           />
           <Tooltip
-            contentStyle={{ background: "#17221d", border: "1px solid #2a3b34", borderRadius: 10, fontSize: 12 }}
-            labelStyle={{ color: "#eef4f0" }}
+            contentStyle={{ background: "#ffffff", border: "1px solid #e3e6f3", borderRadius: 10, fontSize: 12 }}
+            labelStyle={{ color: "var(--color-ink)" }}
           />
         </PieChart>
       </ResponsiveContainer>
@@ -495,7 +487,7 @@ function CategoryPieChart({ items, animate }: { items: Array<{ label: string; va
 
 function EmptyChartMessage({ text }: { text: string }) {
   return (
-    <div className="grid h-40 place-items-center rounded-[var(--radius-control)] border border-dashed border-[var(--color-line)] text-sm text-[var(--color-muted)]">
+    <div className="grid h-40 place-items-center rounded-[var(--radius-control)] border border-dashed border-[var(--color-border)] text-sm text-[var(--color-muted)]">
       {text}
     </div>
   );

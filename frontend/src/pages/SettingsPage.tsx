@@ -90,7 +90,7 @@ export function SettingsPage() {
 
       <section className="space-y-4">
         <SectionHeader title="Preferences" />
-        <label className="flex items-center gap-3 text-sm text-[var(--color-mist)]">
+        <label className="flex items-center gap-3 text-sm text-[var(--color-ink-soft)]">
           <input type="checkbox" checked={reducedMotion} onChange={(event) => setReducedMotion(event.target.checked)} />
           Reduce motion
         </label>
@@ -125,7 +125,7 @@ export function SettingsPage() {
           <input className="input-field" placeholder="Type DELETE to confirm" value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} required />
           <button
             type="submit"
-            className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-danger)] px-4 py-2 text-sm font-semibold text-[var(--color-ink)]"
+            className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-danger)] px-4 py-2 text-sm font-semibold text-white"
           >
             Delete account
           </button>

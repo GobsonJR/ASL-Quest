@@ -110,7 +110,7 @@ function AppRouter() {
 
   if (loading) {
     return (
-      <div className="grid min-h-screen place-items-center text-[var(--color-mist)]">
+      <div className="grid min-h-screen place-items-center text-[var(--color-ink-soft)]">
         Loading ASL Quest...
       </div>
     );

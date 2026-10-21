@@ -49,7 +49,7 @@ export function AlphabetLearningPath({
               <span
                 aria-hidden="true"
                 className={`h-6 w-1 rounded-full ${
-                  nodes[index - 1].status === "locked" ? "bg-[var(--color-line-soft)]" : "bg-[var(--color-accent)]/40"
+                  nodes[index - 1].status === "locked" ? "bg-[var(--color-border-soft)]" : "bg-[var(--color-border)]"
                 }`}
               />
             )}
@@ -63,28 +63,28 @@ export function AlphabetLearningPath({
               // assistive tech NOT to expect. A native `disabled` button
               // would be worse still -- unreachable by keyboard, so the
               // explanation could never be discovered at all.
-              className={`relative grid place-items-center rounded-full border font-display text-2xl transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)] ${
+              className={`relative grid place-items-center rounded-full font-display text-2xl font-bold shadow-[0_4px_0_0_rgba(0,0,0,0.08)] transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)] ${
                 node.status === "current"
-                  ? "h-20 w-20 animate-pulse-glow border-[var(--color-accent)] bg-[var(--color-accent)]/15 text-[var(--color-accent)]"
+                  ? "h-20 w-20 animate-pulse-glow bg-[var(--color-primary)] text-white"
                   : node.status === "completed"
-                    ? "h-16 w-16 border-[var(--color-success)]/40 bg-[var(--color-success)]/10 text-[var(--color-success)] shadow-[0_0_18px_rgba(120,220,150,0.18)]"
-                    : "h-16 w-16 border-[var(--color-line-soft)] bg-[var(--color-panel-soft)]/50 text-[var(--color-muted)]"
+                    ? "h-16 w-16 bg-[var(--color-success)] text-white"
+                    : "h-16 w-16 bg-[var(--color-locked-soft)] text-[var(--color-locked)] shadow-none"
               }`}
             >
               {nodeIcon(node)}
               {node.status === "current" && (
                 <span
                   aria-hidden="true"
-                  className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border border-[var(--color-ink)] bg-[var(--color-accent)] text-xs text-[var(--color-ink)]"
+                  className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-[var(--color-surface)] bg-[var(--color-xp)] text-xs text-white"
                 >
                   ▶
                 </span>
               )}
             </button>
             <span
-              className={`text-[0.65rem] font-medium uppercase tracking-[0.08em] ${
+              className={`text-[0.65rem] font-bold uppercase tracking-[0.08em] ${
                 node.status === "current"
-                  ? "text-[var(--color-accent)]"
+                  ? "text-[var(--color-primary)]"
                   : node.status === "completed"
                     ? "text-[var(--color-success)]"
                     : "text-[var(--color-muted)]"

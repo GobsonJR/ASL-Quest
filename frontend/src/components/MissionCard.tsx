@@ -14,10 +14,12 @@ export function MissionCard({
   streak: number;
 }) {
   return (
-    <Card className="flex flex-wrap items-center justify-between gap-3 py-4">
+    <Card className="flex flex-wrap items-center justify-between gap-3 !bg-[var(--color-primary-soft)] !border-transparent py-4">
       <div>
-        <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">{challengeLabel}</p>
-        <p className="mt-1 text-base font-semibold text-[#eef4f0]">Get this sign correct</p>
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-primary-dim)]">
+          🎯 Your mission · {challengeLabel}
+        </p>
+        <p className="mt-1 text-base font-semibold text-[var(--color-ink)]">Get this sign right</p>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <StatusChip tone="neutral">Attempt {attemptNumber}</StatusChip>

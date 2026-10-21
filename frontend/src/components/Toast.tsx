@@ -38,10 +38,10 @@ export function ToastProvider({ children }: { children: ReactNode }) {
               item.tone === "success"
                 ? "bg-[var(--color-success)]/20 text-[var(--color-success)] border border-[var(--color-success)]/30"
                 : item.tone === "error"
-                  ? "bg-[var(--color-warm)]/20 text-[var(--color-warm)] border border-[var(--color-warm)]/30"
+                  ? "bg-[var(--color-streak)]/20 text-[var(--color-streak)] border border-[var(--color-streak)]/30"
                   : item.tone === "warning"
-                    ? "bg-[var(--color-warm)]/15 text-[var(--color-warm)] border border-[var(--color-warm)]/25"
-                    : "bg-[var(--color-panel)] text-[var(--color-mist)] border border-[var(--color-line-soft)]"
+                    ? "bg-[var(--color-streak)]/15 text-[var(--color-streak)] border border-[var(--color-streak)]/25"
+                    : "bg-[var(--color-surface)] text-[var(--color-ink-soft)] border border-[var(--color-border-soft)]"
             }`}
             role="status"
           >

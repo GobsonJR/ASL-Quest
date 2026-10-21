@@ -22,18 +22,10 @@ export function AlphabetReferencePanel({
 }) {
   return (
     <Card className="relative space-y-4 overflow-hidden text-center" data-testid="alphabet-reference-panel">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-70"
-        style={{
-          background:
-            "radial-gradient(480px 220px at 20% -10%, rgba(215,243,106,0.14) 0%, transparent 55%), radial-gradient(420px 200px at 100% 0%, rgba(243,193,107,0.08) 0%, transparent 50%)",
-        }}
-        aria-hidden="true"
-      />
       <div className="relative space-y-4">
         <SectionLabel>Your Target</SectionLabel>
 
-        <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-white p-3">
+        <div className="mx-auto w-full max-w-[220px] overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] p-3">
           <img
             key={letter.toUpperCase()}
             src={referenceImageSrc(letter)}
@@ -46,12 +38,12 @@ export function AlphabetReferencePanel({
         </div>
 
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-muted)]">
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-muted)]">
             Show me {letter.toUpperCase()}
           </p>
-          <p className="mt-1 font-display text-5xl text-[var(--color-accent)]">{letter.toUpperCase()}</p>
-          <p className="mt-2 text-sm leading-relaxed text-[var(--color-mist)]">
-            Hold this handshape in front of the camera.
+          <p className="mt-1 font-display text-5xl font-bold text-[var(--color-primary)]">{letter.toUpperCase()}</p>
+          <p className="mt-2 text-sm leading-relaxed text-[var(--color-ink-soft)]">
+            Hold this handshape in front of the camera — match the hand position above.
           </p>
         </div>
 

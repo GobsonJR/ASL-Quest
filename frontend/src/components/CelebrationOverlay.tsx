@@ -43,44 +43,44 @@ export function CelebrationOverlay({
   const upperLetter = letter.toUpperCase();
   return (
     <div
-      className="rounded-[var(--radius-panel)] border border-[var(--color-success)]/30 bg-[var(--color-panel)] p-6 text-center animate-pop"
+      className="animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-success)]/25 bg-[var(--color-success-soft)] p-6 text-center"
       role="status"
       aria-live="polite"
     >
-      <p className="text-3xl" aria-hidden="true">
+      <p className="text-5xl" aria-hidden="true">
         🎉
       </p>
-      <p className="mt-1 text-sm font-semibold uppercase tracking-[0.08em] text-[var(--color-success)]">
+      <p className="mt-2 text-sm font-bold uppercase tracking-[0.08em] text-[var(--color-success)]">
         Yes! You got it!
       </p>
-      <h2 className="mt-2 font-display text-3xl md:text-4xl">{upperLetter} is correct!</h2>
-      {encouragement && <p className="mt-2 text-sm text-[var(--color-mist)]">{encouragement}</p>}
-      {outcome.message && <p className="mt-1 text-sm text-[var(--color-mist)]">{outcome.message}</p>}
+      <h2 className="mt-2 font-display text-3xl font-bold text-[var(--color-ink)] md:text-4xl">{upperLetter} is correct!</h2>
+      {encouragement && <p className="mt-2 text-sm text-[var(--color-ink-soft)]">{encouragement}</p>}
+      {outcome.message && <p className="mt-1 text-sm text-[var(--color-ink-soft)]">{outcome.message}</p>}
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-        <span className="rounded-full bg-[var(--color-accent)] px-3 py-1 text-sm font-semibold text-[var(--color-ink)]">
-          +{outcome.xpGained} XP
+        <span className="rounded-full bg-[var(--color-xp)] px-3 py-1 text-sm font-bold text-white">
+          ⭐ +{outcome.xpGained} XP
         </span>
         {typeof streak === "number" && streak > 0 && (
-          <span className="rounded-full border border-[var(--color-warm)]/30 px-3 py-1 text-sm font-medium text-[var(--color-warm)]">
+          <span className="rounded-full bg-[var(--color-streak-soft)] px-3 py-1 text-sm font-bold text-[var(--color-streak)]">
             🔥 {streak}-day streak
           </span>
         )}
         {outcome.leveledUp && (
-          <span className="rounded-full border border-[var(--color-warm)]/30 px-3 py-1 text-sm font-medium text-[var(--color-warm)]">
+          <span className="rounded-full bg-[var(--color-primary-soft)] px-3 py-1 text-sm font-bold text-[var(--color-primary-dim)]">
             Level {outcome.newLevel}
           </span>
         )}
         {outcome.dailyCompleted && (
-          <span className="rounded-full border border-[var(--color-line)] px-3 py-1 text-sm text-[var(--color-mist)]">
+          <span className="rounded-full bg-[var(--color-surface)] px-3 py-1 text-sm text-[var(--color-ink-soft)]">
             Daily goal complete
           </span>
         )}
       </div>
 
       {outcome.badgesUnlocked.length > 0 && (
-        <div className="mt-4 text-sm font-medium text-[var(--color-warm)]">
-          New badge{outcome.badgesUnlocked.length > 1 ? "s" : ""}: {outcome.badgesUnlocked.map(badgeTitle).join(", ")}
+        <div className="mt-4 text-sm font-bold text-[var(--color-xp)]">
+          🏅 New badge{outcome.badgesUnlocked.length > 1 ? "s" : ""}: {outcome.badgesUnlocked.map(badgeTitle).join(", ")}
         </div>
       )}
 
@@ -101,7 +101,7 @@ export function CelebrationOverlay({
         <p className="mt-4 text-xs text-[var(--color-muted)]">Detection confidence: {Math.round(confidence * 100)}%</p>
       )}
 
-      <p className="mt-5 text-sm font-medium text-[var(--color-success)]">✓ {upperLetter} completed</p>
+      <p className="mt-5 text-sm font-semibold text-[var(--color-success)]">✓ {upperLetter} mastered a little more</p>
 
       <div className="mt-4 flex flex-wrap justify-center gap-3">
         {onPracticeAgain && (
@@ -126,20 +126,21 @@ export function LevelUpOverlay({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 grid place-items-center bg-black/70 px-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 grid place-items-center bg-[var(--color-ink)]/40 px-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-labelledby="level-up-title"
     >
-      <div className="w-full max-w-sm animate-pop rounded-[var(--radius-panel)] border border-[var(--color-line)] bg-[var(--color-panel)] p-8 text-center">
-        <p className="text-sm font-medium text-[var(--color-warm)]">Level up</p>
-        <h2 id="level-up-title" className="mt-2 font-display text-4xl">
+      <div className="w-full max-w-sm animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-xp)]/30 bg-[var(--color-surface)] p-8 text-center shadow-2xl">
+        <p className="text-5xl" aria-hidden="true">🎊</p>
+        <p className="mt-2 text-sm font-bold uppercase tracking-wide text-[var(--color-xp)]">Level up!</p>
+        <h2 id="level-up-title" className="mt-2 font-display text-4xl font-bold text-[var(--color-ink)]">
           Level {level}
         </h2>
-        <p className="mt-3 text-sm text-[var(--color-mist)]">Keep the streak going.</p>
+        <p className="mt-3 text-sm text-[var(--color-ink-soft)]">Keep the streak going.</p>
         <button
           type="button"
-          className="mt-6 inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-accent)] px-5 py-2 text-sm font-semibold text-[var(--color-ink)]"
+          className="mt-6 inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-primary)] px-5 py-2 text-sm font-semibold text-white shadow-lg"
           onClick={onDismiss}
         >
           Keep learning
@@ -169,30 +170,31 @@ export function WordCompleteOverlay({
   challengeSummary?: string;
 }) {
   return (
-    <div className="rounded-[var(--radius-panel)] border border-[var(--color-success)]/30 bg-[var(--color-panel)] p-6 text-center animate-pop">
-      <p className="text-sm font-medium text-[var(--color-success)]">{word} completed!</p>
-      <h2 className="mt-2 font-display text-3xl md:text-4xl">{word}</h2>
-      <p className="mt-3 flex flex-wrap justify-center gap-3 text-sm text-[var(--color-mist)]" aria-label="Completed letters">
+    <div className="animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-success)]/25 bg-[var(--color-success-soft)] p-6 text-center">
+      <p className="text-5xl" aria-hidden="true">🎉</p>
+      <p className="mt-2 text-sm font-bold uppercase tracking-wide text-[var(--color-success)]">{word} completed!</p>
+      <h2 className="mt-2 font-display text-3xl font-bold text-[var(--color-ink)] md:text-4xl">{word}</h2>
+      <p className="mt-3 flex flex-wrap justify-center gap-3 text-sm text-[var(--color-ink-soft)]" aria-label="Completed letters">
         {letters.map((letter, index) => (
           <span key={`${letter}-${index}`}>
-            {letter} ✓
+            {letter} ✅
           </span>
         ))}
       </p>
-      <p className="mt-3 text-sm text-[var(--color-mist)]">{accuracyLabel}</p>
+      <p className="mt-3 text-sm text-[var(--color-ink-soft)]">{accuracyLabel}</p>
       {challengeSummary && <p className="mt-1 text-sm text-[var(--color-muted)]">{challengeSummary}</p>}
-      <p className="mt-4 text-lg font-semibold text-[var(--color-accent)]">+{xp} XP</p>
+      <p className="mt-4 text-lg font-bold text-[var(--color-xp)]">⭐ +{xp} XP</p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <button
           type="button"
-          className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-accent)] px-4 py-2 text-sm font-semibold text-[var(--color-ink)]"
+          className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] bg-[var(--color-primary)] px-4 py-2 text-sm font-semibold text-white"
           onClick={onAgain}
         >
           Practice again
         </button>
         <button
           type="button"
-          className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] border border-[var(--color-line)] px-4 py-2 text-sm font-medium text-[var(--color-mist)]"
+          className="inline-flex min-h-10 items-center justify-center rounded-[var(--radius-control)] border-2 border-[var(--color-border)] px-4 py-2 text-sm font-semibold text-[var(--color-ink-soft)]"
           onClick={onNext}
         >
           Next word

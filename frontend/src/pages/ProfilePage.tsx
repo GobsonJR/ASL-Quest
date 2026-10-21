@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { fetchProfile, type FullUserProfile } from "../auth/api";
 import {
+  Avatar,
   Divider,
   PageHeader,
   PageLayout,
@@ -22,17 +23,15 @@ export function ProfilePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="grid min-h-[40vh] place-items-center text-[var(--color-mist)]">Loading profile...</div>;
-  if (!profile) return <div className="text-[var(--color-warm)]">Unable to load profile.</div>;
+  if (loading) return <div className="grid min-h-[40vh] place-items-center text-[var(--color-ink-soft)]">Loading profile...</div>;
+  if (!profile) return <div className="text-[var(--color-streak)]">Unable to load profile.</div>;
 
   return (
     <PageLayout>
       <div className="flex flex-col gap-6 md:flex-row md:items-center">
-        <div className="grid h-20 w-20 shrink-0 place-items-center rounded-[var(--radius-panel)] bg-[var(--color-accent)]/12 text-2xl font-bold text-[var(--color-accent)]">
-          {profile.avatar_initial}
-        </div>
+        <Avatar name={profile.avatar_initial || profile.username} size="lg" />
         <div>
-          <PageHeader eyebrow="Profile" title={profile.username} description={profile.email} compact />
+          <PageHeader eyebrow="👤 Your profile" title={profile.username} description={profile.email} compact />
           <p className="mt-2 text-sm text-[var(--color-muted)]">
             Member since {new Date(profile.created_at).toLocaleDateString()}
           </p>
@@ -63,7 +62,7 @@ export function ProfilePage() {
           ].map(([label, value]) => (
             <div key={String(label)}>
               <p className="text-xs text-[var(--color-muted)]">{label}</p>
-              <p className="mt-1 text-lg font-semibold text-[#eef4f0]">{value}</p>
+              <p className="mt-1 text-lg font-semibold text-[var(--color-ink)]">{value}</p>
             </div>
           ))}
         </div>
