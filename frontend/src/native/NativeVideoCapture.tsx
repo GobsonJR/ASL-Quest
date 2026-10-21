@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { PrimaryButton, StatusChip } from "../components/AppShell";
 import { describeCameraError } from "../shared/cameraError";
 
-const RECORD_SECONDS = 3;
+// Native signs (e.g. BOOK) are multi-part motions; 3s was too tight to even get both hands
+// in frame. Give a get-ready countdown with a live preview, then a longer window. The user
+// can still press "Stop now" as soon as they finish.
+const RECORD_SECONDS = 10;
+const COUNTDOWN_SECONDS = 3;
 const CANDIDATE_MIME_TYPES = [
   "video/webm;codecs=vp9",
   "video/webm;codecs=vp8",
@@ -18,7 +22,7 @@ function pickSupportedMimeType(): string | null {
   return null;
 }
 
-type CaptureState = "idle" | "recording" | "clip_ready";
+type CaptureState = "idle" | "countdown" | "recording" | "clip_ready";
 
 export function NativeVideoCapture({
   disabled = false,
@@ -37,6 +41,7 @@ export function NativeVideoCapture({
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [unsupported, setUnsupported] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(RECORD_SECONDS);
+  const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
 
   useEffect(() => {
     setUnsupported(pickSupportedMimeType() === null);
@@ -75,6 +80,16 @@ export function NativeVideoCapture({
     if (videoRef.current) {
       videoRef.current.srcObject = stream;
       await videoRef.current.play();
+    }
+
+    // Live preview + 3-2-1 so the learner can get into position before recording starts.
+    setState("countdown");
+    for (let remaining = COUNTDOWN_SECONDS; remaining > 0; remaining--) {
+      setCountdown(remaining);
+      await new Promise<void>((resolve) => {
+        stopTimerRef.current = window.setTimeout(resolve, 1000);
+      });
+      if (streamRef.current !== stream) return; // cancelled via reset/unmount
     }
 
     chunksRef.current = [];
@@ -134,7 +149,7 @@ export function NativeVideoCapture({
 
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-[var(--color-native-soft)] bg-black shadow-[0_8px_28px_-8px_rgba(139,95,232,0.35)]">
+      <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-[var(--color-native-soft)] bg-black shadow-[0_8px_28px_-8px_rgba(28,176,246,0.35)]">
         <video
           ref={videoRef}
           className="aspect-[4/3] w-full object-cover"
@@ -142,7 +157,7 @@ export function NativeVideoCapture({
           muted
           aria-label="Webcam preview for native sign practice"
         />
-        {state !== "recording" && (
+        {state !== "recording" && state !== "countdown" && (
           <div className="absolute inset-0 grid place-items-center bg-black/60 px-6 text-center backdrop-blur-[2px]">
             <p className="text-sm text-white/85">
               {state === "clip_ready" ? "Clip captured" : "Camera preview appears when recording starts"}
@@ -151,9 +166,14 @@ export function NativeVideoCapture({
         )}
         <div className="absolute left-3 top-3">
           <StatusChip tone={state === "recording" ? "warning" : "neutral"}>
-            {state === "recording" ? `Recording · ${secondsLeft}s` : "Idle"}
+            {state === "recording" ? `Recording · ${secondsLeft}s` : state === "countdown" ? "Get ready" : "Idle"}
           </StatusChip>
         </div>
+        {state === "countdown" && (
+          <div className="absolute inset-0 grid place-items-center" role="status" aria-live="polite">
+            <span className="font-display text-8xl text-white drop-shadow-lg">{countdown}</span>
+          </div>
+        )}
       </div>
 
       {cameraError && (
@@ -168,6 +188,7 @@ export function NativeVideoCapture({
             Start recording ({RECORD_SECONDS}s)
           </PrimaryButton>
         )}
+        {state === "countdown" && <PrimaryButton onClick={reset}>Cancel</PrimaryButton>}
         {state === "recording" && (
           <PrimaryButton onClick={() => recorderRef.current?.stop()}>Stop now</PrimaryButton>
         )}
