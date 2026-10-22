@@ -94,7 +94,7 @@ deployment/         staging area + manifest for large model files
 - **Data:** `dataset/asl_alphabet_train` — 26 folders × 3,000 images = 78,000 images.
 - **Pipeline:** MediaPipe Hand Landmarker (`models/hand_landmarker.task`) crops the hand → ResNet18 classifies.
 - **Live behaviour:** confidence threshold **0.70** with **majority-vote smoothing** (`src/inference/stability.py`) so a letter must be stable across frames before it counts.
-- **Measured accuracy** (held-out dataset images): overall **97.91%**, macro precision 98.12%, macro recall 97.91%. The checkpoint's stored 98.22% came from a random 80/20 split that can leak near-duplicate frames and should not be quoted as test accuracy.
+- **Measured accuracy** (11,700-image held-out set, current webcam-robustness fine-tune): overall **94.08%**, macro precision 95.87%, macro F1 93.49% (up from 90.91% before the fine-tune). Weakest letter: X (~18% recall), then T, M, S. The original 97.91% checkpoint was lost, so that figure no longer describes the model on disk. These numbers come from dataset images recorded in one setup and do not prove live-webcam accuracy.
 - Alternative recogniser: a MediaPipe-landmark classifier (`ASL_QUEST_RECOGNIZER=landmarks`), kept experimental until it beats ResNet on unseen rooms.
 
 ### 4.2 Native Signs recogniser (I3D)

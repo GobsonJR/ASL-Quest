@@ -604,6 +604,16 @@ class ChatbotRouterTests(unittest.TestCase):
         self.assertIn("ResNet18 was fast and small...", contents)
         self.assertEqual(contents[-1], "What are the alternatives?")
 
+    def test_learning_progress_questions_are_in_scope(self) -> None:
+        # Regression: this exact message from the live app was wrongly rejected as off-topic
+        # because the scope allow-list had no everyday learner vocabulary.
+        for question in [
+            "What should I learn next? I've completed 0 of 26 letters and my next letter is C.",
+            "Which lesson should I do after A and B?",
+            "How are my daily goal and challenges calculated?",
+        ]:
+            self.assertTrue(chatbot_knowledge.is_in_scope(question), question)
+
     def test_capital_of_france_is_blocked_before_provider_call(self) -> None:
         token = self.register("france_q_user")
         conv_id = self.create_conversation(token)
@@ -1164,9 +1174,11 @@ class ChatbotKnowledgeFallbackTests(unittest.TestCase):
         # A message that reached fallback_answer at all already passed the
         # backend scope guard (is_in_scope), but that guard's allow-list is
         # broader than any single knowledge section -- e.g. "chatbot"/
-        # "assistant" match PROJECT_KEYWORDS but no SECTION_KEYWORDS group.
-        answer = chatbot_knowledge.fallback_answer("assistant")
-        self.assertEqual(answer, chatbot_knowledge.NO_INFO_REPLY)
+        # "roadmap" matches PROJECT_KEYWORDS but no FAQ entry or SECTION_KEYWORDS group.
+        # The honest "I don't know" reply is followed by example topics, never a guess.
+        answer = chatbot_knowledge.fallback_answer("roadmap")
+        self.assertTrue(answer.startswith(chatbot_knowledge.NO_INFO_REPLY))
+        self.assertNotIn(chatbot_knowledge.FALLBACK_PREFIX, answer)
 
     def test_empty_message_returns_no_info_reply(self) -> None:
         self.assertEqual(chatbot_knowledge.fallback_answer(""), chatbot_knowledge.NO_INFO_REPLY)

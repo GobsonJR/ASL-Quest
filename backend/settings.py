@@ -101,12 +101,12 @@ DEV_DIAGNOSTICS_DIR = Path(__file__).resolve().parent.parent / "outputs" / "diag
 
 # Trailing slashes are stripped: browsers send the Origin header without one, so
 # "https://app.vercel.app/" would never match "https://app.vercel.app".
+# Used when ASL_QUEST_CORS_ORIGINS is unset/blank: local dev plus the deployed Vercel frontend
+# (exact origin, never a wildcard -- credentials are enabled). Setting the env var replaces this list.
+DEFAULT_CORS_ORIGINS = "http://127.0.0.1:5173,http://localhost:5173,https://asl-quest-1.vercel.app"
 CORS_ORIGINS = [
     origin.strip().rstrip("/")
-    for origin in (
-        os.getenv("ASL_QUEST_CORS_ORIGINS", "").strip()
-        or "http://127.0.0.1:5173,http://localhost:5173"
-    ).split(",")
+    for origin in (os.getenv("ASL_QUEST_CORS_ORIGINS", "").strip() or DEFAULT_CORS_ORIGINS).split(",")
     if origin.strip()
 ]
 
