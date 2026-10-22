@@ -17,6 +17,8 @@ from __future__ import annotations
 
 import re
 
+from backend.services import chatbot_faq as faq
+
 PROJECT_KNOWLEDGE_SECTIONS: dict[str, str] = {
     "overview": (
         "ASL-Quest is a gamified American Sign Language learning platform with three "
@@ -36,11 +38,14 @@ PROJECT_KNOWLEDGE_SECTIONS: dict[str, str] = {
         "flicker between frames. Dynamic letters J and Z are NOT truly supported — the "
         "model has no temporal motion modeling, so it may still output a static guess "
         "for them. The current production checkpoint (models/best_model.pth) is a "
-        "retrained/recovered checkpoint (the original was lost); on the project's "
-        "11,700-image controlled sequential holdout it scores 90.91% overall accuracy, "
-        "with its weakest classes being S (27.78%), X (35.33%), V, and Y. An earlier, "
-        "now-lost checkpoint had scored 97.91% on the same holdout — that number "
-        "describes a checkpoint that no longer exists on disk, not the current one."
+        "webcam-robustness fine-tune (trained with mirroring, scale/rotation, lighting, blur "
+        "and noise augmentation) of a retrained checkpoint, because the original was lost; on "
+        "the project's 11,700-image controlled sequential holdout it scores 94.08% overall "
+        "accuracy (macro F1 93.49%), up from 90.91% before the fine-tune. Its weakest class "
+        "is X (about 18% recall), then T, M and S. An earlier, now-lost checkpoint had scored "
+        "97.91% on the same holdout - that number describes a checkpoint that no longer "
+        "exists on disk, not the current one. These figures come from dataset images recorded "
+        "in one setup and do not prove live-webcam accuracy."
     ),
     "learning_path": (
         "A good order to learn in ASL-Quest: start with the A-Z alphabet on the Learn page, "
@@ -160,7 +165,7 @@ PROJECT_KEYWORDS: tuple[str, ...] = (
     "badge", "progress", "mastery", "mastered", "wrong", "correct", "mistake", "feedback",
     "analytics", "dataset", "training", "evaluation", "accuracy", "checkpoint",
     "model", "practice", "camera", "webcam", "prediction", "predict", "confidence",
-    "chatbot", "assistant", "how do i", "how does", "how to use", "feature",
+    "chatbot", "assistant", "feature",
     "class_to_idx", "resnet18", "learning platform", "signer",
     "limitation", "limitations", "roadmap", "alternative", "alternatives",
     "compare", "comparison", "different", "difference",
@@ -170,7 +175,28 @@ PROJECT_KEYWORDS: tuple[str, ...] = (
     "letter", "letters", "lesson", "lessons", "signs", "learn next", "should i learn",
     "learning path", "next letter", "next sign", "challenge", "challenges", "daily goal",
     "recommend", "recommendation", "recommendations",
+    # Topics the offline FAQ (chatbot_faq.py) answers: accounts, hosting, tooling, plurals.
+    "password", "account", "profile", "settings", "export", "admin", "mentor", "dashboard",
+    "deploy", "deployed", "deployment", "vercel", "render", "privacy", "tech stack",
+    "technology", "tailwind", "pytorch", "pytest", "vitest", "aura", "what can you do",
+    "who are you", "hand not detected", "lighting", "words", "levels", "streaks", "badges",
+    "achievements", "endpoints", "models", "features", "limitations", "dataset", "daily",
+    "countdown", "recording", "native", "hand", "detect", "detecting", "detected", "video", "clip",
+    "locally", "setup", "install", "run the app", "run the project", "offline", "signo", "stored",
+    "j and z", "letter j", "letter z", "dynamic letters", "not supported",
+    "tests", "unit tests", "test suite", "testing",
 )
+
+# A bare greeting/thanks (the whole message, optionally addressed to AURA) is friendly small talk
+# directly to this assistant, so it is allowed and answered with a short welcome.
+_GREETING_PATTERN = re.compile(
+    r"^(?:hi+|hello+|hey+|hiya|good (?:morning|afternoon|evening)|thanks|thank you|thx|ok|okay|bye|goodbye)"
+    r"(?: there| aura)?$"
+)
+
+
+def is_greeting(message: str) -> bool:
+    return bool(_GREETING_PATTERN.match(_normalize(message)))
 
 # A short conversational follow-up ("why?", "how is that different?", "tell me
 # more") almost never repeats a keyword of the question it's following up on —
@@ -252,12 +278,9 @@ SYSTEM_INSTRUCTION = (
 )
 
 
-def _normalize(text: str) -> str:
-    # Underscores are treated as word separators (not \w-preserved) so identifiers
-    # like "native_sign_progress" or "class_to_idx" still line up with the
-    # space-separated keywords below.
-    text = text.replace("_", " ")
-    return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", text.strip().lower())).strip()
+# Underscores are treated as word separators (not \w-preserved) so identifiers like
+# "native_sign_progress" or "class_to_idx" still line up with the space-separated keywords below.
+_normalize = faq.normalize
 
 
 # Keywords are normalized the same way as messages (so "A-Z" and "letter-by-letter"
@@ -288,6 +311,8 @@ def is_in_scope(message: str, last_turn_in_scope: bool = False) -> bool:
     normalized = _normalize(message)
     if not normalized:
         return False
+    if _GREETING_PATTERN.match(normalized):
+        return True
     if _KEYWORD_PATTERN.search(normalized):
         return True
     if not last_turn_in_scope:
@@ -353,6 +378,13 @@ FALLBACK_PREFIX = (
 )
 
 
+GREETING_REPLY = (
+    "Hi! I'm AURA, the ASL-Quest project assistant. Ask me about the lessons, XP and streaks, the camera tips, "
+    "the models, accounts, the database or deployment - for example \"What should I learn next?\" or "
+    "\"Why isn't my sign recognized?\"."
+)
+
+
 def fallback_answer(message: str) -> str:
     """Deterministic, LLM-free answer used whenever the configured provider is
     unavailable (not configured, unreachable, rate-limited, or erroring) --
@@ -360,28 +392,40 @@ def fallback_answer(message: str) -> str:
     Ollama server stopped and no OPENROUTER_API_KEY set (e.g. during a demo
     with no internet and no local model running).
 
-    Scores each knowledge section by how many of its curated keywords appear
-    in the message and returns the content of the best-matching section(s)
-    (top 2, in case of a tie) prefixed with a clear "this is the offline
-    knowledge base, not the AI" disclaimer. Never invents anything not
-    already in PROJECT_KNOWLEDGE_SECTIONS; if nothing matches, says so via
-    NO_INFO_REPLY rather than guessing.
+    Order of attempts, all local and deterministic:
+    1. a bare greeting -> a short welcome;
+    2. the focused FAQ (chatbot_faq.py): the best-scoring hand-written answer (plus a
+       second one only when it is nearly as relevant) and a few related questions;
+    3. the coarse knowledge sections, scored by curated keywords;
+    4. otherwise NO_INFO_REPLY plus example topics -- never a guess.
+    Never invents anything not already in the knowledge base.
     """
     normalized = _normalize(message)
     if not normalized:
         return NO_INFO_REPLY
 
+    if _GREETING_PATTERN.match(normalized):
+        return GREETING_REPLY
+
+    matches = faq.best_matches(normalized)
+    if matches:
+        body = "\n\n".join(entry.answer for entry in matches)
+        related = faq.related_titles(matches[0], exclude={entry.id for entry in matches})
+        if related:
+            body += "\n\nYou can also ask: " + " | ".join(related)
+        return FALLBACK_PREFIX + body
+
     scores = {
         section: len(pattern.findall(normalized)) for section, pattern in _SECTION_PATTERNS.items()
     }
     scores = {section: count for section, count in scores.items() if count > 0}
-    if not scores:
-        return NO_INFO_REPLY
+    if scores:
+        best = max(scores.values())
+        top_sections = sorted(section for section, count in scores.items() if count == best)
+        body = "\n\n".join(PROJECT_KNOWLEDGE_SECTIONS[section] for section in top_sections[:2])
+        return FALLBACK_PREFIX + body
 
-    best = max(scores.values())
-    top_sections = sorted(section for section, count in scores.items() if count == best)
-    body = "\n\n".join(PROJECT_KNOWLEDGE_SECTIONS[section] for section in top_sections[:2])
-    return FALLBACK_PREFIX + body
+    return NO_INFO_REPLY + "\n\nTry asking about: " + " | ".join(faq.topic_suggestions())
 
 
 def build_project_knowledge() -> str:

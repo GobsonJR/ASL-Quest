@@ -1174,9 +1174,11 @@ class ChatbotKnowledgeFallbackTests(unittest.TestCase):
         # A message that reached fallback_answer at all already passed the
         # backend scope guard (is_in_scope), but that guard's allow-list is
         # broader than any single knowledge section -- e.g. "chatbot"/
-        # "assistant" match PROJECT_KEYWORDS but no SECTION_KEYWORDS group.
-        answer = chatbot_knowledge.fallback_answer("assistant")
-        self.assertEqual(answer, chatbot_knowledge.NO_INFO_REPLY)
+        # "roadmap" matches PROJECT_KEYWORDS but no FAQ entry or SECTION_KEYWORDS group.
+        # The honest "I don't know" reply is followed by example topics, never a guess.
+        answer = chatbot_knowledge.fallback_answer("roadmap")
+        self.assertTrue(answer.startswith(chatbot_knowledge.NO_INFO_REPLY))
+        self.assertNotIn(chatbot_knowledge.FALLBACK_PREFIX, answer)
 
     def test_empty_message_returns_no_info_reply(self) -> None:
         self.assertEqual(chatbot_knowledge.fallback_answer(""), chatbot_knowledge.NO_INFO_REPLY)
