@@ -102,7 +102,23 @@ async def predict(*args, **kwargs):
     return await ml.predict(*args, **kwargs)
 
 
+def bind_address(environ: "os._Environ[str] | dict[str, str] | None" = None) -> tuple[str, int]:
+    """Where `python -m backend.main` should listen.
+
+    Hosting platforms (Render, etc.) hand the port to the app in $PORT and can only reach a server bound
+    to 0.0.0.0; with no PORT set (local development) it stays on 127.0.0.1:8000 as before. The documented
+    production start command is still `uvicorn backend.main:app --host 0.0.0.0 --port $PORT`.
+    """
+    import os
+
+    port = (environ if environ is not None else os.environ).get("PORT", "").strip()
+    if port.isdigit() and 0 < int(port) < 65536:
+        return "0.0.0.0", int(port)
+    return "127.0.0.1", 8000
+
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("backend.main:app", host="127.0.0.1", port=8000, reload=False)
+    _host, _port = bind_address()
+    uvicorn.run("backend.main:app", host=_host, port=_port, reload=False)

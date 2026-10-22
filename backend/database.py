@@ -8,10 +8,20 @@ from sqlalchemy.orm import Session, declarative_base, sessionmaker
 from backend.settings import DATA_DIR, DATABASE_URL
 
 Base = declarative_base()
-engine = create_engine(
-    DATABASE_URL,
-    connect_args={"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {},
-)
+
+
+def connect_args_for(url: str) -> dict:
+    """Driver options per database. A Postgres connect timeout makes an unreachable/paused database fail
+    fast with a clear error at startup; without it the connection can block for minutes, the web server
+    never opens its port, and the host (e.g. Render) only reports an opaque "no open ports detected"."""
+    if url.startswith("sqlite"):
+        return {"check_same_thread": False}
+    if url.startswith("postgres"):
+        return {"connect_timeout": 15}
+    return {}
+
+
+engine = create_engine(DATABASE_URL, connect_args=connect_args_for(DATABASE_URL))
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
