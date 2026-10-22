@@ -42,6 +42,16 @@ PROJECT_KNOWLEDGE_SECTIONS: dict[str, str] = {
         "now-lost checkpoint had scored 97.91% on the same holdout — that number "
         "describes a checkpoint that no longer exists on disk, not the current one."
     ),
+    "learning_path": (
+        "A good order to learn in ASL-Quest: start with the A-Z alphabet on the Learn page, "
+        "beginning with the beginner letters C, D, F, H and O, and use Practice to check each "
+        "handshape with your webcam; a letter counts as learning after 3 correct attempts and "
+        "as mastered after 10. Once you are comfortable with letters, try Words (spelling "
+        "whole words letter by letter), then Native Signs (complete signs such as HELLO or "
+        "BOOK). The daily goal is 10 signs, and Challenges and Achievements reward steady "
+        "practice with XP (1000 XP per level), streaks and badges. The Recommendations "
+        "feature suggests letters based on your own practice results."
+    ),
     "word_spelling": (
         "Word Spelling is NOT direct word-level sign recognition. It teaches a whole "
         "word by having the learner sign it letter-by-letter using the same A-Z static "
@@ -61,7 +71,8 @@ PROJECT_KNOWLEDGE_SECTIONS: dict[str, str] = {
         "I3D features (already sign-discriminative from large-scale ASL Citizen "
         "pretraining) reached 96.90% top-1 / 99.22% top-5 test accuracy on the "
         "native-10 holdout with only a linear head trained on top. A camera clip is "
-        "recorded client-side (about 3 seconds), sent to POST /native/predict, run "
+        "recorded client-side (a 3-2-1 get-ready countdown, then up to 10 seconds; the "
+        "learner can stop early), sent to POST /native/predict, run "
         "through the model, and never stored server-side beyond that single request. "
         "The practice UI follows a LEARN -> WATCH -> PRACTICE -> CHECK -> RESULT flow. "
         "ASL Citizen's own demonstration videos are never redistributed or embedded in "
@@ -153,6 +164,12 @@ PROJECT_KEYWORDS: tuple[str, ...] = (
     "class_to_idx", "resnet18", "learning platform", "signer",
     "limitation", "limitations", "roadmap", "alternative", "alternatives",
     "compare", "comparison", "different", "difference",
+    # Everyday learner wording for the app's own lessons/progress (e.g. "What should I learn
+    # next? I've completed 0 of 26 letters"). Deliberately specific phrases/nouns, not bare
+    # "learn", so generic off-topic requests still don't pass the gate.
+    "letter", "letters", "lesson", "lessons", "signs", "learn next", "should i learn",
+    "learning path", "next letter", "next sign", "challenge", "challenges", "daily goal",
+    "recommend", "recommendation", "recommendations",
 )
 
 # A short conversational follow-up ("why?", "how is that different?", "tell me
@@ -292,6 +309,11 @@ SECTION_KEYWORDS: dict[str, tuple[str, ...]] = {
         "a-z", "a to z", "alphabet", "resnet", "resnet18", "handshape", "mediapipe",
         "hand detect", "temporal smooth", "smoothing", "confidence threshold",
         "class_to_idx", "best_model",
+    ),
+    "learning_path": (
+        "learn next", "should i learn", "learning path", "next letter", "next sign",
+        "what should i", "where do i start", "get started", "lesson", "lessons",
+        "recommend", "recommendation", "recommendations", "daily goal", "beginner",
     ),
     "word_spelling": (
         "word spelling", "word practice", "spelling", "letter-by-letter", "letter by letter",

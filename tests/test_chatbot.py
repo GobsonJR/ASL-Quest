@@ -604,6 +604,16 @@ class ChatbotRouterTests(unittest.TestCase):
         self.assertIn("ResNet18 was fast and small...", contents)
         self.assertEqual(contents[-1], "What are the alternatives?")
 
+    def test_learning_progress_questions_are_in_scope(self) -> None:
+        # Regression: this exact message from the live app was wrongly rejected as off-topic
+        # because the scope allow-list had no everyday learner vocabulary.
+        for question in [
+            "What should I learn next? I've completed 0 of 26 letters and my next letter is C.",
+            "Which lesson should I do after A and B?",
+            "How are my daily goal and challenges calculated?",
+        ]:
+            self.assertTrue(chatbot_knowledge.is_in_scope(question), question)
+
     def test_capital_of_france_is_blocked_before_provider_call(self) -> None:
         token = self.register("france_q_user")
         conv_id = self.create_conversation(token)
