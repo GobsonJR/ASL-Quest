@@ -51,6 +51,9 @@ app.include_router(collect.router)  # development only: 404 unless ASL_QUEST_DEV
 
 @app.on_event("startup")
 def startup() -> None:
+    from backend.startup_checks import enforce
+
+    enforce()  # production only: refuses the public default JWT secret before anything else starts
     init_db()
     from backend.database import SessionLocal
 

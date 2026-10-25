@@ -14,7 +14,7 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from backend import models  # noqa: E402,F401  (registers all tables on Base.metadata)
 from backend.database import Base  # noqa: E402
-from backend.settings import DEFAULT_DATABASE_PATH  # noqa: E402
+from backend.settings import DEFAULT_DATABASE_PATH, normalize_database_url  # noqa: E402
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -33,7 +33,7 @@ if config.config_file_name is not None:
 # multiple temp databases), so re-reading the environment fresh on every Alembic
 # invocation is what makes this env.py behave correctly both from the CLI (a fresh
 # process each time) and from Python code that calls alembic.command in-process.
-_database_url = (
+_database_url = normalize_database_url(
     os.environ.get("DATABASE_URL")
     or os.environ.get("ASL_QUEST_DATABASE_URL")
     or f"sqlite:///{DEFAULT_DATABASE_PATH.as_posix()}"

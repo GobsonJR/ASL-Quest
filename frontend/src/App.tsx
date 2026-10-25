@@ -82,7 +82,8 @@ function AuthenticatedApp() {
     if (blockedPage) navigate("home");
   }, [blockedPage, navigate]);
 
-  const ready = Boolean(health?.model_loaded);
+  // Practice recognizes letters from browser landmarks, so the landmark model alone is enough; the ResNet is only the fallback.
+  const ready = Boolean(health?.model_loaded || health?.experimental_landmark?.loaded);
   const backendNote = health
     ? `Ready on ${health.device}${health.gpu_name ? ` · ${health.gpu_name}` : ""}`
     : healthError ?? "Checking backend...";
