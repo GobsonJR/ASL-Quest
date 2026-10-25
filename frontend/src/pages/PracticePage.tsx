@@ -285,10 +285,7 @@ export function PracticePage({
               <EmptyState
                 icon="📷"
                 title="Practice isn't ready yet"
-                description={
-                  backendError ??
-                  "Start the FastAPI backend on port 8000, then refresh to practice with your camera."
-                }
+                description={backendError ?? "The recognition service isn't available yet. Refresh in a moment to practice with your camera."}
                 action={<SecondaryButton onClick={() => navigate("learn")}>Back to Learn</SecondaryButton>}
               />
             ) : (

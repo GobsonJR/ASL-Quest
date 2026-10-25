@@ -167,7 +167,7 @@ export function troubleshootingTip(phase: LivePhase, framesInPhase: number): str
     case "detector_unavailable":
       return "The server's hand detector isn't running (see /health on the backend). Check the hand_landmarker.task model file.";
     case "error":
-      return "Make sure the backend is running on port 8000, then try again.";
+      return "Check your connection and that the recognition service is running (it may be waking up), then try again.";
     default:
       return null;
   }

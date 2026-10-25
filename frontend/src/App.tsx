@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { healthCheck, type HealthResponse } from "./api";
 import { BACKEND_NOT_CONFIGURED } from "./config";
+import { recognitionReadiness, unreachableMessage } from "./shared/readiness";
 import { AuthProvider, useAuth } from "./auth/AuthContext";
 import { AppShell } from "./components/AppShell";
 import { MigrationPrompt } from "./components/MigrationPrompt";
@@ -64,7 +65,7 @@ function AuthenticatedApp() {
         setHealthError(
           BACKEND_NOT_CONFIGURED
             ? "The recognition service is not configured for this deployment (VITE_API_BASE_URL is not set)."
-            : "Backend unavailable. Start FastAPI on port 8000."
+            : unreachableMessage()
         );
       });
   }, []);
@@ -83,9 +84,11 @@ function AuthenticatedApp() {
   }, [blockedPage, navigate]);
 
   // Practice recognizes letters from browser landmarks, so the landmark model alone is enough; the ResNet is only the fallback.
-  const ready = Boolean(health?.model_loaded || health?.experimental_landmark?.loaded);
+  const { ready, message: notReadyMessage } = recognitionReadiness(health, healthError);
   const backendNote = health
-    ? `Ready on ${health.device}${health.gpu_name ? ` · ${health.gpu_name}` : ""}`
+    ? ready
+      ? `Ready on ${health.device}${health.gpu_name ? ` · ${health.gpu_name}` : ""}`
+      : "Recognition unavailable"
     : healthError ?? "Checking backend...";
 
   async function handleImport() {
@@ -112,9 +115,9 @@ function AuthenticatedApp() {
         {page === "words" && <WordsPage />}
         {page === "practice" &&
           (practiceKind === "word" ? (
-            <WordPracticePage ready={ready} backendError={healthError} experimentalLandmark={health?.experimental_landmark ?? null} />
+            <WordPracticePage ready={ready} backendError={notReadyMessage} experimentalLandmark={health?.experimental_landmark ?? null} />
           ) : (
-            <PracticePage ready={ready} backendError={healthError} experimentalLandmark={health?.experimental_landmark ?? null} />
+            <PracticePage ready={ready} backendError={notReadyMessage} experimentalLandmark={health?.experimental_landmark ?? null} />
           ))}
         {page === "native" && <NativeSignsPage />}
         {page === "native-practice" && <NativeSignPracticePage />}
