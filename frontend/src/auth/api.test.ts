@@ -84,6 +84,42 @@ describe("auth requests", () => {
     await expect(loginUser("a", "b")).rejects.toThrow(/Can't reach the ASL Quest server/);
   });
 
+  it("abandons a login that never answers and reports a retryable timeout", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn((_url: string, init: RequestInit) => new Promise((_resolve, reject) => {
+          init.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+        })),
+      );
+      const { loginUser, AUTH_TIMEOUT_MS } = await loadApi();
+      const outcome = expect(loginUser("a", "b")).rejects.toThrow(/taking too long.*try again/i);
+      await vi.advanceTimersByTimeAsync(AUTH_TIMEOUT_MS + 1);
+      await outcome;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("abandons a registration that never answers", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn((_url: string, init: RequestInit) => new Promise((_resolve, reject) => {
+          init.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")));
+        })),
+      );
+      const { registerUser, AUTH_TIMEOUT_MS } = await loadApi();
+      const outcome = expect(registerUser({ username: "u", email: "u@example.com", password: "longenough1" })).rejects.toThrow(/taking too long/i);
+      await vi.advanceTimersByTimeAsync(AUTH_TIMEOUT_MS + 1);
+      await outcome;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("shows the first message of a FastAPI 422 validation error", async () => {
     vi.stubGlobal(
       "fetch",

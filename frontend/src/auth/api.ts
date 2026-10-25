@@ -83,24 +83,36 @@ export async function parseError(response: Response, fallback: string): Promise<
   }
 }
 
+/** How long sign-in and registration wait for the backend. A free-tier Render instance can take 30-50 s to wake, so
+ * rather than leave the form on "Signing in..." the request is abandoned and the user is told to retry. */
+export const AUTH_TIMEOUT_MS = 25_000;
+
 /** fetch() that turns a network-level failure (backend asleep/unreachable, CORS blocked, offline)
- * into a readable message instead of the browser's bare "Failed to fetch". */
-async function fetchApi(path: string, init: RequestInit): Promise<Response> {
+ * into a readable message instead of the browser's bare "Failed to fetch". With `timeoutMs` the request is
+ * aborted after that long and reported as a retryable timeout. */
+async function fetchApi(path: string, init: RequestInit, timeoutMs?: number): Promise<Response> {
+  const controller = timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
   try {
-    return await fetch(`${API}${path}`, init);
+    return await fetch(`${API}${path}`, controller ? { ...init, signal: controller.signal } : init);
   } catch {
+    if (controller?.signal.aborted) {
+      throw new Error("The ASL Quest server is taking too long to respond (it may be waking up). Please try again in a moment.");
+    }
     throw new Error("Can't reach the ASL Quest server. Check your connection and try again in a moment.");
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}, timeoutMs?: number): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json");
   const tokenHeaders = authHeaders();
   if (tokenHeaders.Authorization) {
     headers.set("Authorization", tokenHeaders.Authorization);
   }
-  const response = await fetchApi(path, { ...init, headers });
+  const response = await fetchApi(path, { ...init, headers }, timeoutMs);
   if (!response.ok) {
     throw new Error(await parseError(response, `Request failed (${response.status}).`));
   }
@@ -119,7 +131,7 @@ export async function registerUser(input: {
   const auth = await request<AuthResponse>("/auth/register", {
     method: "POST",
     body: JSON.stringify(input),
-  });
+  }, AUTH_TIMEOUT_MS);
   setToken(auth.access_token);
   return fetchCurrentUser();
 }
@@ -128,13 +140,13 @@ export async function loginUser(login: string, password: string): Promise<UserPr
   const auth = await request<AuthResponse>("/auth/login", {
     method: "POST",
     body: JSON.stringify({ login, password }),
-  });
+  }, AUTH_TIMEOUT_MS);
   setToken(auth.access_token);
   return fetchCurrentUser();
 }
 
 export async function fetchCurrentUser(): Promise<UserProfile> {
-  return request<UserProfile>("/auth/me");
+  return request<UserProfile>("/auth/me", {}, AUTH_TIMEOUT_MS);
 }
 
 export function logoutUser(): void {
@@ -160,7 +172,7 @@ export async function migrateLocalProgress(state: GameState): Promise<GameState>
 }
 
 export async function fetchMigrationOffer(): Promise<{ should_offer: boolean; reason: string | null }> {
-  return request("/progress/migration-offer");
+  return request("/progress/migration-offer", {}, AUTH_TIMEOUT_MS);
 }
 
 export async function recordPracticeSession(input: {
