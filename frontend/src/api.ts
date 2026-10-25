@@ -75,6 +75,35 @@ export async function healthCheck(): Promise<HealthResponse> {
   return response.json();
 }
 
+export type LandmarkPrediction = PredictResponse & {
+  actual_hand?: "left" | "right" | null;
+  timings_ms?: { classify: number; server_total: number };
+};
+
+/** Classify 21 landmarks the browser already detected (no image upload, no server-side detection). */
+export async function predictLandmarks(
+  body: { landmarks: number[][]; handedness: "Left" | "Right" | null; image_mirrored: boolean },
+  signal?: AbortSignal
+): Promise<LandmarkPrediction> {
+  const response = await fetch(`${API}/predict_landmarks`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!response.ok) {
+    let detail = "Prediction failed.";
+    try {
+      const payload = await response.json();
+      detail = typeof payload.detail === "string" ? payload.detail : detail;
+    } catch {
+      /* keep default */
+    }
+    throw new Error(detail);
+  }
+  return response.json();
+}
+
 export async function predictImage(
   file: Blob,
   filename = "frame.jpg",

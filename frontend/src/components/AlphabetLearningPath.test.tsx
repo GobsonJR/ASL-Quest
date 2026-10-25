@@ -30,6 +30,18 @@ describe("AlphabetLearningPath", () => {
     expect(onPractice).toHaveBeenCalledWith("C");
   });
 
+  it("shows a faint letter watermark (hidden from assistive tech) on completed nodes only", () => {
+    const nodes = getLearningPathNodes(withMastered(["C"]));
+    render(<AlphabetLearningPath nodes={nodes} onPractice={vi.fn()} onLocked={vi.fn()} />);
+
+    const watermark = screen.getByTestId("watermark-C");
+    expect(watermark).toHaveTextContent("C");
+    expect(watermark).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getAllByTestId(/^watermark-/)).toHaveLength(1); // current/available/locked nodes get none
+    // The accessible name is unchanged, so the watermark is not read out twice.
+    expect(screen.getByRole("button", { name: /letter c, completed\. practice c\./i })).toBeInTheDocument();
+  });
+
   it("clicking the current letter launches practice for it", () => {
     const nodes = getLearningPathNodes(createInitialState());
     const onPractice = vi.fn();

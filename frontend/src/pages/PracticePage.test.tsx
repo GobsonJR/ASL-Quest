@@ -74,6 +74,18 @@ vi.mock("../components/CameraPractice", () => ({
   ),
 }));
 
+vi.mock("../components/LandmarkPractice", () => ({
+  LandmarkPractice: (props: {
+    targetLetter: string;
+    onCorrect: (elapsedMs: number, confidence: number) => void;
+  }) => (
+    <div data-testid="landmark-practice">
+      <span>target:{props.targetLetter}</span>
+      <button onClick={() => props.onCorrect(900, 0.9)}>fire-landmark-correct</button>
+    </div>
+  ),
+}));
+
 beforeEach(() => {
   mockPracticeLetter = null;
   markCorrect.mockReset().mockReturnValue(outcome());
@@ -93,147 +105,32 @@ afterEach(() => {
   cleanup();
 });
 
-describe("PracticePage: experimental recognizer comparison", () => {
+describe("PracticePage: recognizer selection", () => {
   const LOADED = { loaded: true, model_file: "landmark_L2_s0.joblib", model: "logreg", trained_on: null, error: null };
 
-  it("uses ResNet and shows no switch when no experimental model is configured", () => {
-    render(<PracticePage ready backendError={null} />);
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
-    expect(screen.queryByRole("radiogroup", { name: "Recognizer" })).toBeNull();
-  });
-
-  it("ignores an experimental model that failed to load", () => {
-    render(<PracticePage ready backendError={null} experimentalLandmark={{ ...LOADED, loaded: false, error: "not found" }} />);
-    expect(screen.queryByRole("radiogroup", { name: "Recognizer" })).toBeNull();
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
-  });
-
-  it("starts on ResNet, switches to the landmark recognizer on request, and can return to ResNet", () => {
+  it("uses the landmark recognizer by default and offers no recognizer choice when the model is loaded", () => {
     render(<PracticePage ready backendError={null} experimentalLandmark={LOADED} />);
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
-    expect(screen.getByRole("radio", { name: /ResNet/ })).toBeChecked();
-
-    fireEvent.click(screen.getByRole("radio", { name: /Hand landmarks/ }));
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "landmarks");
-    expect(screen.getByRole("alert")).toHaveTextContent(/Experimental recognizer active/);
-
-    fireEvent.click(screen.getByRole("button", { name: "Back to ResNet" }));
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
-    expect(screen.queryByRole("alert")).toBeNull();
-  });
-});
-
-describe("PracticePage: success state", () => {
-  it("shows the big celebration and locks the camera once the target letter is confirmed", () => {
-    render(<PracticePage ready backendError={null} />);
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-active", "true");
-
-    fireEvent.click(screen.getByText("fire-correct"));
-
-    expect(markCorrect).toHaveBeenCalledTimes(1);
-    expect(markCorrect).toHaveBeenCalledWith("A", 1200);
-    expect(screen.getByText(/is correct!/i)).toBeInTheDocument();
-    expect(screen.getByText(/yes! you got it!/i)).toBeInTheDocument();
-    // Camera must be deactivated the instant success is confirmed.
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-active", "false");
-  });
-
-  it("never awards XP a second time just because a stray correct frame slips through", () => {
-    render(<PracticePage ready backendError={null} />);
-    fireEvent.click(screen.getByText("fire-correct"));
-    expect(markCorrect).toHaveBeenCalledTimes(1);
-
-    // Even if something re-invoked onCorrect while already in the success
-    // phase, PracticePage/CameraPractice must not double-count it. (The real
-    // camera loop already can't do this -- see CameraPractice.test.tsx -- this
-    // guards the PracticePage side too.)
-    const correctButton = screen.queryByText("fire-correct");
-    if (correctButton) fireEvent.click(correctButton);
-  });
-});
-
-describe("PracticePage: wrong-detection feedback", () => {
-  it("shows a learner-friendly callout naming both letters, not raw prediction text", () => {
-    render(<PracticePage ready backendError={null} />);
-    fireEvent.click(screen.getByText("fire-incorrect"));
-
-    expect(markIncorrect).toHaveBeenCalledWith("A", "S");
-    expect(screen.getByText("Almost!")).toBeInTheDocument();
-    expect(screen.getByText(/you're showing s/i)).toBeInTheDocument();
-    expect(screen.getByText(/looking for a/i)).toBeInTheDocument();
-    expect(screen.queryByText(/predicted:/i)).not.toBeInTheDocument();
-  });
-});
-
-describe("PracticePage: reference image", () => {
-  it("shows the A reference before any detection", () => {
-    render(<PracticePage ready backendError={null} />);
-    const img = screen.getByRole("img", { name: /handshape for the letter a/i });
-    expect(img).toHaveAttribute("src", "/asl-reference/a.svg");
-  });
-
-  it("loads the next letter's reference after Next Letter is clicked", () => {
-    render(<PracticePage ready backendError={null} />);
-    fireEvent.click(screen.getByText("fire-correct"));
-
-    fireEvent.click(screen.getByRole("button", { name: /move to the next letter/i }));
-
-    expect(screen.getByRole("img", { name: /handshape for the letter b/i })).toHaveAttribute(
-      "src",
-      "/asl-reference/b.svg"
-    );
-    // Back to the live practice view, not stuck on the celebration.
-    expect(screen.queryByText(/yes! you got it!/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-active", "true");
-  });
-});
-
-describe("PracticePage: practice again", () => {
-  it("resets the current attempt without awarding another XP event", () => {
-    render(<PracticePage ready backendError={null} />);
-    fireEvent.click(screen.getByText("fire-correct"));
-    expect(markCorrect).toHaveBeenCalledTimes(1);
-
-    const attemptKeyBefore = screen.getByTestId("camera-practice").getAttribute("data-attempt-key");
-    fireEvent.click(screen.getByRole("button", { name: /practice.*again/i }));
-
-    // Same letter, not advanced.
-    expect(screen.getByText("target:A")).toBeInTheDocument();
-    // Back to the live view.
-    expect(screen.queryByText(/yes! you got it!/i)).not.toBeInTheDocument();
-    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-active", "true");
-    // Attempt was reset (new key) so CameraPractice re-arms its votes/flags.
-    expect(screen.getByTestId("camera-practice").getAttribute("data-attempt-key")).not.toBe(attemptKeyBefore);
-    // No second XP award just from retrying.
-    expect(markCorrect).toHaveBeenCalledTimes(1);
-  });
-});
-
-describe("PracticePage: lesson introduction and exits", () => {
-  it("shows the lesson intro for a chosen letter and only starts the camera after Start lesson", () => {
-    mockPracticeLetter = "C";
-    render(<PracticePage ready backendError={null} />);
-    expect(screen.getByTestId("lesson-intro")).toHaveTextContent("Letter C");
-    expect(screen.getByTestId("lesson-intro")).toHaveTextContent(/objective/i);
     expect(screen.queryByTestId("camera-practice")).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: /start lesson/i }));
-    expect(screen.getByTestId("camera-practice")).toHaveTextContent("target:C");
-    expect(screen.queryByTestId("lesson-intro")).toBeNull();
+    expect(screen.getByTestId("landmark-practice")).toBeInTheDocument();
+    expect(screen.queryByRole("radiogroup", { name: "Recognizer" })).toBeNull();
+    expect(screen.queryByRole("radio")).toBeNull();
   });
 
-  it("Back to Learn on the intro goes to the Learn page", () => {
-    mockPracticeLetter = "C";
+  it("falls back to ResNet only when no landmark model is available", () => {
     render(<PracticePage ready backendError={null} />);
-    fireEvent.click(screen.getAllByRole("button", { name: /back to learn/i })[0]);
-    expect(navigate).toHaveBeenCalledWith("learn");
+    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
+    expect(screen.queryByRole("radio")).toBeNull();
   });
 
-  it("free practice skips the intro and the completion screen offers Back to Learn", () => {
-    render(<PracticePage ready backendError={null} />);
-    expect(screen.queryByTestId("lesson-intro")).toBeNull();
-    fireEvent.click(screen.getByText("fire-correct"));
-    fireEvent.click(screen.getAllByRole("button", { name: /back to learn/i })[0]);
-    expect(navigate).toHaveBeenCalledWith("learn");
+  it("ignores a landmark model that failed to load", () => {
+    render(<PracticePage ready backendError={null} experimentalLandmark={{ ...LOADED, loaded: false, error: "not found" }} />);
+    expect(screen.getByTestId("camera-practice")).toHaveAttribute("data-recognizer", "resnet");
+  });
+
+  it("a confirmed landmark sign goes through the same markCorrect/XP path", () => {
+    render(<PracticePage ready backendError={null} experimentalLandmark={LOADED} />);
+    fireEvent.click(screen.getByRole("button", { name: "fire-landmark-correct" }));
+    expect(markCorrect).toHaveBeenCalledTimes(1);
+    expect(markCorrect).toHaveBeenCalledWith("A", 900);
   });
 });

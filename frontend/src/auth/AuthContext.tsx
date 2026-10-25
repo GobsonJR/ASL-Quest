@@ -11,6 +11,7 @@ import {
 } from "./api";
 import { clearToken } from "./token";
 import { DEMO_MODE } from "../config";
+import type { NavPage } from "../game/constants";
 import { loadGameState, saveGameState } from "../game/storage";
 import type { GameState } from "../game/types";
 
@@ -22,6 +23,9 @@ type AuthContextValue = {
   authView: AuthView;
   syncStatus: SyncStatus;
   migrationOffer: boolean;
+  /** Page to open right after a fresh sign-in (the Admin workspace for an administrator); consumed once. */
+  landingPage: NavPage | null;
+  clearLandingPage: () => void;
   setAuthView: (view: AuthView) => void;
   login: (login: string, password: string) => Promise<void>;
   register: (input: { username: string; email: string; password: string }) => Promise<void>;
@@ -53,6 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [authView, setAuthView] = useState<AuthView>("login");
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [migrationOffer, setMigrationOffer] = useState(false);
+  const [landingPage, setLandingPage] = useState<NavPage | null>(null);
 
   useEffect(() => {
     if (DEMO_MODE) return;
@@ -75,6 +80,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (loginValue: string, password: string) => {
     const profile = await loginUser(loginValue, password);
     setUser(profile);
+    // The role comes from the backend (/auth/me, read from the account row), never from anything typed into the form.
+    setLandingPage(profile.role === "admin" ? "admin" : null);
     try {
       const offer = await fetchMigrationOffer();
       const local = loadGameState();
@@ -96,12 +103,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     logoutUser();
     clearToken();
     setUser(null);
+    setLandingPage(null);
     setMigrationOffer(false);
     setSyncStatus("idle");
     setAuthView("login");
   }, []);
 
   const dismissMigration = useCallback(() => setMigrationOffer(false), []);
+  const clearLandingPage = useCallback(() => setLandingPage(null), []);
 
   const importLocalProgress = useCallback(async () => {
     const local = loadGameState();
@@ -118,6 +127,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       authView,
       syncStatus,
       migrationOffer,
+      landingPage,
+      clearLandingPage,
       setAuthView,
       login,
       register,
@@ -126,7 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       importLocalProgress,
       setSyncStatus,
     }),
-    [user, loading, authView, syncStatus, migrationOffer, login, register, logout, dismissMigration, importLocalProgress]
+    [user, loading, authView, syncStatus, migrationOffer, landingPage, clearLandingPage, login, register, logout, dismissMigration, importLocalProgress]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

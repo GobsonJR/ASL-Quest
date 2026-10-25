@@ -3,17 +3,19 @@ import { useAuth } from "../auth/AuthContext";
 import { DEMO_MODE } from "../config";
 import type { NavPage } from "../game/constants";
 import { useGame } from "../game/GameContext";
+import { lettersMasteredCount } from "../game/gamification";
+import { ExplorePopup } from "./ExplorePopup";
+import { ProfileMenu } from "./ProfileMenu";
 import { Glyph, Icon } from "./Icon";
 
 // Real app screens only (src/game/constants.ts::NavPage) -- no invented pages.
-// Six primary destinations; everything else stays reachable from "More".
+// Five primary learning destinations; everything else stays reachable from "More" or the account menu.
 const PRIMARY_NAV: Array<{ id: NavPage; label: string; icon: string }> = [
   { id: "learn", label: "Learn", icon: "📚" },
   { id: "practice", label: "Practice", icon: "✋" },
   { id: "alphabet", label: "Alphabet", icon: "🔤" },
   { id: "words", label: "Words", icon: "🧩" },
   { id: "achievements", label: "Badges", icon: "🏅" },
-  { id: "profile", label: "Profile", icon: "🙂" },
 ];
 
 const SECONDARY_NAV: Array<{ id: NavPage; label: string; icon: string; adminOnly?: boolean }> = [
@@ -22,11 +24,9 @@ const SECONDARY_NAV: Array<{ id: NavPage; label: string; icon: string; adminOnly
   { id: "challenges", label: "Challenges", icon: "🎯" },
   { id: "progress", label: "Progress", icon: "📈" },
   { id: "assistant", label: "AURA", icon: "✨" },
-  { id: "settings", label: "Settings", icon: "⚙️" },
   { id: "admin", label: "Admin", icon: "🛠️", adminOnly: true },
   { id: "mentor-dashboard", label: "Mentor", icon: "📊", adminOnly: true },
-  // Development builds only: labelled webcam data collection (needs ASL_QUEST_DEV_COLLECT=1 on the backend).
-  ...(import.meta.env.DEV ? [{ id: "collect" as const, label: "Collect data", icon: "📷" }] : []),
+  // Profile and Settings live in the account menu (top-right avatar); dataset collection is a tab of the Admin workspace.
 ];
 
 function isNavActive(id: NavPage, page: NavPage, practiceKind: string): boolean {
@@ -56,12 +56,15 @@ export function AppShell({
   const { page, navigate, startPractice, practiceKind, state, level, levelProgress } = useGame();
   const { user, logout, syncStatus } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
-  const secondaryItems = SECONDARY_NAV.filter((item) => !item.adminOnly || user?.role === "admin");
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const isAdmin = user?.role === "admin";
+  const secondaryItems = SECONDARY_NAV.filter((item) => !item.adminOnly || isAdmin);
   const secondaryActive = secondaryItems.some((item) => isNavActive(item.id, page, practiceKind));
 
   // Close the mobile "More" menu on navigation and on Escape.
   useEffect(() => {
     setMenuOpen(false);
+    setExploreOpen(false);
   }, [page]);
   useEffect(() => {
     if (!menuOpen) return;
@@ -115,6 +118,17 @@ export function AppShell({
               {item.label === "Badges" ? "Achievements" : item.label}
             </SidebarNavButton>
           ))}
+          <button
+            type="button"
+            onClick={() => setExploreOpen(true)}
+            aria-haspopup="dialog"
+            className="mt-2 flex w-full items-center gap-3 rounded-[var(--radius-control)] bg-gradient-to-r from-[var(--color-primary-soft)] to-[var(--color-native-soft)] px-3 py-2.5 text-sm font-bold text-[var(--color-primary-dim)] shadow-[0_3px_0_0_rgba(0,0,0,0.06)] transition hover:-translate-y-0.5 hover:shadow-[0_6px_14px_-8px_rgba(0,0,0,0.3)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-primary)]"
+          >
+            <span className="text-base" aria-hidden="true">
+              <Glyph value="🧭" />
+            </span>
+            Explore paths
+          </button>
           <p className="px-3 pb-1 pt-4 text-xs font-bold uppercase tracking-[0.12em] text-[var(--color-muted)]">More</p>
           {secondaryItems.map((item) => (
             <SidebarNavButton
@@ -172,15 +186,14 @@ export function AppShell({
                   {syncLabel}
                 </span>
               )}
-              {!DEMO_MODE && (
-              <button
-                type="button"
-                className="hidden min-h-9 whitespace-nowrap rounded-full px-2 py-1.5 text-xs font-semibold text-[var(--color-ink-soft)] transition hover:text-[var(--color-ink)] md:inline-block"
-                onClick={logout}
-              >
-                Log out
-              </button>
-              )}
+              <ProfileMenu
+                name={user?.username ?? "Account"}
+                email={DEMO_MODE ? undefined : user?.email}
+                isAdmin={isAdmin}
+                currentPage={page}
+                onNavigate={(target) => go(target)}
+                onLogout={DEMO_MODE ? undefined : logout}
+              />
               <button
                 type="button"
                 className={`grid h-11 min-w-11 place-items-center rounded-xl border-2 text-lg md:hidden ${
@@ -219,15 +232,6 @@ export function AppShell({
                   {item.label}
                 </button>
               ))}
-              {!DEMO_MODE && (
-              <button
-                type="button"
-                className="col-span-2 flex min-h-11 items-center justify-center rounded-xl border-2 border-[var(--color-border)] px-3 text-sm font-bold text-[var(--color-ink-soft)]"
-                onClick={logout}
-              >
-                Log out
-              </button>
-              )}
             </nav>
           )}
         </header>
@@ -260,6 +264,17 @@ export function AppShell({
           ))}
         </ul>
       </nav>
+
+      {exploreOpen && (
+        <ExplorePopup
+          lettersMastered={lettersMasteredCount(state)}
+          onClose={() => setExploreOpen(false)}
+          onSelect={(target) => {
+            setExploreOpen(false);
+            go(target);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -346,9 +361,8 @@ function greetingForPage(page: NavPage): string {
     assistant: "AURA",
     profile: "Your profile",
     settings: "Settings",
-    admin: "Admin overview",
+    admin: "Admin workspace",
     "mentor-dashboard": "Mentor dashboard",
-    collect: "Collect webcam data",
   };
   return titles[page] ?? "ASL Quest";
 }
@@ -545,17 +559,20 @@ export function SecondaryButton({
   className = "",
   ariaLabel,
   type = "button",
+  disabled = false,
 }: {
   children: ReactNode;
   onClick?: () => void;
   className?: string;
   ariaLabel?: string;
   type?: "button" | "submit";
+  disabled?: boolean;
 }) {
   return (
     <button
       type={type}
-      className={`inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border-2 border-[var(--color-border)] bg-transparent px-5 py-2.5 text-sm font-semibold text-[var(--color-ink-soft)] transition hover:border-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary-dim)] active:scale-[0.98] ${className}`}
+      className={`inline-flex min-h-11 items-center justify-center rounded-[var(--radius-control)] border-2 border-[var(--color-border)] bg-transparent px-5 py-2.5 text-sm font-semibold text-[var(--color-ink-soft)] transition hover:border-[var(--color-primary-soft)] hover:bg-[var(--color-primary-soft)] hover:text-[var(--color-primary-dim)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      disabled={disabled}
       onClick={onClick}
       aria-label={ariaLabel}
     >

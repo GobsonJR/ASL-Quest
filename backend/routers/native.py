@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session, selectinload
 
 from backend.database import get_db
@@ -20,6 +21,7 @@ from backend.models import (
     XpEvent,
 )
 from backend.security import get_current_user
+from backend.services.native_local_videos import local_video_path, local_video_url
 from backend.services.progress import ensure_user_progress, level_from_xp, seed_achievements
 from src.i3d_transfer.predict import predict_video
 
@@ -61,6 +63,8 @@ def _is_http_url(value: str | None) -> bool:
 
 def _serialize_reference(sign: NativeSign) -> dict:
     reference = next(iter(sorted(sign.references_, key=lambda r: (not r.is_primary, r.id))), None)
+    # A copy of the demonstration stored on this machine (dataset/videos/) plays with no internet; None when there is none.
+    local_url = local_video_url(sign.gloss)
     if (
         reference is not None
         and reference.source_type in APPROVED_REFERENCE_SOURCE_TYPES
@@ -69,17 +73,33 @@ def _serialize_reference(sign: NativeSign) -> dict:
         return {
             "available": True,
             "video_url": reference.source_identifier,
+            "local_video_url": local_url,
             "thumbnail_url": reference.thumbnail_path if _is_http_url(reference.thumbnail_path) else None,
             "source_type": reference.source_type,
             "license_note": reference.license_note,
         }
     return {
-        "available": False,
+        "available": local_url is not None,
         "video_url": None,
+        "local_video_url": local_url,
         "thumbnail_url": None,
         "source_type": reference.source_type if reference else None,
         "license_note": reference.license_note if reference else None,
     }
+
+
+@router.get("/reference-video/{gloss}")
+def native_reference_video(gloss: str) -> FileResponse:
+    """Stream the locally stored demonstration for a sign (supports seeking via HTTP Range).
+
+    Not behind the bearer token on purpose: a <video> element cannot send an Authorization header. It only ever serves
+    files that exist in the local video folder for a plain catalog-style gloss (see services/native_local_videos.py), and
+    that folder is git-ignored, so a deployed server without those files simply answers 404.
+    """
+    path = local_video_path(gloss)
+    if path is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No local reference video for this sign.")
+    return FileResponse(path, media_type="video/mp4", filename=None)
 
 
 @router.get("/signs")
@@ -330,10 +350,9 @@ async def predict_native_sign(
     if expected_sign is not None:
         effective_expected_label = expected_sign.gloss
         expected_norm = expected_sign.gloss.strip().upper()
-        # Lenient for learners: a webcam clip differs from the training footage, so accept the
-        # target when it is in the model's top-3 (not only top-1).
-        top3 = [str(item.get("gloss", "")).strip().upper() for item in (result.get("top_k") or [])[:3]]
-        correct = result["prediction"].strip().upper() == expected_norm or expected_norm in top3
+        # Strict top-1: only the model's highest-ranked prediction counts. The sign being in the top 2/3 is NOT a
+        # correct attempt (with 10 classes a random guess lands in the top 3 about 30% of the time).
+        correct = result["prediction"].strip().upper() == expected_norm
     elif expected_label is not None:
         correct = result["prediction"].strip().upper() == expected_label.strip().upper()
 

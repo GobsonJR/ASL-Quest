@@ -7,7 +7,7 @@ const startPractice = vi.fn();
 const logout = vi.fn();
 
 let mockPage = "learn";
-let mockRole: "user" | "admin" = "user";
+let mockRole: "student" | "admin" = "student";
 
 vi.mock("../game/GameContext", () => ({
   useGame: () => ({
@@ -27,7 +27,7 @@ vi.mock("../game/GameContext", () => ({
 }));
 
 vi.mock("../auth/AuthContext", () => ({
-  useAuth: () => ({ user: { username: "sam", role: mockRole }, logout, syncStatus: "synced" }),
+  useAuth: () => ({ user: { username: "sam", email: "sam@example.com", role: mockRole }, logout, syncStatus: "synced" }),
 }));
 
 function renderShell() {
@@ -38,18 +38,18 @@ function renderShell() {
   );
 }
 
-const PRIMARY = ["Learn", "Practice", "Alphabet", "Words", "Badges", "Profile"];
+const PRIMARY = ["Learn", "Practice", "Alphabet", "Words", "Badges"];
 
 beforeEach(() => {
   mockPage = "learn";
-  mockRole = "user";
+  mockRole = "student";
   navigate.mockReset();
   startPractice.mockReset();
 });
 afterEach(() => cleanup());
 
 describe("AppShell navigation", () => {
-  it("offers all six primary destinations on desktop and mobile", () => {
+  it("offers the five primary learning destinations on desktop and mobile", () => {
     renderShell();
     const desktop = screen.getByRole("navigation", { name: "Main navigation" });
     const mobile = screen.getByRole("navigation", { name: "Mobile navigation" });
@@ -58,7 +58,7 @@ describe("AppShell navigation", () => {
       expect(within(desktop).getByRole("button", { name: new RegExp(desktopLabel, "i") })).toBeInTheDocument();
       expect(within(mobile).getByRole("button", { name: new RegExp(label, "i") })).toBeInTheDocument();
     }
-    expect(within(mobile).getAllByRole("button")).toHaveLength(6);
+    expect(within(mobile).getAllByRole("button")).toHaveLength(5);
   });
 
   it("marks only the current destination with aria-current", () => {
@@ -135,12 +135,47 @@ describe("AppShell navigation", () => {
   });
 });
 
-describe("AppShell log out", () => {
-  it("is reachable from the mobile More menu", () => {
+describe("AppShell account menu (top-right)", () => {
+  it("puts the avatar and its dropdown in the header, with Profile, Settings and Log out", () => {
     renderShell();
-    fireEvent.click(screen.getByRole("button", { name: "More pages" }));
-    const menu = document.getElementById("mobile-more-menu") as HTMLElement;
-    fireEvent.click(within(menu).getByRole("button", { name: /log out/i }));
+    const header = screen.getByRole("banner");
+    const avatar = within(header).getByRole("button", { name: /account menu for sam/i });
+    fireEvent.click(avatar);
+    fireEvent.click(screen.getByRole("menuitem", { name: /log out/i }));
     expect(logout).toHaveBeenCalledTimes(1);
+  });
+
+  it("opens the existing Profile and Settings pages from the menu", () => {
+    renderShell();
+    fireEvent.click(screen.getByRole("button", { name: /account menu for sam/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /profile/i }));
+    expect(navigate).toHaveBeenLastCalledWith("profile");
+    fireEvent.click(screen.getByRole("button", { name: /account menu for sam/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /settings/i }));
+    expect(navigate).toHaveBeenLastCalledWith("settings");
+  });
+
+  it("no longer duplicates Profile, Settings or Log out in the sidebar, bottom bar or More menu", () => {
+    renderShell();
+    const desktop = screen.getByRole("navigation", { name: "Main navigation" });
+    const mobile = screen.getByRole("navigation", { name: "Mobile navigation" });
+    for (const nav of [desktop, mobile]) {
+      expect(within(nav).queryByRole("button", { name: /profile|settings|log out/i })).toBeNull();
+    }
+    fireEvent.click(screen.getByRole("button", { name: "More pages" }));
+    const more = document.getElementById("mobile-more-menu") as HTMLElement;
+    expect(within(more).queryByRole("button", { name: /profile|settings|log out|collect/i })).toBeNull();
+  });
+
+  it("shows the Admin workspace entry in the menu for administrators only", () => {
+    renderShell();
+    fireEvent.click(screen.getByRole("button", { name: /account menu for sam/i }));
+    expect(screen.queryByRole("menuitem", { name: /admin workspace/i })).toBeNull();
+    cleanup();
+    mockRole = "admin";
+    renderShell();
+    fireEvent.click(screen.getByRole("button", { name: /account menu for sam/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /admin workspace/i }));
+    expect(navigate).toHaveBeenLastCalledWith("admin");
   });
 });

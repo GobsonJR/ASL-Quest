@@ -96,9 +96,21 @@ def _sign_id(gloss: str) -> int:
         return sign.id
 
 
+def _isolate_local_videos(cls) -> None:
+    """These tests describe the catalog, not whatever MP4s happen to sit in the developer's dataset/videos folder."""
+    from backend.services import native_local_videos
+
+    empty = tempfile.TemporaryDirectory()
+    cls.addClassCleanup(empty.cleanup)
+    patcher = patch.object(native_local_videos, "LOCAL_VIDEO_DIR", Path(empty.name))
+    patcher.start()
+    cls.addClassCleanup(patcher.stop)
+
+
 class NativeRouterTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
+        _isolate_local_videos(cls)
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)  # all tables, not just the legacy ten
         with SessionLocal() as db:
@@ -540,6 +552,97 @@ class NativeRouterTests(unittest.TestCase):
         with SessionLocal() as db:
             self.assertEqual(db.query(XpEvent).filter(XpEvent.user_id == user_id).count(), 0)
 
+    # --- Strict top-1 correctness (the target being in the top 2/3 must NOT count) ---------------------------
+
+    def _practice_ranked(self, token: str, native_sign_id: int, ranked: list[tuple[str, float]]):
+        """Practice request whose model output is `ranked` (best first), like a real top-k answer."""
+        result = {
+            "prediction": ranked[0][0],
+            "confidence": ranked[0][1],
+            "top_k": [{"gloss": gloss, "confidence": conf} for gloss, conf in ranked],
+            "video": "irrelevant.mp4",
+            "num_classes": 10,
+        }
+        with patch("backend.routers.native.predict_video", return_value=result):
+            return self.client.post(
+                f"/native/predict?native_sign_id={native_sign_id}",
+                headers={"Authorization": f"Bearer {token}"},
+                files={"file": ("clip.mp4", BytesIO(b"fake-video-bytes"), "video/mp4")},
+            )
+
+    def _progress_row(self, user_id: int, sign_id: int):
+        with SessionLocal() as db:
+            row = (
+                db.query(NativeSignProgress)
+                .filter(NativeSignProgress.user_id == user_id, NativeSignProgress.native_sign_id == sign_id)
+                .first()
+            )
+            return None if row is None else (row.attempts, row.correct_attempts, row.mastery)
+
+    def test_target_ranked_second_is_incorrect_and_earns_nothing(self) -> None:
+        token = self.register("native_strict_second")
+        user_id = self._user_id(token)
+        hello_id = _sign_id("HELLO")
+        response = self._practice_ranked(token, hello_id, [("PLEASE", 0.199), ("HELLO", 0.11), ("EAT1", 0.10), ("YES", 0.10), ("NO", 0.10)])
+        self.assertEqual(response.status_code, 200, response.text)
+        payload = response.json()
+        self.assertFalse(payload["correct"])
+        self.assertEqual(payload["prediction"], "PLEASE")
+        self.assertEqual(payload["expected_sign"]["gloss"], "HELLO")
+        self.assertEqual(payload["xp_earned"], 0)
+        self.assertEqual(self._user_xp(user_id), 0)
+        self.assertEqual(self._progress_row(user_id, hello_id), (1, 0, 0.0))  # attempt counted, no correct, no mastery
+        with SessionLocal() as db:
+            self.assertEqual(db.query(XpEvent).filter(XpEvent.user_id == user_id).count(), 0)
+            self.assertEqual(db.query(NativeSignSession).filter(NativeSignSession.user_id == user_id).one().result, "incorrect")
+            self.assertFalse(db.query(SignPrediction).filter(SignPrediction.user_id == user_id).one().correct)
+        # The ranked list is still returned for consumers that want it.
+        self.assertEqual([item["gloss"] for item in payload["top_k"]][:2], ["PLEASE", "HELLO"])
+
+    def test_target_ranked_third_is_incorrect(self) -> None:
+        token = self.register("native_strict_third")
+        user_id = self._user_id(token)
+        hello_id = _sign_id("HELLO")
+        response = self._practice_ranked(token, hello_id, [("PLEASE", 0.30), ("EAT1", 0.20), ("HELLO", 0.15)])
+        payload = response.json()
+        self.assertFalse(payload["correct"])
+        self.assertEqual(payload["xp_earned"], 0)
+        self.assertEqual(self._user_xp(user_id), 0)
+        self.assertEqual(self._progress_row(user_id, hello_id), (1, 0, 0.0))
+
+    def test_top1_match_is_correct_and_awards_xp_once(self) -> None:
+        token = self.register("native_strict_top1")
+        user_id = self._user_id(token)
+        hello_id = _sign_id("HELLO")
+        response = self._practice_ranked(token, hello_id, [("HELLO", 0.62), ("PLEASE", 0.12)])
+        payload = response.json()
+        self.assertTrue(payload["correct"])
+        self.assertEqual(payload["xp_earned"], 20)
+        self.assertEqual(self._user_xp(user_id), 20)
+        self.assertEqual(self._progress_row(user_id, hello_id), (1, 1, 100.0))
+        with SessionLocal() as db:
+            self.assertEqual(db.query(XpEvent).filter(XpEvent.user_id == user_id).count(), 1)
+
+    def test_top1_match_is_case_and_whitespace_insensitive(self) -> None:
+        token = self.register("native_strict_norm")
+        hello_id = _sign_id("HELLO")
+        payload = self._practice_ranked(token, hello_id, [(" hello ", 0.7)]).json()
+        self.assertTrue(payload["correct"])
+
+    def test_one_request_never_awards_xp_twice_and_each_request_is_its_own_attempt(self) -> None:
+        token = self.register("native_strict_once")
+        user_id = self._user_id(token)
+        hello_id = _sign_id("HELLO")
+        self._practice_ranked(token, hello_id, [("HELLO", 0.7)])
+        self.assertEqual(self._user_xp(user_id), 20)  # one correct request -> exactly one award
+        self._practice_ranked(token, hello_id, [("PLEASE", 0.4), ("HELLO", 0.3)])  # near-miss afterwards
+        self.assertEqual(self._user_xp(user_id), 20)  # no extra XP, and nothing taken away
+        self._practice_ranked(token, hello_id, [("HELLO", 0.8)])  # a second genuine attempt is a second award
+        self.assertEqual(self._user_xp(user_id), 40)
+        self.assertEqual(self._progress_row(user_id, hello_id), (3, 2, round(2 / 3 * 100, 1)))
+        with SessionLocal() as db:
+            self.assertEqual(db.query(XpEvent).filter(XpEvent.user_id == user_id).count(), 2)
+
     def test_repeated_practice_accumulates_xp_only_for_correct(self) -> None:
         token = self.register("native_xp_repeated")
         user_id = self._user_id(token)
@@ -660,6 +763,7 @@ class NativeSignReferenceTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls) -> None:
+        _isolate_local_videos(cls)
         Base.metadata.drop_all(bind=engine)
         Base.metadata.create_all(bind=engine)
         with SessionLocal() as db:

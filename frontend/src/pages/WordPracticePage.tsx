@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Card, PageHeader, Panel, SecondaryButton, StatusChip } from "../components/AppShell";
 import { CameraPractice } from "../components/CameraPractice";
+import { LandmarkPractice } from "../components/LandmarkPractice";
+import type { ExperimentalLandmarkInfo } from "../api";
 import { WordCompleteOverlay } from "../components/CelebrationOverlay";
 import { useSignoEmit } from "../components/signo/SignoContext";
 import { useToast } from "../components/Toast";
@@ -18,9 +20,12 @@ type LetterLog = {
 export function WordPracticePage({
   ready,
   backendError,
+  experimentalLandmark = null,
 }: {
   ready: boolean;
   backendError: string | null;
+  /** Set when the backend has the landmark model loaded; letters are then recognized with browser-side MediaPipe landmarks. */
+  experimentalLandmark?: ExperimentalLandmarkInfo | null;
 }) {
   const {
     practiceWordId,
@@ -240,16 +245,30 @@ export function WordPracticePage({
           </div>
 
           <Card className="order-1 p-3 md:p-4 xl:order-2" padding={false}>
-            <CameraPractice
-              targetLetter={currentLetter}
-              active={phase === "playing" && ready}
-              ready={ready}
-              backendError={backendError}
-              onCorrect={handleCorrect}
-              onIncorrect={handleIncorrect}
-              onStatusChange={setCameraStatus}
-              incorrectHint={`Try again — show ${currentLetter}`}
-            />
+            {experimentalLandmark?.loaded ? (
+              // Same recognizer as letter practice: MediaPipe in the browser, only landmarks sent. ResNet is the fallback below.
+              <LandmarkPractice
+                targetLetter={currentLetter}
+                active={phase === "playing" && ready}
+                ready={ready}
+                backendError={backendError}
+                onCorrect={handleCorrect}
+                onIncorrect={handleIncorrect}
+                onStatusChange={setCameraStatus}
+                incorrectHint={`Try again — show ${currentLetter}`}
+              />
+            ) : (
+              <CameraPractice
+                targetLetter={currentLetter}
+                active={phase === "playing" && ready}
+                ready={ready}
+                backendError={backendError}
+                onCorrect={handleCorrect}
+                onIncorrect={handleIncorrect}
+                onStatusChange={setCameraStatus}
+                incorrectHint={`Try again — show ${currentLetter}`}
+              />
+            )}
           </Card>
         </div>
       </div>

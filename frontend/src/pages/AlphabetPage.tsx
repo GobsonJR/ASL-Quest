@@ -71,7 +71,7 @@ export function AlphabetPage() {
       <PageHeader
         eyebrow="A–Z"
         title="The ASL alphabet"
-        description="Pick a letter to see its handshape, then practice it with your camera. Only static handshapes are recognized — J and Z are taught as held shapes, not motion."
+        description="Pick a letter to see its handshape, then practice it with your camera."
       />
 
       <Card className="space-y-2">

@@ -56,7 +56,7 @@ export function pickEncouragement(letter: string, random: () => number = Math.ra
 }
 
 /** One-line handshape cue per letter, shared by the Learn and Alphabet pages. J and Z
- * are taught as static shapes only -- the classifier does not recognize their motion. */
+ * are practiced as held shapes. */
 export const SIGN_HINTS: Record<string, string> = {
   A: "Make a fist with thumb alongside.",
   B: "Four fingers up, thumb tucked in.",
@@ -67,7 +67,7 @@ export const SIGN_HINTS: Record<string, string> = {
   G: "Index and thumb point sideways.",
   H: "Index and middle finger point sideways.",
   I: "Pinky up, other fingers in a fist.",
-  J: "Pinky up — hold a static J shape (not motion).",
+  J: "Pinky up — hold the J shape.",
   K: "Index and middle in a V, thumb between them.",
   L: "Thumb and index form an L.",
   M: "Three fingers over thumb in fist.",
@@ -83,5 +83,5 @@ export const SIGN_HINTS: Record<string, string> = {
   W: "Three fingers up in a W shape.",
   X: "Index finger bent like a hook.",
   Y: "Thumb and pinky extended.",
-  Z: "Index points — hold a static Z shape (not motion).",
+  Z: "Index points — hold the Z shape.",
 };

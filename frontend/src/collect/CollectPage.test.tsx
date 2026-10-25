@@ -14,7 +14,15 @@ vi.mock("./api", async () => {
     createSession: vi.fn(),
     analyzeFrame: vi.fn(),
     saveSample: vi.fn(),
+    saveNegative: vi.fn(),
     deleteSample: vi.fn(),
+    saveNativeClip: vi.fn(),
+    deleteNativeClip: vi.fn(),
+    listSamples: vi.fn(),
+    listNativeClips: vi.fn(),
+    sampleImageUrl: vi.fn(),
+    clipVideoUrl: vi.fn(),
+    exportDataset: vi.fn(),
   };
 });
 // The collector must never use the recognizer: if the page imported it, this spy would be callable.
@@ -26,6 +34,11 @@ const STATUS: api.CollectStatus = {
   letters: LETTERS,
   options: { lighting: ["lamp", "daylight"], background: ["shelves", "plain_wall"], hand: ["right", "left"], distance: ["medium", "near"] },
   target_per_letter: 150,
+  native_signs: [{ gloss: "HELLO", display_name: "Hello" }, { gloss: "BOOK", display_name: "Book" }],
+  target_per_native_sign: 30,
+  native_totals: {},
+  limits: { max_image_bytes: 8388608, max_clip_bytes: 62914560, image_formats: ["JPEG", "PNG"], clip_formats: ["webm", "mp4"] },
+  consent_required: true,
   totals: Object.fromEntries(LETTERS.map((l) => [l, 0])),
   thresholds: { min_sharpness: 110, min_hand_px: 100, brightness_range: [45, 225] },
   hand_detector_available: true,
@@ -33,7 +46,7 @@ const STATUS: api.CollectStatus = {
 const SESSION: api.SessionInfo = {
   session_id: "s20261019_120000_room",
   room: "room", lighting: "lamp", background: "shelves", background_notes: "", face_visible: true, glasses: false, camera: "", notes: "",
-  counts: Object.fromEntries(LETTERS.map((l) => [l, 0])), total: 0,
+  counts: Object.fromEntries(LETTERS.map((l) => [l, 0])), total: 0, native_counts: {}, native_total: 0,
 };
 const GOOD: api.Analysis = { usable: true, reasons: [], warnings: [], metrics: {}, hand_box: [1, 2, 3, 4], crop_preview: "data:image/png;base64,AAAA" };
 const BAD: api.Analysis = { usable: false, reasons: ["blurry (sharpness 40 < 70): hold still or add light"], warnings: [], metrics: {}, hand_box: null, crop_preview: null };
@@ -52,10 +65,18 @@ function stubBrowser() {
   URL.revokeObjectURL = vi.fn();
 }
 
+/** Fills in the room, person and the consent box, starts the session and turns the camera on (an explicit click). */
+async function startSessionForm() {
+  fireEvent.change(await screen.findByLabelText(/room/i), { target: { value: "room" } });
+  fireEvent.change(screen.getByLabelText(/person signing/i), { target: { value: "person-1" } });
+  fireEvent.click(screen.getByRole("checkbox", { name: /has agreed/i }));
+  fireEvent.click(screen.getByRole("button", { name: "Start session" }));
+}
+
 async function openSession() {
   render(<CollectPage />);
-  fireEvent.change(await screen.findByLabelText(/room/i), { target: { value: "room" } });
-  fireEvent.click(screen.getByRole("button", { name: "Start session" }));
+  await startSessionForm();
+  fireEvent.click(await screen.findByRole("button", { name: "Turn on camera" }));
   const video = (await screen.findByLabelText(/webcam preview for data collection/i)) as HTMLVideoElement;
   Object.defineProperty(video, "readyState", { value: 4, configurable: true });
   Object.defineProperty(video, "videoWidth", { value: 960, configurable: true });
@@ -75,6 +96,9 @@ beforeEach(() => {
     session: { ...SESSION, total: 1, counts: { ...SESSION.counts, [input.letter]: 1 } },
   }));
   vi.mocked(api.deleteSample).mockResolvedValue({ deleted: "x", session: SESSION });
+  vi.mocked(api.listSamples).mockResolvedValue({ samples: [] });
+  vi.mocked(api.listNativeClips).mockResolvedValue({ clips: [] });
+  vi.mocked(api.sampleImageUrl).mockResolvedValue("blob:thumb");
   vi.mocked(predictImage).mockReset();
   collectTiming.holdIntervalMs = 1;
   stubBrowser();
@@ -91,10 +115,54 @@ describe("CollectPage", () => {
   it("creates a session from the room description before anything else", async () => {
     render(<CollectPage />);
     const start = await screen.findByRole("button", { name: "Start session" });
-    expect(start).toBeDisabled(); // a room name is required
+    expect(start).toBeDisabled(); // a room name and a person are required
     fireEvent.change(screen.getByLabelText(/room/i), { target: { value: "Bedroom shelf wall" } });
+    expect(start).toBeDisabled(); // the person keeps people separate between training and testing
+    fireEvent.change(screen.getByLabelText(/person signing/i), { target: { value: " person-2 " } });
+    expect(start).toBeDisabled(); // ... and the contributor must have agreed
+    fireEvent.click(screen.getByRole("checkbox", { name: /has agreed/i }));
+    expect(start).toBeEnabled();
     fireEvent.click(start);
-    await waitFor(() => expect(api.createSession).toHaveBeenCalledWith(expect.objectContaining({ room: "Bedroom shelf wall", lighting: "lamp", background: "shelves", face_visible: true })));
+    await waitFor(() => expect(api.createSession).toHaveBeenCalledWith(expect.objectContaining({ room: "Bedroom shelf wall", lighting: "lamp", background: "shelves", face_visible: true, person: "person-2", consent_confirmed: true })));
+  });
+
+  it("explains that images can show identifiable people before any session can be started", async () => {
+    render(<CollectPage />);
+    expect(await screen.findByText(/identifiable person and their room/i)).toBeInTheDocument();
+    expect(screen.getByRole("checkbox", { name: /has agreed/i })).not.toBeChecked();
+  });
+
+  it("does not touch the camera until the admin clicks 'Turn on camera', and shows when it is live", async () => {
+    render(<CollectPage />);
+    await startSessionForm();
+    expect(await screen.findByRole("button", { name: "Turn on camera" })).toBeInTheDocument();
+    expect(navigator.mediaDevices.getUserMedia).not.toHaveBeenCalled(); // no permission prompt yet
+    expect(screen.queryByText(/camera on/i)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Turn on camera" }));
+    expect(await screen.findByText(/camera on · nothing is saved until you confirm/i)).toBeInTheDocument();
+    expect(navigator.mediaDevices.getUserMedia).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: "Turn off camera" }));
+    await waitFor(() => expect(screen.queryByText(/camera on/i)).toBeNull());
+  });
+
+  it("tells a non-admin that collection is for administrators", async () => {
+    vi.mocked(api.collectStatus).mockRejectedValue(new api.CollectApiError("Administrator access is required.", 403));
+    render(<CollectPage />);
+    expect(await screen.findByText(/available to administrators only/i)).toBeInTheDocument();
+  });
+
+  it("saves no-hand and partial-hand frames without a letter and reports what MediaPipe made of them", async () => {
+    vi.mocked(api.saveNegative).mockImplementation(async (_blob, _id, kind) => ({
+      negative: { sample_id: "N_x_1_abcd", kind, detector_found_hand: kind === "no_hand" },
+      session: { ...SESSION, negatives: { no_hand: kind === "no_hand" ? 1 : 0, partial_hand: kind === "partial_hand" ? 1 : 0 } },
+    }));
+    await openSession();
+    fireEvent.click(screen.getByRole("button", { name: "Save NO-HAND frame" }));
+    expect(await screen.findByText(/DID find a hand in it \(recorded as a false detection\)/)).toBeInTheDocument();
+    expect(api.saveNegative).toHaveBeenCalledWith(expect.any(Blob), SESSION.session_id, "no_hand", "medium");
+    fireEvent.click(screen.getByRole("button", { name: "Save PARTIAL-HAND frame" }));
+    expect(await screen.findByText(/found no hand, as expected/)).toBeInTheDocument();
+    expect(api.saveSample).not.toHaveBeenCalled(); // negatives never become labelled letters
   });
 
   it("will not capture until a letter has been chosen", async () => {
@@ -218,5 +286,135 @@ describe("CollectPage", () => {
     fireEvent.click(await screen.findByRole("button", { name: /Yes, this is C/ }));
     await waitFor(() => expect(api.saveSample).toHaveBeenCalled());
     expect(predictImage).not.toHaveBeenCalled();
+  });
+});
+
+describe("CollectPage: native-sign clips", () => {
+  class FakeRecorder {
+    static isTypeSupported = () => true;
+    state: "inactive" | "recording" = "inactive";
+    ondataavailable: ((e: { data: Blob }) => void) | null = null;
+    onstop: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    start() {
+      this.state = "recording";
+    }
+    stop() {
+      this.state = "inactive";
+      this.ondataavailable?.({ data: new Blob(["clip-bytes"], { type: "video/webm" }) });
+      this.onstop?.();
+    }
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal("MediaRecorder", FakeRecorder);
+    vi.mocked(api.saveNativeClip).mockResolvedValue({
+      clip: { sample_id: "C_1_abcd", session_id: SESSION.session_id, gloss: "HELLO", captured_at: "2026-10-25T10:00:00Z", bytes: 10, duration_ms: 1000, hand: "right" },
+      session: { ...SESSION, native_counts: { HELLO: 1 }, native_total: 1 },
+    });
+  });
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function openNative() {
+    await openSession();
+    fireEvent.click(screen.getByRole("tab", { name: "Native-sign clips" }));
+    return screen.getByTestId("native-recorder");
+  }
+
+  it("records only after a sign is chosen, previews the clip and saves it only after confirmation, with the confirmed sign", async () => {
+    const recorder = await openNative();
+    expect(within(recorder).getByRole("button", { name: "Choose a sign first" })).toBeDisabled();
+    fireEvent.click(within(recorder).getByRole("button", { name: /^Sign Hello/ }));
+    fireEvent.click(within(recorder).getByRole("button", { name: /Record HELLO/ }));
+    expect(await within(recorder).findByText(/Recording/)).toBeInTheDocument();
+    fireEvent.click(within(recorder).getByRole("button", { name: "Stop" }));
+
+    const review = await screen.findByTestId("clip-review");
+    expect(api.saveNativeClip).not.toHaveBeenCalled(); // stopping alone never saves
+    fireEvent.click(within(review).getByRole("button", { name: /Yes, this is HELLO — save clip/ }));
+    await waitFor(() => expect(api.saveNativeClip).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(api.saveNativeClip).mock.calls[0][0]).toMatchObject({ sessionId: SESSION.session_id, gloss: "HELLO", hand: "right" });
+    expect(await screen.findByText(/Saved a clip as HELLO/)).toBeInTheDocument();
+    expect(predictImage).not.toHaveBeenCalled();
+  });
+
+  it("retake and discard save nothing", async () => {
+    const recorder = await openNative();
+    fireEvent.click(within(recorder).getByRole("button", { name: /^Sign Book/ }));
+    fireEvent.click(within(recorder).getByRole("button", { name: /Record BOOK/ }));
+    fireEvent.click(await within(recorder).findByRole("button", { name: "Stop" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Retake" }));
+    expect(screen.queryByTestId("clip-review")).toBeNull();
+    fireEvent.click(within(recorder).getByRole("button", { name: /Record BOOK/ }));
+    fireEvent.click(await within(recorder).findByRole("button", { name: "Stop" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Discard" }));
+    expect(await screen.findByText(/Discarded: nothing was saved/)).toBeInTheDocument();
+    expect(api.saveNativeClip).not.toHaveBeenCalled();
+  });
+
+  it("shows the server's reason when a clip is refused (unsupported, oversized)", async () => {
+    vi.mocked(api.saveNativeClip).mockRejectedValue(new api.CollectApiError("clip is larger than 60 MB", 413));
+    const recorder = await openNative();
+    fireEvent.click(within(recorder).getByRole("button", { name: /^Sign Hello/ }));
+    fireEvent.click(within(recorder).getByRole("button", { name: /Record HELLO/ }));
+    fireEvent.click(await within(recorder).findByRole("button", { name: "Stop" }));
+    fireEvent.click(await screen.findByRole("button", { name: /save clip/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(/larger than 60 MB/);
+  });
+
+  it("lists native signs with their per-sign counts and targets", async () => {
+    await openNative();
+    expect(screen.getByTestId("native-progress")).toHaveTextContent("Hello");
+    expect(screen.getByTestId("native-progress")).toHaveTextContent("Native-sign clips (all sessions, target 30 per sign)");
+  });
+});
+
+describe("CollectPage: gallery, deletion and export", () => {
+  it("shows the saved samples of the chosen letter from the admin-only API and deletes one only after confirmation", async () => {
+    vi.mocked(api.listSamples).mockResolvedValue({
+      samples: [{ sample_id: "C_1_abcd", session_id: SESSION.session_id, letter: "C", captured_at: "2026-10-25T10:00:00Z", hand: "right", distance: "medium", mode: "single" }],
+    });
+    vi.mocked(api.deleteSample).mockResolvedValue({ deleted: "C_1_abcd", session: { ...SESSION, counts: { ...SESSION.counts, C: 0 } } });
+    await openSession();
+    chooseLetter("C");
+    const gallery = screen.getByTestId("sample-gallery");
+    expect(await within(gallery).findByRole("img", { name: /C, .*right hand/ })).toHaveAttribute("src", "blob:thumb");
+    expect(api.listSamples).toHaveBeenCalledWith(SESSION.session_id, "C");
+
+    fireEvent.click(within(gallery).getByRole("button", { name: "Delete this C sample" }));
+    expect(api.deleteSample).not.toHaveBeenCalled(); // asking is not deleting
+    fireEvent.click(await screen.findByRole("button", { name: "Delete permanently" }));
+    await waitFor(() => expect(api.deleteSample).toHaveBeenCalledWith(SESSION.session_id, "C_1_abcd"));
+  });
+
+  it("keeps a sample when the admin cancels the confirmation", async () => {
+    vi.mocked(api.listSamples).mockResolvedValue({
+      samples: [{ sample_id: "C_1_abcd", session_id: SESSION.session_id, letter: "C", captured_at: "2026-10-25T10:00:00Z", hand: "right", distance: "medium", mode: "single" }],
+    });
+    await openSession();
+    chooseLetter("C");
+    const gallery = screen.getByTestId("sample-gallery");
+    fireEvent.click(await within(gallery).findByRole("button", { name: "Delete this C sample" }));
+    fireEvent.click(await screen.findByRole("button", { name: /cancel/i }));
+    expect(api.deleteSample).not.toHaveBeenCalled();
+  });
+
+  it("exports the dataset as a download and explains what was left out", async () => {
+    vi.mocked(api.exportDataset).mockResolvedValue({ blob: new Blob(["zip"]), files: 12, skippedSessions: 2 });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    await openSession();
+    // the export needs something saved in this session
+    chooseLetter("C");
+    fireEvent.click(screen.getByRole("button", { name: /Capture C/ }));
+    fireEvent.click(await screen.findByRole("button", { name: /Yes, this is C/ }));
+    await waitFor(() => expect(api.saveSample).toHaveBeenCalled());
+    const card = screen.getByTestId("export-card");
+    expect(card).toHaveTextContent(/does not train, evaluate or replace any model/i);
+    expect(card).toHaveTextContent(/identifiable people/i);
+    fireEvent.click(within(card).getByRole("button", { name: /Export this session/ }));
+    expect(await within(card).findByText(/Exported 12 files\..*2 older sessions were left out because no contributor consent/)).toBeInTheDocument();
+    expect(api.exportDataset).toHaveBeenCalledWith(SESSION.session_id);
+    expect(click).toHaveBeenCalled();
+    click.mockRestore();
   });
 });

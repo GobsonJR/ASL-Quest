@@ -13,15 +13,18 @@ import {
 } from "../components/AppShell";
 import {
   fetchAnalyticsDashboard,
+  fetchHeatmap,
   fetchLetterDetail,
   fetchPracticeHistory,
   type AnalyticsDashboard,
   type AnalyticsRange,
+  type HeatmapData,
   type HeatmapRange,
   type LetterDetail,
 } from "../analytics/api";
 import { fetchWord, type WordItem } from "../words/api";
-import { ActivityHeatmap, DateRangeFilter, HeatmapRangeFilter, LineChart } from "../analytics/components/charts";
+import { ActivityHeatmapCard } from "../analytics/components/ActivityHeatmap";
+import { DateRangeFilter, LineChart } from "../analytics/components/charts";
 import { Dialog } from "../components/Dialog";
 import { LetterDetailModal } from "../analytics/components/LetterDetailModal";
 import { LETTERS } from "../game/constants";
@@ -30,10 +33,49 @@ import { getNativeProgress, type NativeProgress } from "../native/api";
 
 type SortMode = "alpha" | "accuracy_desc" | "accuracy_asc" | "attempts_desc";
 
+/** The Progress page. The activity heatmap is always the first major component (it has its own loading/error/empty states and
+ * its own request, so it never waits for the heavier analytics below it); everything else follows. */
 export function ProgressPage() {
+  const { startPractice } = useGame();
+  const [heatRange, setHeatRange] = useState<HeatmapRange>("12m");
+  const [heat, setHeat] = useState<HeatmapData | null>(null);
+  const [heatLoading, setHeatLoading] = useState(true);
+  const [heatError, setHeatError] = useState<string | null>(null);
+  const [heatAttempt, setHeatAttempt] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setHeatLoading(true);
+    setHeatError(null);
+    fetchHeatmap(heatRange)
+      .then((result) => !cancelled && setHeat(result))
+      .catch(() => !cancelled && setHeatError("Couldn't load your activity right now."))
+      .finally(() => !cancelled && setHeatLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [heatRange, heatAttempt]);
+
+  return (
+    <PageLayout>
+      <PageHeader eyebrow="Your journey" title="Your learning progress" description="Every number here comes from your saved practice history." compact />
+      <ActivityHeatmapCard
+        data={heat}
+        loading={heatLoading}
+        error={heatError}
+        range={heatRange}
+        onRangeChange={setHeatRange}
+        onRetry={() => setHeatAttempt((n) => n + 1)}
+        onStart={() => startPractice()}
+      />
+      <ProgressDetails />
+    </PageLayout>
+  );
+}
+
+function ProgressDetails() {
   const { startPractice, startWordPractice } = useGame();
   const [range, setRange] = useState<AnalyticsRange>("30d");
-  const [heatmapRange, setHeatmapRange] = useState<HeatmapRange>("12m");
   const [sort, setSort] = useState<SortMode>("alpha");
   const [data, setData] = useState<AnalyticsDashboard | null>(null);
   const [loading, setLoading] = useState(true);
@@ -52,11 +94,11 @@ export function ProgressPage() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetchAnalyticsDashboard(range, heatmapRange)
+    fetchAnalyticsDashboard(range, "3m")
       .then(setData)
       .catch(() => setError("Unable to load analytics right now."))
       .finally(() => setLoading(false));
-  }, [range, heatmapRange]);
+  }, [range]);
 
   useEffect(() => {
     fetchPracticeHistory({
@@ -126,13 +168,8 @@ export function ProgressPage() {
   });
 
   return (
-    <PageLayout>
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <PageHeader
-          eyebrow="Your journey"
-          title="Your learning progress"
-          description="Every metric below comes from your saved practice history."
-        />
+    <>
+      <div className="flex justify-end">
         <DateRangeFilter value={range} onChange={setRange} />
       </div>
 
@@ -256,14 +293,6 @@ export function ProgressPage() {
       )}
 
       <Divider />
-
-      <Card>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <SectionLabel>Activity Heatmap</SectionLabel>
-          <HeatmapRangeFilter value={heatmapRange} onChange={setHeatmapRange} />
-        </div>
-        <ActivityHeatmap cells={data.heatmap.cells} />
-      </Card>
 
       <div className="grid gap-6 xl:grid-cols-2">
         <Card>
@@ -576,6 +605,6 @@ export function ProgressPage() {
           </Card>
         </Dialog>
       )}
-    </PageLayout>
+    </>
   );
 }

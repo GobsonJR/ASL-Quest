@@ -75,7 +75,17 @@ function NodeButton({
               : "h-16 w-16 bg-[var(--color-locked-soft)] text-[var(--color-locked)] shadow-none"
       }`}
     >
-      {nodeIcon(node)}
+      {node.status === "completed" && (
+        // Faint watermark of the letter behind the tick, so a completed node still says which letter it is.
+        <span
+          aria-hidden="true"
+          data-testid={`watermark-${node.letter}`}
+          className="pointer-events-none absolute inset-0 grid select-none place-items-center text-[2.6rem] font-extrabold leading-none text-white/35"
+        >
+          {node.letter}
+        </span>
+      )}
+      <span className="relative">{nodeIcon(node)}</span>
       {node.status === "current" && (
         <span
           aria-hidden="true"

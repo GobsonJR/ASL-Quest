@@ -20,11 +20,19 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> TokenRe
     if db.query(User).filter((User.username == username) | (User.email == email)).first():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Username or email already registered.")
 
+    # The role is NEVER read from the request (RegisterRequest has no role field and extra fields are ignored).
+    # Registration always makes a regular user ("student"), with one narrow exception: the operator-configured bootstrap
+    # address becomes the FIRST admin, and only while no admin exists. Once any admin exists, nobody can gain admin by
+    # registering a particular e-mail address (which is unverified); admins are then created or promoted by an admin.
+    role = "student"
+    bootstrap = get_bootstrap_admin_email()
+    if bootstrap and email == bootstrap and db.query(User.id).filter(User.role == "admin").first() is None:
+        role = "admin"
     user = User(
         username=username,
         email=email,
         password_hash=hash_password(payload.password),
-        role="admin" if get_bootstrap_admin_email() and email == get_bootstrap_admin_email() else "student",
+        role=role,
     )
     db.add(user)
     db.commit()
@@ -44,6 +52,8 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> TokenResponse
     )
     if user is None or not verify_password(payload.password, user.password_hash):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid username/email or password.")
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="This account has been deactivated.")
     return TokenResponse(access_token=create_access_token(user.id))
 
 
