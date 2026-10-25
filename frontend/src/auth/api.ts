@@ -87,24 +87,30 @@ export async function parseError(response: Response, fallback: string): Promise<
  * rather than leave the form on "Signing in..." the request is abandoned and the user is told to retry. */
 export const AUTH_TIMEOUT_MS = 25_000;
 
-/** fetch() that turns a network-level failure (backend asleep/unreachable, CORS blocked, offline)
- * into a readable message instead of the browser's bare "Failed to fetch". With `timeoutMs` the request is
- * aborted after that long and reported as a retryable timeout. */
-async function fetchApi(path: string, init: RequestInit, timeoutMs?: number): Promise<Response> {
-  const controller = timeoutMs ? new AbortController() : null;
-  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
-  try {
-    return await fetch(`${API}${path}`, controller ? { ...init, signal: controller.signal } : init);
-  } catch {
-    if (controller?.signal.aborted) {
-      throw new Error("The ASL Quest server is taking too long to respond (it may be waking up). Please try again in a moment.");
-    }
-    throw new Error("Can't reach the ASL Quest server. Check your connection and try again in a moment.");
-  } finally {
-    if (timer) clearTimeout(timer);
+/** An API failure with its cause kept apart: `timeout` and `network` mean the server could not be reached (so a saved
+ * session must not be discarded), `http` carries the response status (401 = invalid credentials/token). */
+export class ApiError extends Error {
+  constructor(message: string, readonly kind: "timeout" | "network" | "http" | "invalid-response", readonly status?: number) {
+    super(message);
+    this.name = "ApiError";
   }
 }
 
+const TIMEOUT_MESSAGE = "The ASL Quest server is taking too long to respond (it may be waking up). Please try again in a moment.";
+
+/** fetch() that turns a network-level failure (backend asleep/unreachable, CORS blocked, offline)
+ * into a readable message instead of the browser's bare "Failed to fetch". */
+async function fetchApi(path: string, init: RequestInit): Promise<Response> {
+  try {
+    return await fetch(`${API}${path}`, init);
+  } catch {
+    if (init.signal?.aborted) throw new ApiError(TIMEOUT_MESSAGE, "timeout");
+    throw new ApiError("Can't reach the ASL Quest server. Check your connection and try again in a moment.", "network");
+  }
+}
+
+/** With `timeoutMs` the whole exchange -- connecting, the response headers AND reading the body -- is abandoned after
+ * that long and reported as a retryable timeout, so no stage of the request can leave a caller waiting forever. */
 async function request<T>(path: string, init: RequestInit = {}, timeoutMs?: number): Promise<T> {
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json");
@@ -112,14 +118,22 @@ async function request<T>(path: string, init: RequestInit = {}, timeoutMs?: numb
   if (tokenHeaders.Authorization) {
     headers.set("Authorization", tokenHeaders.Authorization);
   }
-  const response = await fetchApi(path, { ...init, headers }, timeoutMs);
-  if (!response.ok) {
-    throw new Error(await parseError(response, `Request failed (${response.status}).`));
-  }
+  const controller = timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
   try {
-    return (await response.json()) as T;
-  } catch {
-    throw new Error("The server sent an unexpected response. Please try again.");
+    const response = await fetchApi(path, controller ? { ...init, headers, signal: controller.signal } : { ...init, headers });
+    if (!response.ok) {
+      const message = await parseError(response, `Request failed (${response.status}).`).catch(() => `Request failed (${response.status}).`);
+      throw new ApiError(controller?.signal.aborted ? TIMEOUT_MESSAGE : message, controller?.signal.aborted ? "timeout" : "http", response.status);
+    }
+    try {
+      return (await response.json()) as T;
+    } catch {
+      if (controller?.signal.aborted) throw new ApiError(TIMEOUT_MESSAGE, "timeout");
+      throw new ApiError("The server sent an unexpected response. Please try again.", "invalid-response");
+    }
+  } finally {
+    if (timer) clearTimeout(timer);
   }
 }
 
@@ -133,7 +147,17 @@ export async function registerUser(input: {
     body: JSON.stringify(input),
   }, AUTH_TIMEOUT_MS);
   setToken(auth.access_token);
-  return fetchCurrentUser();
+  try {
+    return await fetchCurrentUser();
+  } catch (err) {
+    // The account now exists but this page never got its profile; retrying "Create account" would answer "already
+    // registered", so say what happened and leave no half-open session behind.
+    clearToken();
+    if (err instanceof ApiError && err.kind !== "http") {
+      throw new ApiError("Your account was created, but the server was too slow to finish signing you in. Please sign in with it in a moment.", err.kind);
+    }
+    throw err;
+  }
 }
 
 export async function loginUser(login: string, password: string): Promise<UserProfile> {
@@ -142,7 +166,12 @@ export async function loginUser(login: string, password: string): Promise<UserPr
     body: JSON.stringify({ login, password }),
   }, AUTH_TIMEOUT_MS);
   setToken(auth.access_token);
-  return fetchCurrentUser();
+  try {
+    return await fetchCurrentUser();
+  } catch (err) {
+    clearToken(); // not signed in on this page; a retry starts from a clean login
+    throw err;
+  }
 }
 
 export async function fetchCurrentUser(): Promise<UserProfile> {
@@ -195,8 +224,10 @@ export async function restoreSession(): Promise<UserProfile | null> {
   if (!authHeaders().Authorization) return null;
   try {
     return await fetchCurrentUser();
-  } catch {
-    clearToken();
+  } catch (err) {
+    // Only a 401 means the saved token is bad. A timeout, network error or 5xx means the server is unavailable, so the
+    // token is kept and the next page load tries again instead of silently signing the user out.
+    if (err instanceof ApiError && err.kind === "http" && err.status === 401) clearToken();
     return null;
   }
 }

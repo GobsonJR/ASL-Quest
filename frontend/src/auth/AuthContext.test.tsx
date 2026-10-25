@@ -63,6 +63,15 @@ describe("login routing by role", () => {
     expect(auth.landingPage).toBeNull();
   });
 
+  it("finishes signing in even if the migration-offer request never answers", async () => {
+    vi.mocked(api.loginUser).mockResolvedValue(profile("student"));
+    vi.mocked(api.fetchMigrationOffer).mockReturnValue(new Promise(() => {})); // a stalled server
+    await mount();
+    await act(async () => auth.login("sam", "correct-horse-1"));
+    expect(auth.user?.username).toBe("sam");
+    expect(auth.migrationOffer).toBe(false);
+  });
+
   it("registration never lands anyone in the Admin workspace", async () => {
     vi.mocked(api.registerUser).mockResolvedValue(profile("student"));
     await mount();

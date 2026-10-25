@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   fetchMigrationOffer,
   loginUser,
@@ -58,6 +58,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
   const [migrationOffer, setMigrationOffer] = useState(false);
   const [landingPage, setLandingPage] = useState<NavPage | null>(null);
+  const sessionCounter = useRef(0);
 
   useEffect(() => {
     if (DEMO_MODE) return;
@@ -82,13 +83,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(profile);
     // The role comes from the backend (/auth/me, read from the account row), never from anything typed into the form.
     setLandingPage(profile.role === "admin" ? "admin" : null);
-    try {
-      const offer = await fetchMigrationOffer();
-      const local = loadGameState();
-      setMigrationOffer(offer.should_offer && localProgressIsMeaningful(local));
-    } catch {
-      setMigrationOffer(false);
-    }
+    setMigrationOffer(false);
+    // The import offer is a courtesy, not part of signing in: it runs after the user is in, so a slow server can never
+    // keep the form on "Signing in...". The result is dropped if the user signed out or in again in the meantime.
+    const session = ++sessionCounter.current;
+    fetchMigrationOffer()
+      .then((offer) => {
+        if (session === sessionCounter.current) setMigrationOffer(offer.should_offer && localProgressIsMeaningful(loadGameState()));
+      })
+      .catch(() => {
+        if (session === sessionCounter.current) setMigrationOffer(false);
+      });
   }, []);
 
   const register = useCallback(async (input: { username: string; email: string; password: string }) => {
@@ -100,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     if (DEMO_MODE) return; // no session to end in demo mode
+    sessionCounter.current++; // invalidates any sign-in follow-up still in flight
     logoutUser();
     clearToken();
     setUser(null);

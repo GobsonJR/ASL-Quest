@@ -112,6 +112,7 @@ export function LoginPage() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (submitting) return; // a second Enter/click while the first request is in flight must not send another
     setSubmitting(true);
     setError(null);
     try {
@@ -183,6 +184,7 @@ export function RegisterPage() {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (submitting) return;
     if (password !== confirmPassword) {
       setError("Passwords do not match.");
       return;

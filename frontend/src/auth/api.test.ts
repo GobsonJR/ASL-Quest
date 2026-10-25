@@ -102,6 +102,73 @@ describe("auth requests", () => {
     }
   });
 
+  it("also bounds a response whose headers arrive but whose body never does", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn((_url: string, init: RequestInit) => {
+          const body = new ReadableStream({
+            start(controller) {
+              init.signal?.addEventListener("abort", () => controller.error(new DOMException("aborted", "AbortError")));
+            },
+          });
+          return Promise.resolve(new Response(body, { status: 200 }));
+        }),
+      );
+      const { loginUser, AUTH_TIMEOUT_MS } = await loadApi();
+      const outcome = expect(loginUser("a", "b")).rejects.toThrow(/taking too long/i);
+      await vi.advanceTimersByTimeAsync(AUTH_TIMEOUT_MS + 1);
+      await outcome;
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("leaves no token behind when login succeeds but /auth/me then fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ access_token: "tok", token_type: "bearer" }), { status: 200 }))
+        .mockRejectedValueOnce(new TypeError("Failed to fetch")),
+    );
+    const { loginUser } = await loadApi();
+    await expect(loginUser("a", "b")).rejects.toThrow(/Can't reach/);
+    expect(localStorage.getItem("asl-quest-token")).toBeNull();
+  });
+
+  it("tells a new user their account exists when only the follow-up /auth/me fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(new Response(JSON.stringify({ access_token: "tok", token_type: "bearer" }), { status: 201 }))
+        .mockRejectedValueOnce(new TypeError("Failed to fetch")),
+    );
+    const { registerUser } = await loadApi();
+    await expect(registerUser({ username: "u", email: "u@example.com", password: "longenough1" })).rejects.toThrow(/account was created/i);
+    expect(localStorage.getItem("asl-quest-token")).toBeNull();
+  });
+
+  it("keeps a saved session when the server is merely unreachable or slow, but drops it on a 401", async () => {
+    localStorage.setItem("asl-quest-token", "saved");
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new TypeError("Failed to fetch")));
+    let api = await loadApi();
+    expect(await api.restoreSession()).toBeNull();
+    expect(localStorage.getItem("asl-quest-token")).toBe("saved");
+
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ detail: "bad" }), { status: 503 })));
+    api = await loadApi();
+    expect(await api.restoreSession()).toBeNull();
+    expect(localStorage.getItem("asl-quest-token")).toBe("saved");
+
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(JSON.stringify({ detail: "Invalid token." }), { status: 401 })));
+    api = await loadApi();
+    expect(await api.restoreSession()).toBeNull();
+    expect(localStorage.getItem("asl-quest-token")).toBeNull();
+  });
+
   it("abandons a registration that never answers", async () => {
     vi.useFakeTimers();
     try {
