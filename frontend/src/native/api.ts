@@ -5,6 +5,8 @@ import { API_BASE as API } from "../config";
 export type NativeSignReference = {
   available: boolean;
   video_url: string | null;
+  /** Path (relative to the API root) of a copy stored on the server machine; plays with no internet. Absent/null if none. */
+  local_video_url?: string | null;
   thumbnail_url: string | null;
   source_type: string | null;
   license_note: string | null;

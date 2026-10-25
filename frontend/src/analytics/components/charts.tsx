@@ -1,4 +1,4 @@
-import type { AnalyticsRange, HeatmapRange } from "../api";
+import type { AnalyticsRange } from "../api";
 
 const RANGE_OPTIONS: Array<{ id: AnalyticsRange; label: string }> = [
   { id: "7d", label: "7 Days" },
@@ -6,12 +6,6 @@ const RANGE_OPTIONS: Array<{ id: AnalyticsRange; label: string }> = [
   { id: "90d", label: "90 Days" },
   { id: "12m", label: "12 Months" },
   { id: "all", label: "All Time" },
-];
-
-const HEATMAP_OPTIONS: Array<{ id: HeatmapRange; label: string }> = [
-  { id: "3m", label: "3 Months" },
-  { id: "6m", label: "6 Months" },
-  { id: "12m", label: "12 Months" },
 ];
 
 export function DateRangeFilter({
@@ -31,34 +25,6 @@ export function DateRangeFilter({
             value === option.id
               ? "bg-[var(--color-primary)] text-white"
               : "border border-[var(--color-border-soft)] text-[var(--color-ink-soft)] hover:border-[var(--color-primary)]/40"
-          }`}
-          onClick={() => onChange(option.id)}
-          aria-pressed={value === option.id}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-export function HeatmapRangeFilter({
-  value,
-  onChange,
-}: {
-  value: HeatmapRange;
-  onChange: (value: HeatmapRange) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-2" role="group" aria-label="Heatmap range filter">
-      {HEATMAP_OPTIONS.map((option) => (
-        <button
-          key={option.id}
-          type="button"
-          className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-            value === option.id
-              ? "bg-[var(--color-primary)] text-white"
-              : "border border-[var(--color-border-soft)] text-[var(--color-ink-soft)]"
           }`}
           onClick={() => onChange(option.id)}
           aria-pressed={value === option.id}
@@ -120,69 +86,6 @@ export function LineChart({
           {valueSuffix}
         </span>
         <span>{points[points.length - 1]?.date}</span>
-      </div>
-    </div>
-  );
-}
-
-const HEAT_COLORS = [
-  "bg-[var(--color-surface-soft)]",
-  "bg-[var(--color-primary)]/20",
-  "bg-[var(--color-primary)]/40",
-  "bg-[var(--color-primary)]/65",
-  "bg-[var(--color-primary)]",
-];
-
-export function ActivityHeatmap({
-  cells,
-}: {
-  cells: Array<{
-    date: string;
-    attempts: number;
-    correct: number;
-    accuracy: number | null;
-    xp: number;
-    intensity: number;
-  }>;
-}) {
-  if (cells.length === 0) {
-    return <p className="text-sm text-[var(--color-ink-soft)]">No activity recorded yet.</p>;
-  }
-
-  const weeks: typeof cells[] = [];
-  for (let index = 0; index < cells.length; index += 7) {
-    weeks.push(cells.slice(index, index + 7));
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[720px]">
-        <div className="flex gap-1">
-          {weeks.map((week, weekIndex) => (
-            <div key={weekIndex} className="grid grid-rows-7 gap-1">
-              {week.map((cell) => {
-                const label = `${cell.date}: ${cell.attempts} practice attempts${
-                  cell.accuracy != null ? `, ${cell.accuracy}% accuracy` : ""
-                }${cell.xp ? `, +${cell.xp} XP` : ""}`;
-                return (
-                  <div
-                    key={cell.date}
-                    title={label}
-                    aria-label={label}
-                    className={`h-3.5 w-3.5 rounded-sm ${HEAT_COLORS[cell.intensity] ?? HEAT_COLORS[0]}`}
-                  />
-                );
-              })}
-            </div>
-          ))}
-        </div>
-        <div className="mt-3 flex items-center gap-2 text-[0.65rem] text-[var(--color-muted)]">
-          <span>Less</span>
-          {HEAT_COLORS.map((color, index) => (
-            <span key={index} className={`h-3 w-3 rounded-sm ${color}`} />
-          ))}
-          <span>More</span>
-        </div>
       </div>
     </div>
   );

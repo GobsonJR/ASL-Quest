@@ -10,14 +10,28 @@ DEFAULT_DATABASE_PATH = DATA_DIR / "asl_quest.db"
 # `or` (not a getenv default) so a blank `KEY=` line in .env counts as unset.
 SECRET_KEY = os.getenv("ASL_QUEST_SECRET_KEY", "").strip() or "dev-change-me-in-production"
 
+def normalize_database_url(url: str) -> str:
+    """Hosts such as Render hand out `postgres://` or `postgresql://` URLs. SQLAlchemy would pick the psycopg2 driver for those, but
+    this project ships psycopg 3, so the driver is named explicitly. Every other URL (sqlite, an explicit `+driver`) is unchanged."""
+    url = url.strip()
+    for prefix in ("postgres://", "postgresql://"):
+        if url.startswith(prefix):
+            return "postgresql+psycopg://" + url[len(prefix):]
+    return url
+
+
 # DATABASE_URL is the standard/recommended env var (e.g. postgresql+psycopg://user:pass@host/db).
 # ASL_QUEST_DATABASE_URL is kept as a legacy fallback for existing local setups.
 # Default (neither set) is the existing local SQLite dev database — unchanged.
-DATABASE_URL = (
+DATABASE_URL = normalize_database_url(
     os.getenv("DATABASE_URL")
     or os.getenv("ASL_QUEST_DATABASE_URL")
     or f"sqlite:///{DEFAULT_DATABASE_PATH.as_posix()}"
 )
+
+# Render sets RENDER=true in every service. ASL_QUEST_ENV=production marks any other host as production too. Used only by
+# backend/startup_checks.py to refuse unsafe settings where they matter (it never changes behaviour on a laptop).
+IS_PRODUCTION = bool(os.getenv("RENDER", "").strip()) or os.getenv("ASL_QUEST_ENV", "").strip().lower() == "production"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ASL_QUEST_TOKEN_EXPIRE_MINUTES", "").strip() or "10080")
 
 

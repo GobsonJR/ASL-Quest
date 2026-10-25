@@ -64,7 +64,7 @@ export function LearnPage() {
       <PageHeader
         eyebrow="Your ASL Journey"
         title="Master the A–Z alphabet"
-        description="Learn signs step by step and build your confidence — start with beginner-friendly handshapes, then work through the rest of the alphabet. Static signs only; dynamic J and Z motion is not supported."
+        description="Learn signs step by step and build your confidence — start with beginner-friendly handshapes, then work through the rest of the alphabet."
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">

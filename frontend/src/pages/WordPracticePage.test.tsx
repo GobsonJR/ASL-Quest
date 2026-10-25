@@ -148,3 +148,27 @@ describe("WordPracticePage: sync failure toasts", () => {
     );
   });
 });
+
+vi.mock("../components/LandmarkPractice", () => ({
+  LandmarkPractice: (props: { targetLetter: string; onCorrect: (elapsedMs: number, confidence: number) => void }) => (
+    <div data-testid="landmark-practice">
+      <span>target:{props.targetLetter}</span>
+      <button onClick={() => props.onCorrect(800, 0.9)}>fire-landmark-correct</button>
+    </div>
+  ),
+}));
+
+describe("WordPracticePage recognizer", () => {
+  const LOADED = { loaded: true, model_file: "landmark_L2_s0.joblib", model: "logreg", trained_on: null, error: null };
+
+  it("spells words with the landmark recognizer when its model is loaded", () => {
+    render(<WordPracticePage ready backendError={null} experimentalLandmark={LOADED} />);
+    expect(screen.getByTestId("landmark-practice")).toBeInTheDocument();
+    expect(screen.queryByTestId("camera-practice")).toBeNull();
+  });
+
+  it("falls back to the ResNet camera when it is not", () => {
+    render(<WordPracticePage ready backendError={null} />);
+    expect(screen.getByTestId("camera-practice")).toBeInTheDocument();
+  });
+});

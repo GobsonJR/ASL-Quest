@@ -2,11 +2,21 @@ from __future__ import annotations
 
 from datetime import date, datetime, timedelta, timezone
 from typing import Literal
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 from sqlalchemy import case, func
+from sqlalchemy.exc import OperationalError, ProgrammingError
 from sqlalchemy.orm import Session
 
-from backend.models import LetterProgress, PracticeSession, User, UserProgress, XpEvent
+from backend.models import (
+    LetterProgress,
+    NativeSignSession,
+    PracticeSession,
+    User,
+    UserProgress,
+    WordPracticeSession,
+    XpEvent,
+)
 from backend.services.progress import MASTERED_CORRECT, ensure_user_progress, serialize_game_state
 from backend.services.words import get_word_analytics
 
@@ -149,28 +159,125 @@ def heatmap_intensity(attempts: int) -> int:
     return 4
 
 
-def get_heatmap(db: Session, user_id: int, range_key: HeatmapRange = "12m") -> dict:
-    start = parse_heatmap_range(range_key)
-    daily = {item["date"]: item for item in get_daily_activity(db, user_id, start)}
-    start_date = start.date()
-    end_date = utcnow().date()
+class UnknownTimezone(ValueError):
+    pass
+
+
+def resolve_timezone(name: str | None) -> ZoneInfo:
+    """The learner's IANA timezone (e.g. "Asia/Kolkata"); UTC when none is given."""
+    if not name or name.upper() == "UTC":
+        return ZoneInfo("UTC")
+    try:
+        return ZoneInfo(name)
+    except (ZoneInfoNotFoundError, ValueError, OSError) as exc:
+        raise UnknownTimezone(f"Unknown timezone: {name!r}") from exc
+
+
+def _local_day(moment: datetime, zone: ZoneInfo) -> date:
+    # SQLite hands back naive datetimes that were stored as UTC; PostgreSQL returns aware ones.
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+    return moment.astimezone(zone).date()
+
+
+def get_heatmap(db: Session, user_id: int, range_key: HeatmapRange = "12m", tz_name: str | None = None) -> dict:
+    """One cell per calendar day of the learner's own timezone, counting REAL recorded practice only.
+
+    Activity is every row the learner produced: A-Z practice attempts, word-spelling sessions and native-sign attempts.
+    Days with none are simply zero; nothing is filled in. `attempts`/`correct`/`accuracy`/`xp` keep their original
+    meaning (A-Z only) for existing consumers; `count` is the all-activity number the grid is coloured by.
+    """
+    zone = resolve_timezone(tz_name)
+    today = utcnow().astimezone(zone).date()
+    start_date = parse_heatmap_range(range_key).astimezone(zone).date()
+    # fetch with a one-day margin on each side, then bucket by the learner's local day
+    window_start = datetime.combine(start_date, datetime.min.time(), tzinfo=zone).astimezone(timezone.utc) - timedelta(days=1)
+
+    days: dict[date, dict] = {}
+
+    def bucket(moment: datetime) -> dict | None:
+        day = _local_day(moment, zone)
+        if day < start_date or day > today:
+            return None
+        return days.setdefault(day, {"letters": 0, "words": 0, "native": 0, "correct": 0, "xp": 0})
+
+    for created_at, correct, xp in (
+        db.query(PracticeSession.created_at, PracticeSession.correct, PracticeSession.xp_earned)
+        .filter(PracticeSession.user_id == user_id, PracticeSession.created_at >= window_start)
+        .all()
+    ):
+        cell = bucket(created_at)
+        if cell is not None:
+            cell["letters"] += 1
+            cell["correct"] += 1 if correct else 0
+            cell["xp"] += int(xp or 0)
+    for (created_at,) in (
+        db.query(WordPracticeSession.created_at)
+        .filter(WordPracticeSession.user_id == user_id, WordPracticeSession.created_at >= window_start)
+        .all()
+    ):
+        cell = bucket(created_at)
+        if cell is not None:
+            cell["words"] += 1
+    try:
+        native_rows = (
+            db.query(NativeSignSession.created_at)
+            .filter(NativeSignSession.user_id == user_id, NativeSignSession.created_at >= window_start)
+            .all()
+        )
+    except (OperationalError, ProgrammingError):
+        # A database that has not run the native-signs migration (0002) yet has no such table: that is zero native activity,
+        # not a reason to break the Progress page.
+        db.rollback()
+        native_rows = []
+    for (created_at,) in native_rows:
+        cell = bucket(created_at)
+        if cell is not None:
+            cell["native"] += 1
+
     cells = []
     current = start_date
-    while current <= end_date:
-        key = current.isoformat()
-        day = daily.get(key, {"attempts": 0, "correct": 0, "accuracy": None, "xp": 0})
+    while current <= today:
+        day = days.get(current, {"letters": 0, "words": 0, "native": 0, "correct": 0, "xp": 0})
+        count = day["letters"] + day["words"] + day["native"]
         cells.append(
             {
-                "date": key,
-                "attempts": day["attempts"],
-                "correct": day.get("correct", 0),
-                "accuracy": day.get("accuracy"),
-                "xp": day.get("xp", 0),
-                "intensity": heatmap_intensity(day["attempts"]),
+                "date": current.isoformat(),
+                "count": count,
+                "letters": day["letters"],
+                "words": day["words"],
+                "native": day["native"],
+                "attempts": day["letters"],
+                "correct": day["correct"],
+                "accuracy": _accuracy(day["correct"], day["letters"]),
+                "xp": day["xp"],
+                "intensity": heatmap_intensity(count),
             }
         )
         current += timedelta(days=1)
-    return {"range": range_key, "cells": cells}
+
+    # streaks computed from the very same cells, so the numbers beside the grid always agree with it
+    longest = run = 0
+    for cell in cells:
+        run = run + 1 if cell["count"] > 0 else 0
+        longest = max(longest, run)
+    current_streak = 0
+    index = len(cells) - 1
+    if index >= 0 and cells[index]["count"] == 0:
+        index -= 1  # today not practiced yet does not break a streak that was alive yesterday
+    while index >= 0 and cells[index]["count"] > 0:
+        current_streak += 1
+        index -= 1
+    letter_attempts = sum(cell["attempts"] for cell in cells)
+    summary = {
+        "total_activity": sum(cell["count"] for cell in cells),
+        "active_days": sum(1 for cell in cells if cell["count"] > 0),
+        "current_streak": current_streak,
+        "longest_streak": longest,
+        "letter_accuracy": _accuracy(sum(cell["correct"] for cell in cells), letter_attempts),
+        "letter_attempts": letter_attempts,
+    }
+    return {"range": range_key, "timezone": zone.key, "start": start_date.isoformat(), "end": today.isoformat(), "cells": cells, "summary": summary}
 
 
 def get_activity_trend(db: Session, user_id: int, range_key: RangeKey) -> dict:

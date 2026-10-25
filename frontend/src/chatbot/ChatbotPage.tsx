@@ -284,7 +284,7 @@ export function ChatbotPage() {
                   <SectionLabel>Ask AURA about ASL-Quest</SectionLabel>
                   <p className="mx-auto mt-2 max-w-sm text-sm text-[var(--color-ink-soft)]">
                     Type any question in your own words — A-Z recognition, Word Spelling, Native Signs, the
-                    database, architecture, limitations, anything about how the project works. AURA only answers
+                    database, architecture, anything about how the project works. AURA only answers
                     questions about ASL-Quest.
                   </p>
                 </div>

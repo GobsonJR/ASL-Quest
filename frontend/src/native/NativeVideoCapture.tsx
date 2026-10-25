@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { PrimaryButton, StatusChip } from "../components/AppShell";
 import { describeCameraError } from "../shared/cameraError";
+import { useHandOverlay } from "../shared/useHandOverlay";
 
 // Native signs (e.g. BOOK) are multi-part motions; 3s was too tight to even get both hands
 // in frame. Give a get-ready countdown with a live preview, then a longer window. The user
@@ -42,6 +43,8 @@ export function NativeVideoCapture({
   const [unsupported, setUnsupported] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(RECORD_SECONDS);
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
+  const overlayRef = useRef<HTMLCanvasElement>(null);
+  const overlay = useHandOverlay(videoRef, overlayRef, state === "countdown" || state === "recording");
 
   useEffect(() => {
     setUnsupported(pickSupportedMimeType() === null);
@@ -157,6 +160,8 @@ export function NativeVideoCapture({
           muted
           aria-label="Webcam preview for native sign practice"
         />
+        {/* Preview-only landmark overlay: drawn from the <video> element, never part of the recorded stream. */}
+        <canvas ref={overlayRef} className="pointer-events-none absolute inset-0 h-full w-full" aria-hidden="true" />
         {state !== "recording" && state !== "countdown" && (
           <div className="absolute inset-0 grid place-items-center bg-black/60 px-6 text-center backdrop-blur-[2px]">
             <p className="text-sm text-white/85">
@@ -169,6 +174,19 @@ export function NativeVideoCapture({
             {state === "recording" ? `Recording · ${secondsLeft}s` : state === "countdown" ? "Get ready" : "Idle"}
           </StatusChip>
         </div>
+        {(state === "countdown" || state === "recording") && (
+          <div className="absolute right-3 top-3" data-testid="hand-status">
+            <StatusChip tone={overlay.status === "ready" && overlay.hands > 0 ? "success" : "neutral"}>
+              {overlay.status === "loading"
+                ? "Loading hand tracker…"
+                : overlay.status === "unavailable"
+                  ? "Hand overlay unavailable"
+                  : overlay.hands > 0
+                    ? `${overlay.hands} ${overlay.hands === 1 ? "hand" : "hands"} detected`
+                    : "No hand detected"}
+            </StatusChip>
+          </div>
+        )}
         {state === "countdown" && (
           <div className="absolute inset-0 grid place-items-center" role="status" aria-live="polite">
             <span className="font-display text-8xl text-white drop-shadow-lg">{countdown}</span>

@@ -84,6 +84,7 @@ def migrate_schema() -> None:
         user_additions = {
             "role": "VARCHAR(16) NOT NULL DEFAULT 'student'",
             "preferences": "TEXT NOT NULL DEFAULT '{}'",
+            "is_active": "BOOLEAN NOT NULL DEFAULT TRUE",
         }
         with engine.begin() as connection:
             for column, ddl in user_additions.items():

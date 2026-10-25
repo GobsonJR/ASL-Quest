@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import collections
 import logging
+import math
+import time
 from datetime import datetime, timezone
 from io import BytesIO
 
@@ -9,12 +11,14 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
 import numpy as np
 from PIL import Image, UnidentifiedImageError
+from pydantic import BaseModel
 
 from backend.services.experimental_recognizer import describe as describe_experimental
 from backend.services.live_diagnostics import LiveDiagnostics
 from backend.settings import DEV_DIAGNOSTICS, DEV_DIAGNOSTICS_DIR, HAND_DETECTION_CONFIDENCE
 from src.config import CONFIDENCE_THRESHOLD
-from src.landmarks.features import LandmarkError
+from src.inference.hands import HandObservation
+from src.landmarks.features import N_LANDMARKS, LandmarkError
 
 router = APIRouter(tags=["ml"])
 logger = logging.getLogger("asl_quest.predict")
@@ -224,6 +228,71 @@ async def predict(
                 if debug
                 else {}
             ),
+        }
+    )
+
+
+class LandmarkPayload(BaseModel):
+    """21 MediaPipe landmarks as the browser's HandLandmarker reports them (x, y normalised to the image, z relative depth).
+
+    `handedness` is MediaPipe's RAW label ("Left"/"Right") for the image it was run on. `image_mirrored` says whether that
+    image was a mirrored (selfie-flipped) frame; the app's models expect UNMIRRORED frames, so mirrored input is flipped back.
+    """
+
+    landmarks: list[list[float]]
+    handedness: str | None = None
+    image_mirrored: bool = False
+    top_k: int = 3
+
+
+def _validated_landmarks(payload: LandmarkPayload) -> list[tuple[float, float, float]]:
+    if len(payload.landmarks) != N_LANDMARKS:
+        raise HTTPException(status_code=422, detail=f"landmarks must contain exactly {N_LANDMARKS} points.")
+    points = []
+    for row in payload.landmarks:
+        if len(row) != 3 or not all(math.isfinite(v) for v in row):
+            raise HTTPException(status_code=422, detail="every landmark must be three finite numbers [x, y, z].")
+        x, y, z = row
+        if not (-0.5 <= x <= 1.5 and -0.5 <= y <= 1.5 and -5.0 <= z <= 5.0):
+            raise HTTPException(status_code=422, detail="landmark coordinates are outside the plausible normalised range.")
+        points.append((x, y, z))
+    if payload.handedness not in (None, "Left", "Right"):
+        raise HTTPException(status_code=422, detail="handedness must be 'Left', 'Right' or omitted.")
+    return points
+
+
+@router.post("/predict_landmarks")
+def predict_landmarks(payload: LandmarkPayload) -> JSONResponse:
+    """Classify landmarks the browser already detected (no image upload, no server-side detection).
+
+    Uses the same LandmarkClassifier (canonicalisation + feature extraction + sklearn model) as /predict?recognizer=landmarks,
+    so both paths give the same answer for the same landmarks. It never uses the ResNet and never changes the default.
+    """
+    started = time.perf_counter()
+    classifier, why_not = (experimental_landmarks or landmark_classifier, experimental_error or landmark_error)
+    if classifier is None:
+        raise HTTPException(status_code=503, detail=why_not or "The landmark model is not loaded.")
+    points = _validated_landmarks(payload)
+    handedness = payload.handedness
+    if payload.image_mirrored:
+        points = [(1.0 - x, y, z) for x, y, z in points]
+        handedness = {"Left": "Right", "Right": "Left"}.get(handedness or "")
+    observation = HandObservation(points, handedness, None)
+    t0 = time.perf_counter()
+    try:
+        result = classifier.predict_observation(observation, top_k=min(10, max(1, payload.top_k)))
+    except LandmarkError:
+        raise HTTPException(status_code=422, detail="The hand landmarks were unusable (degenerate hand).") from None
+    except Exception:  # noqa: BLE001
+        logger.exception("landmark classifier failed")
+        raise HTTPException(status_code=503, detail="The landmark recognizer failed.") from None
+    classify_ms = (time.perf_counter() - t0) * 1000
+    return JSONResponse(
+        {
+            **result,
+            "threshold": CONFIDENCE_THRESHOLD, "status": "ok", "recognizer": "landmarks", "actual_hand": observation.actual_hand,
+            "timings_ms": {"classify": round(classify_ms, 2), "server_total": round((time.perf_counter() - started) * 1000, 2)},
+            **({"landmark_model": classifier.path.name} if getattr(classifier, "path", None) else {}),
         }
     )
 

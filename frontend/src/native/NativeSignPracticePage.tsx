@@ -21,6 +21,8 @@ import {
   type NativeSignProgressEntry,
 } from "./api";
 import { NativeVideoCapture } from "./NativeVideoCapture";
+import { useVimeoReady } from "./useVimeoReady";
+import { API_BASE } from "../config";
 import { Glyph } from "../components/Icon";
 
 type Phase = "capture" | "processing" | "result";
@@ -345,30 +347,6 @@ export function NativeSignPracticePage() {
             </div>
           </div>
 
-          {result.top_k.length > 1 && (
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--color-muted)]">
-                Top predictions
-              </p>
-              <ul className="mt-2 space-y-1.5">
-                {result.top_k.map((item) => (
-                  <li key={item.gloss} className="flex items-center gap-3">
-                    <span className="w-20 shrink-0 text-sm text-[var(--color-ink-soft)]">{item.gloss}</span>
-                    <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-surface-sunken)]">
-                      <div
-                        className="h-full rounded-full bg-[var(--color-primary)]"
-                        style={{ width: `${item.confidence * 100}%` }}
-                      />
-                    </div>
-                    <span className="w-10 shrink-0 text-right text-xs text-[var(--color-muted)]">
-                      {Math.round(item.confidence * 100)}%
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
           <div className="border-t border-[var(--color-border-soft)] pt-5 text-center">
             <p className="text-base font-semibold text-[var(--color-ink)]">{result.correct ? "Great job!" : "Try again"}</p>
             <div className="mt-3 flex flex-wrap justify-center gap-3">
@@ -451,26 +429,21 @@ function ReferencePanel({
   onReady: () => void;
 }) {
   const reference = sign.reference;
+  // A copy of the demonstration stored on this machine is preferred: it plays with no internet and without Vimeo. If it
+  // cannot be played (file removed, backend asleep, codec) the panel falls back to the online reference below.
+  const [localFailed, setLocalFailed] = useState(false);
+  useEffect(() => setLocalFailed(false), [reference.local_video_url]);
+  const localSrc = reference.local_video_url && !localFailed ? `${API_BASE}${reference.local_video_url}` : null;
   const embedUrl =
-    reference.available && reference.video_url ? referenceEmbedUrl(reference.video_url, reference.source_type) : null;
+    !localSrc && reference.available && reference.video_url
+      ? referenceEmbedUrl(reference.video_url, reference.source_type)
+      : null;
   const tip = REFERENCE_TIPS[sign.gloss];
 
-  const [embedState, setEmbedState] = useState<"loading" | "loaded" | "error">("loading");
-
-  // React's synthetic event system only wires up "load" for <iframe> -- there is no
-  // working onError for this tag (confirmed against react-dom's own source: only
-  // "image" registers both "error" and "load"; "iframe"/"object" register "load"
-  // only). A truly broken embed (blocked/unreachable/private) therefore never tells
-  // us it failed -- the only observable signal is that "loaded" never arrives, so a
-  // timeout is the actual failure detector here, not an onError handler.
-  useEffect(() => {
-    if (!embedUrl) return;
-    setEmbedState("loading");
-    const timer = window.setTimeout(() => {
-      setEmbedState((current) => (current === "loaded" ? current : "error"));
-    }, 8000);
-    return () => window.clearTimeout(timer);
-  }, [embedUrl]);
+  // An iframe's "load" event also fires for Vimeo's "video does not exist" page, so readiness comes from Vimeo's Player SDK
+  // instead: ready() resolves for a real player and rejects for an unavailable video; a timeout covers a blocked embed.
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const embedState = useVimeoReady(iframeRef, embedUrl);
 
   return (
     <Card
@@ -483,7 +456,26 @@ function ReferencePanel({
       <SectionHeader title="Reference" description="Learn the sign before you copy it." />
       <p className="-mt-2 font-display text-2xl text-[var(--color-ink)]">{sign.display_name}</p>
 
-      {reference.available && reference.video_url ? (
+      {localSrc ? (
+        <div className="space-y-2">
+          <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-black">
+            <video
+              key={localSrc}
+              className="h-full w-full object-contain"
+              src={localSrc}
+              controls
+              playsInline
+              preload="metadata"
+              loop
+              onError={() => setLocalFailed(true)}
+              aria-label={`Reference demonstration of ${sign.display_name}`}
+            />
+          </div>
+          <p className="text-xs font-medium uppercase tracking-[0.1em] text-[var(--color-muted)]">Watch carefully</p>
+          {tip && <p className="text-sm leading-relaxed text-[var(--color-ink-soft)]">{tip}</p>}
+          {reference.license_note && <p className="text-xs text-[var(--color-muted)]">{reference.license_note}</p>}
+        </div>
+      ) : reference.available && reference.video_url ? (
         <div className="space-y-2">
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[var(--radius-panel)] border border-[var(--color-border)] bg-black">
             {embedUrl ? (
@@ -516,12 +508,13 @@ function ReferencePanel({
                   </div>
                 )}
                 <iframe
+                  key={embedUrl}
+                  ref={iframeRef}
                   className="h-full w-full"
                   src={embedUrl}
                   title={`Reference demonstration of ${sign.display_name}`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
-                  onLoad={() => setEmbedState("loaded")}
                 />
               </>
             ) : (
@@ -562,10 +555,10 @@ function ReferencePanel({
             <span className="animate-hand-wave text-5xl" aria-hidden="true">
               <Glyph value="🤟" />
             </span>
-            <StatusChip tone="neutral">Reference video coming soon</StatusChip>
+            <StatusChip tone="neutral">Demo video on its way</StatusChip>
             <p className="max-w-xs text-sm leading-relaxed text-[var(--color-ink-soft)]">
-              No verified reference video is connected for &ldquo;{sign.display_name}&rdquo; yet. Once an approved
-              source is added to the catalog, it will play here automatically.
+              A demonstration of &ldquo;{sign.display_name}&rdquo; will appear here automatically as soon as it is
+              added.
             </p>
             <div className="flex items-center gap-1 text-[var(--color-primary)]" aria-hidden="true">
               <span className="animate-motion-arrow">›</span>
@@ -577,7 +570,7 @@ function ReferencePanel({
               </span>
             </div>
             <p className="text-xs text-[var(--color-muted)]">
-              For now, use the gloss, meaning, and description above to learn the sign, then copy it on the right.
+              Use the meaning and description above to learn the sign, then copy it on the right.
             </p>
           </div>
         </div>

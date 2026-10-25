@@ -146,7 +146,7 @@ export function NativeSignsPage() {
           value={`${overallMastery}%`}
           label="Overall Mastery"
           icon="📈"
-          sub={progress ? `${started} of ${signs.length} started` : "Progress tracking coming soon"}
+          sub={progress ? `${started} of ${signs.length} started` : "Practice a sign to start tracking progress"}
         />
       </div>
 

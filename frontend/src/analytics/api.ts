@@ -48,11 +48,33 @@ export type WordAnalyticsSummary = {
 
 export type HeatmapCell = {
   date: string;
+  /** Everything the learner did that day: A-Z attempts + word sessions + native-sign attempts. */
+  count: number;
+  letters: number;
+  words: number;
+  native: number;
+  /** A-Z only (kept for older consumers). */
   attempts: number;
   correct: number;
   accuracy: number | null;
   xp: number;
   intensity: number;
+};
+
+export type HeatmapData = {
+  range: HeatmapRange;
+  timezone: string;
+  start: string;
+  end: string;
+  cells: HeatmapCell[];
+  summary: {
+    total_activity: number;
+    active_days: number;
+    current_streak: number;
+    longest_streak: number;
+    letter_accuracy: number | null;
+    letter_attempts: number;
+  };
 };
 
 export type TrendPoint = { date: string; value: number | null };
@@ -172,6 +194,12 @@ async function request<T>(path: string): Promise<T> {
   const response = await fetch(`${API}${path}`, { headers });
   if (!response.ok) throw new Error("Failed to load analytics.");
   return response.json();
+}
+
+/** Real activity by calendar day in the learner's own timezone (days are bucketed by the server, never guessed in the browser). */
+export function fetchHeatmap(range: HeatmapRange, timezone?: string) {
+  const zone = timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC";
+  return request<HeatmapData>(`/analytics/heatmap?range=${range}&tz=${encodeURIComponent(zone)}`);
 }
 
 export function fetchAnalyticsDashboard(range: AnalyticsRange, heatmapRange: HeatmapRange) {

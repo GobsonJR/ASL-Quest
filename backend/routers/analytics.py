@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
 from backend.models import User
 from backend.security import get_current_user
 from backend.services.analytics import (
+    UnknownTimezone,
     get_accuracy_trend,
     get_activity_trend,
     get_dashboard,
@@ -106,10 +107,14 @@ def analytics_history(
 @router.get("/heatmap")
 def analytics_heatmap(
     range: str = Query("12m", pattern="^(3m|6m|12m)$"),
+    tz: str = Query("UTC", max_length=64, description="IANA timezone the days are counted in, e.g. Asia/Kolkata"),
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return get_heatmap(db, current_user.id, range)  # type: ignore[arg-type]
+    try:
+        return get_heatmap(db, current_user.id, range, tz)  # type: ignore[arg-type]
+    except UnknownTimezone as error:
+        raise HTTPException(status_code=422, detail=str(error)) from None
 
 
 @router.get("/streak")

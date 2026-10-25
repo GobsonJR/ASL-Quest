@@ -98,7 +98,34 @@ function result(overrides: Partial<NativePracticeResult> = {}): NativePracticeRe
   };
 }
 
+// Vimeo's Player SDK is replaced by a stand-in whose ready() each test settles itself (the real one needs a real iframe).
+const { vimeoPlayers, FakeVimeoPlayer } = vi.hoisted(() => {
+  const vimeoPlayers: Array<InstanceType<typeof FakeVimeoPlayer>> = [];
+  class FakeVimeoPlayer {
+    resolveReady!: () => void;
+    rejectReady!: (error: Error) => void;
+    private readyPromise = new Promise<void>((resolve, reject) => {
+      this.resolveReady = resolve;
+      this.rejectReady = reject;
+    });
+    constructor(public element: HTMLIFrameElement) {
+      vimeoPlayers.push(this);
+    }
+    on() {}
+    off() {}
+    ready() {
+      return this.readyPromise;
+    }
+    destroy() {
+      return Promise.resolve();
+    }
+  }
+  return { vimeoPlayers, FakeVimeoPlayer };
+});
+vi.mock("@vimeo/player", () => ({ default: FakeVimeoPlayer }));
+
 beforeEach(() => {
+  vimeoPlayers.length = 0;
   navigate.mockReset();
   startNativeSignPractice.mockReset();
   applyNativeSignResult.mockReset();
@@ -124,6 +151,52 @@ describe("NativeSignPracticePage: capture to result flow", () => {
     expect(screen.getAllByText("HELLO").length).toBeGreaterThan(0);
     expect(applyNativeSignResult).toHaveBeenCalledWith(true, 20, []);
     expect(push).toHaveBeenCalledWith("+20 XP", "success");
+    // The ranked list is no longer shown, but confidence, expected/predicted sign and response time are.
+    expect(screen.queryByText(/top predictions/i)).not.toBeInTheDocument();
+    expect(screen.getByText("92.0% confidence")).toBeInTheDocument();
+    expect(screen.getByText("Expected")).toBeInTheDocument();
+    expect(screen.getByText("Predicted")).toBeInTheDocument();
+    expect(screen.getByText("3000ms")).toBeInTheDocument();
+  });
+
+  it("shows 'Not quite' with no success message, XP or XP toast for an incorrect attempt (HELLO expected, PLEASE predicted)", async () => {
+    practiceNativeSign.mockResolvedValue(
+      result({
+        prediction: "PLEASE",
+        confidence: 0.199,
+        correct: false,
+        xp_earned: 0,
+        top_k: [
+          { gloss: "PLEASE", confidence: 0.199 },
+          { gloss: "HELLO", confidence: 0.11 },
+          { gloss: "EAT1", confidence: 0.1 },
+        ],
+      })
+    );
+    render(<NativeSignPracticePage />);
+
+    fireEvent.click(await screen.findByText("fire-clip-ready"));
+
+    expect(await screen.findByText("Not quite")).toBeInTheDocument();
+    expect(screen.queryByText("Correct!")).not.toBeInTheDocument();
+    expect(screen.queryByText("Great job!")).not.toBeInTheDocument();
+    expect(screen.queryByText(/\+\d+ XP/)).not.toBeInTheDocument();
+    expect(screen.getByText(/no correctness xp/i)).toBeInTheDocument();
+    expect(push).not.toHaveBeenCalledWith(expect.stringContaining("XP"), "success");
+    expect(applyNativeSignResult).toHaveBeenCalledWith(false, 0, []);
+    // Expected and predicted stay visible and differ; the ranked list is gone, so HELLO at 11% is not advertised.
+    expect(screen.getByText("19.9% confidence")).toBeInTheDocument();
+    expect(screen.queryByText(/top predictions/i)).not.toBeInTheDocument();
+    expect(screen.queryByText("11%")).not.toBeInTheDocument();
+  });
+
+  it("treats a missing correctness flag as incorrect", async () => {
+    practiceNativeSign.mockResolvedValue(result({ correct: null, xp_earned: 0 }));
+    render(<NativeSignPracticePage />);
+    fireEvent.click(await screen.findByText("fire-clip-ready"));
+    expect(await screen.findByText("Not quite")).toBeInTheDocument();
+    expect(screen.queryByText("Correct!")).not.toBeInTheDocument();
+    expect(applyNativeSignResult).toHaveBeenCalledWith(false, 0, []);
   });
 });
 
@@ -165,14 +238,15 @@ describe("NativeSignPracticePage: reference panel", () => {
     expect(capture).toHaveAttribute("data-disabled", "false");
   });
 
-  it("shows the improved 'coming soon' fallback with the sign's meaning when no reference is verified", async () => {
+  it("shows the positive demo-on-its-way placeholder with the sign's meaning when no reference is available", async () => {
     render(<NativeSignPracticePage />);
 
-    expect(await screen.findByText(/reference video coming soon/i)).toBeInTheDocument();
-    expect(screen.getByText(/use the gloss, meaning, and description above/i)).toBeInTheDocument();
+    expect(await screen.findByText(/demo video on its way/i)).toBeInTheDocument();
+    expect(screen.getByText(/use the meaning and description above/i)).toBeInTheDocument();
+    expect(screen.queryByText(/coming soon|no verified/i)).not.toBeInTheDocument();
   });
 
-  it("EAT1 (no verified reference) still shows the 'coming soon' fallback", async () => {
+  it("EAT1 (no reference) still shows the demo-on-its-way placeholder", async () => {
     getNativeSigns.mockResolvedValue({
       items: [
         sign({
@@ -184,7 +258,7 @@ describe("NativeSignPracticePage: reference panel", () => {
     });
     render(<NativeSignPracticePage />);
 
-    expect(await screen.findByText(/reference video coming soon/i)).toBeInTheDocument();
+    expect(await screen.findByText(/demo video on its way/i)).toBeInTheDocument();
     expect(screen.getAllByText("Eat").length).toBeGreaterThan(0);
   });
 });
@@ -216,12 +290,86 @@ describe("NativeSignPracticePage: embedded Vimeo reference", () => {
     expect(iframe.getAttribute("src")).not.toBe("https://player.vimeo.com/video/897045923");
   });
 
-  it("shows a graceful fallback if the embed never loads, without breaking the rest of the page", async () => {
-    // React's synthetic event system only wires up "load" for <iframe> -- there is
-    // no working onError for this tag (verified directly against react-dom's own
-    // source). A broken/blocked embed is therefore detected by a load timeout, not
-    // an error event -- so this test advances past that timeout instead of trying
-    // to fire an event React would never actually deliver.
+  it("plays the locally stored video (no Vimeo, no internet needed) when the server has one", async () => {
+    const withLocal = vimeoSign();
+    withLocal.reference = { ...withLocal.reference, local_video_url: "/native/reference-video/BOOK" };
+    getNativeSigns.mockResolvedValue({ items: [withLocal] });
+    const { container } = render(<NativeSignPracticePage />);
+
+    const video = await waitFor(() => {
+      const el = container.querySelector("video[src]");
+      expect(el).not.toBeNull();
+      return el as HTMLVideoElement;
+    });
+    expect(video.getAttribute("src")).toMatch(/\/native\/reference-video\/BOOK$/);
+    expect(video).toHaveAttribute("controls");
+    expect(container.querySelector("iframe")).toBeNull(); // the online embed is not even created
+    expect(vimeoPlayers).toHaveLength(0); // so Vimeo's SDK is never started
+    expect(screen.queryByText(/couldn.t load|loading reference/i)).not.toBeInTheDocument();
+  });
+
+  it("falls back to the Vimeo embed if the local video cannot be played", async () => {
+    const withLocal = vimeoSign();
+    withLocal.reference = { ...withLocal.reference, local_video_url: "/native/reference-video/BOOK" };
+    getNativeSigns.mockResolvedValue({ items: [withLocal] });
+    const { container } = render(<NativeSignPracticePage />);
+
+    const video = await waitFor(() => {
+      const el = container.querySelector("video[src]");
+      expect(el).not.toBeNull();
+      return el as HTMLVideoElement;
+    });
+    act(() => {
+      video.dispatchEvent(new Event("error"));
+    });
+    expect(await screen.findByTitle(/reference demonstration of book/i)).toHaveAttribute(
+      "src",
+      "https://player.vimeo.com/video/897045923?h=ca27cc3775"
+    );
+  });
+
+  it("shows the local video even for a sign that has no online reference at all", async () => {
+    const localOnly = sign({
+      gloss: "EAT1",
+      display_name: "Eat",
+      reference: {
+        available: true,
+        video_url: null,
+        local_video_url: "/native/reference-video/EAT1",
+        thumbnail_url: null,
+        source_type: null,
+        license_note: null,
+      },
+    });
+    getNativeSigns.mockResolvedValue({ items: [localOnly] });
+    const { container } = render(<NativeSignPracticePage />);
+    await waitFor(() => expect(container.querySelector("video[src]")).not.toBeNull());
+    expect(screen.queryByText(/demo video on its way/i)).not.toBeInTheDocument();
+  });
+
+  it("shows the fallback immediately when Vimeo reports the video unavailable, even though the iframe itself loaded", async () => {
+    // An iframe's "load" event fires for Vimeo's "this video does not exist" page too; the player SDK's ready() rejection is
+    // the real signal.
+    getNativeSigns.mockResolvedValue({ items: [vimeoSign()] });
+    render(<NativeSignPracticePage />);
+
+    const iframe = await screen.findByTitle(/reference demonstration of book/i);
+    act(() => {
+      iframe.dispatchEvent(new Event("load"));
+    });
+    expect(screen.queryByText(/couldn.t load/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/loading reference/i)).toBeInTheDocument(); // "load" alone proves nothing
+    await waitFor(() => expect(vimeoPlayers).toHaveLength(1));
+
+    await act(async () => {
+      vimeoPlayers[0].rejectReady(new Error("NotFoundError: This video does not exist."));
+    });
+    expect(screen.getByText(/couldn.t load/i)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /open source instead/i })).toHaveAttribute("href", "https://vimeo.com/897045923/ca27cc3775");
+    expect(screen.getByRole("button", { name: /i.m ready/i })).toBeInTheDocument();
+  });
+
+  it("shows a graceful fallback if the embed never becomes ready, without breaking the rest of the page", async () => {
     vi.useFakeTimers();
     try {
       getNativeSigns.mockResolvedValue({ items: [vimeoSign()] });
@@ -230,7 +378,11 @@ describe("NativeSignPracticePage: embedded Vimeo reference", () => {
       await vi.waitFor(() => expect(screen.getByTitle(/reference demonstration of book/i)).toBeInTheDocument());
 
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(8000);
+        await vi.advanceTimersByTimeAsync(14000);
+      });
+      expect(screen.queryByText(/couldn.t load/i)).not.toBeInTheDocument(); // slow is not broken
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(1500);
       });
 
       expect(screen.getByText(/couldn.t load/i)).toBeInTheDocument();
@@ -245,18 +397,19 @@ describe("NativeSignPracticePage: embedded Vimeo reference", () => {
     }
   });
 
-  it("does not show the failure fallback once the embed genuinely loads in time", async () => {
+  it("does not show the failure fallback once the player reports ready in time", async () => {
     vi.useFakeTimers();
     try {
       getNativeSigns.mockResolvedValue({ items: [vimeoSign()] });
       render(<NativeSignPracticePage />);
 
-      const iframe = await vi.waitFor(() => screen.getByTitle(/reference demonstration of book/i));
-      act(() => {
-        iframe.dispatchEvent(new Event("load"));
+      await vi.waitFor(() => screen.getByTitle(/reference demonstration of book/i));
+      await vi.waitFor(() => expect(vimeoPlayers).toHaveLength(1));
+      await act(async () => {
+        vimeoPlayers[0].resolveReady();
       });
       await act(async () => {
-        await vi.advanceTimersByTimeAsync(8000);
+        await vi.advanceTimersByTimeAsync(30000);
       });
 
       expect(screen.queryByText(/couldn.t load/i)).not.toBeInTheDocument();

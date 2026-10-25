@@ -4,23 +4,26 @@ import {
   fetchAdminLetters,
   fetchAdminOverview,
   fetchAdminRecentActivity,
-  fetchAdminUsers,
   fetchAdminWords,
 } from "../auth/api";
 import { useAuth } from "../auth/AuthContext";
 import { Card, EmptyState, PageHeader, SectionLabel, StatPill } from "../components/AppShell";
 import { useGame } from "../game/GameContext";
+import { AuditTab } from "../admin/AuditTab";
+import { ContentTab } from "../admin/ContentTab";
+import { CollectPage } from "../collect/CollectPage";
+import { DatasetTab } from "../admin/DatasetTab";
+import { ModelsTab } from "../admin/ModelsTab";
+import { UsersTab } from "../admin/UsersTab";
 
-export function AdminPage() {
+function AdminOverview() {
   const { user } = useAuth();
   const { navigate } = useGame();
   const [overview, setOverview] = useState<Awaited<ReturnType<typeof fetchAdminOverview>> | null>(null);
-  const [users, setUsers] = useState<Awaited<ReturnType<typeof fetchAdminUsers>> | null>(null);
   const [letters, setLetters] = useState<Awaited<ReturnType<typeof fetchAdminLetters>> | null>(null);
   const [activity, setActivity] = useState<Awaited<ReturnType<typeof fetchAdminActivity>> | null>(null);
   const [recent, setRecent] = useState<Awaited<ReturnType<typeof fetchAdminRecentActivity>> | null>(null);
   const [words, setWords] = useState<Awaited<ReturnType<typeof fetchAdminWords>> | null>(null);
-  const [search, setSearch] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -30,15 +33,13 @@ export function AdminPage() {
     }
     Promise.all([
       fetchAdminOverview(),
-      fetchAdminUsers({ page: 1 }),
       fetchAdminLetters(),
       fetchAdminActivity(),
       fetchAdminRecentActivity(),
       fetchAdminWords(),
     ])
-      .then(([overviewData, usersData, lettersData, activityData, recentData, wordsData]) => {
+      .then(([overviewData, lettersData, activityData, recentData, wordsData]) => {
         setOverview(overviewData);
-        setUsers(usersData);
         setLetters(lettersData);
         setActivity(activityData);
         setRecent(recentData);
@@ -61,7 +62,7 @@ export function AdminPage() {
     return <EmptyState icon="⚠️" title="Admin dashboard unavailable" description={error} />;
   }
 
-  if (!overview || !users || !letters || !activity || !recent) {
+  if (!overview || !letters || !activity || !recent) {
     return <div className="grid min-h-[40vh] place-items-center text-[var(--color-ink-soft)]">Loading admin dashboard...</div>;
   }
 
@@ -151,54 +152,6 @@ export function AdminPage() {
         </div>
       )}
 
-      <Card>
-        <SectionLabel>User management</SectionLabel>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <input
-            className="w-full rounded-2xl border border-[var(--color-border-soft)] bg-[var(--color-surface-soft)] px-4 py-3"
-            placeholder="Search username or email"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-          <button
-            type="button"
-            className="rounded-full bg-[var(--color-primary)] px-6 py-3 text-sm font-bold text-white"
-            onClick={() => fetchAdminUsers({ page: 1, search }).then(setUsers)}
-          >
-            Search
-          </button>
-        </div>
-        <div className="mt-4 overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="text-[var(--color-muted)]">
-              <tr>
-                <th className="px-2 py-2">Username</th>
-                <th className="px-2 py-2">Email</th>
-                <th className="px-2 py-2">Role</th>
-                <th className="px-2 py-2">Sessions</th>
-                <th className="px-2 py-2">XP</th>
-                <th className="px-2 py-2">Last activity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.items.map((item) => (
-                <tr key={item.id} className="border-t border-[var(--color-border-soft)]">
-                  <td className="px-2 py-2 font-semibold">{item.username}</td>
-                  <td className="px-2 py-2">{item.email}</td>
-                  <td className="px-2 py-2">{item.role}</td>
-                  <td className="px-2 py-2">{item.practice_sessions}</td>
-                  <td className="px-2 py-2">{item.xp}</td>
-                  <td className="px-2 py-2">{item.last_activity ? new Date(item.last_activity).toLocaleDateString() : "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-3 text-xs text-[var(--color-muted)]">
-          Showing page {users.page} · {users.total} users total
-        </p>
-      </Card>
-
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <SectionLabel>System activity</SectionLabel>
@@ -228,6 +181,52 @@ export function AdminPage() {
           </div>
         </Card>
       </div>
+    </div>
+  );
+}
+
+const TABS = [
+  { id: "overview", label: "Overview" },
+  { id: "users", label: "Users" },
+  { id: "content", label: "Content" },
+  { id: "dataset", label: "Dataset" },
+  { id: "collection", label: "Collect data" },
+  { id: "models", label: "Models & chatbot" },
+  { id: "audit", label: "Audit log" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
+
+export function AdminPage() {
+  const { user } = useAuth();
+  const [tab, setTab] = useState<TabId>("overview");
+
+  if (user?.role !== "admin") {
+    return <EmptyState icon="🔒" title="Admin access required" description="This area is restricted to administrators." />;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div role="tablist" aria-label="Admin sections" className="flex flex-wrap gap-2">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            onClick={() => setTab(t.id)}
+            className={`min-h-10 rounded-full border-2 px-4 text-sm font-bold ${tab === t.id ? "border-[var(--color-primary)] bg-[var(--color-primary-soft)]" : "border-[var(--color-border)]"}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {tab === "overview" && <AdminOverview />}
+      {tab === "users" && <UsersTab />}
+      {tab === "content" && <ContentTab />}
+      {tab === "dataset" && <DatasetTab onOpenCollection={() => setTab("collection")} />}
+      {tab === "collection" && <CollectPage />}
+      {tab === "models" && <ModelsTab />}
+      {tab === "audit" && <AuditTab />}
     </div>
   );
 }

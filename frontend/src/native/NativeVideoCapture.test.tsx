@@ -6,6 +6,10 @@ import { NativeVideoCapture } from "./NativeVideoCapture";
 // surface (start/stop, ondataavailable/onstop/onerror callbacks, the static
 // isTypeSupported guard NativeVideoCapture checks up front) for the
 // component's real lifecycle wiring to run end to end.
+// MediaPipe is not loaded here; the overlay hook is covered by useHandOverlay.test.tsx.
+let mockOverlay: { status: string; hands: number } = { status: "ready", hands: 0 };
+vi.mock("../shared/useHandOverlay", () => ({ useHandOverlay: () => mockOverlay }));
+
 class FakeMediaRecorder {
   static isTypeSupported = vi.fn().mockReturnValue(true);
   state: "inactive" | "recording" = "inactive";
@@ -107,5 +111,28 @@ describe("NativeVideoCapture: recorder failure mid-recording", () => {
 
     await waitFor(() => expect(screen.getByRole("button", { name: /start recording/i })).toBeInTheDocument());
     expect(screen.getByText(/in use/i)).toBeInTheDocument();
+  });
+});
+
+describe("NativeVideoCapture: hand overlay", () => {
+  it("records the raw camera stream (the overlay is never part of the clip) and shows the hand status while recording", async () => {
+    mockOverlay = { status: "ready", hands: 2 };
+    const stream = fakeStream();
+    vi.mocked(navigator.mediaDevices.getUserMedia).mockResolvedValueOnce(stream);
+    render(<NativeVideoCapture onClipReady={vi.fn()} />);
+    expect(screen.queryByTestId("hand-status")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /start recording/i }));
+    await waitFor(() => expect(instances.length).toBe(1), { timeout: 6000 });
+    expect(instances[0].stream).toBe(stream);
+    expect(screen.getByTestId("hand-status")).toHaveTextContent("2 hands detected");
+  });
+
+  it("still records when the hand overlay cannot load", async () => {
+    mockOverlay = { status: "unavailable", hands: 0 };
+    render(<NativeVideoCapture onClipReady={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: /start recording/i }));
+    await waitFor(() => expect(screen.getByRole("button", { name: /stop now/i })).toBeInTheDocument(), { timeout: 6000 });
+    expect(screen.getByTestId("hand-status")).toHaveTextContent("Hand overlay unavailable");
   });
 });

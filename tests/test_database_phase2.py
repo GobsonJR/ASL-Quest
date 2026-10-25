@@ -98,14 +98,14 @@ class AlembicStructureTests(unittest.TestCase):
         script = ScriptDirectory.from_config(_alembic_config())
         heads = script.get_heads()
         self.assertEqual(len(heads), 1, f"expected exactly one migration head, got {heads}")
-        self.assertEqual(heads[0], "0003_seed_words")
+        self.assertEqual(heads[0], "0004_admin_audit")
 
     def test_revision_chain_order(self) -> None:
         from alembic.script import ScriptDirectory
 
         script = ScriptDirectory.from_config(_alembic_config())
         revisions = [rev.revision for rev in script.walk_revisions()]
-        self.assertEqual(revisions, ["0003_seed_words", "0002_new_tables", "0001_baseline"])
+        self.assertEqual(revisions, ["0004_admin_audit", "0003_seed_words", "0002_new_tables", "0001_baseline"])
 
     def test_baseline_has_no_down_revision(self) -> None:
         from alembic.script import ScriptDirectory
@@ -182,12 +182,15 @@ class ExistingDataPreservationTests(unittest.TestCase):
         engine = sa.create_engine(self.url)
         Session = sessionmaker(bind=engine)
         with Session() as session:
-            user = User(username="preexisting", email="preexisting@example.com", password_hash="x")
-            session.add(user)
-            session.flush()
-            session.add(models.LetterProgress(user_id=user.id, letter="A", attempts=3, correct_attempts=2))
+            # raw SQL: the ORM User now has columns (is_active) that the 0001 baseline schema predates
+            self.user_id = session.execute(
+                sa.text(
+                    "INSERT INTO users (username, email, password_hash, role, preferences, created_at) "
+                    "VALUES ('preexisting', 'preexisting@example.com', 'x', 'student', '{}', CURRENT_TIMESTAMP) RETURNING id"
+                )
+            ).scalar_one()
+            session.add(models.LetterProgress(user_id=self.user_id, letter="A", attempts=3, correct_attempts=2))
             session.commit()
-            self.user_id = user.id
         engine.dispose()
 
     def tearDown(self) -> None:

@@ -11,7 +11,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.database import init_db
-from backend.routers import achievements, analytics, auth, admin, challenges, chatbot, collect, ml, native, practice, progress, recommendations, users, words
+from backend.routers import achievements, analytics, auth, admin, admin_ops, challenges, chatbot, collect, ml, native, practice, progress, recommendations, users, words
 from backend.services.experimental_recognizer import load_experimental_landmarks
 from backend.services.progress import seed_achievements
 from backend.settings import CORS_ORIGINS, EXPERIMENTAL_LANDMARK_MODEL, HAND_DETECTION_CONFIDENCE, LANDMARK_MODEL_PATH, RECOGNIZER
@@ -42,6 +42,7 @@ app.include_router(analytics.router)
 app.include_router(users.router)
 app.include_router(recommendations.router)
 app.include_router(admin.router)
+app.include_router(admin_ops.router)
 app.include_router(words.router)
 app.include_router(native.router)
 app.include_router(chatbot.router)
@@ -50,6 +51,9 @@ app.include_router(collect.router)  # development only: 404 unless ASL_QUEST_DEV
 
 @app.on_event("startup")
 def startup() -> None:
+    from backend.startup_checks import enforce
+
+    enforce()  # production only: refuses the public default JWT secret before anything else starts
     init_db()
     from backend.database import SessionLocal
 

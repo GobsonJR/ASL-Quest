@@ -32,6 +32,7 @@ class User(Base):
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     role: Mapped[str] = mapped_column(String(16), default="student", nullable=False, index=True)
     preferences: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, server_default="1", nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     progress: Mapped[UserProgress | None] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
@@ -457,3 +458,18 @@ class ChatbotFeedback(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False)
 
     message: Mapped[ChatbotMessage] = relationship(back_populates="feedback")
+
+
+class AdminAuditLog(Base):
+    """Append-only record of state-changing admin actions (who did what to which target)."""
+
+    __tablename__ = "admin_audit_log"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    admin_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    admin_username: Mapped[str] = mapped_column(String(64), nullable=False)
+    action: Mapped[str] = mapped_column(String(48), nullable=False, index=True)
+    target_type: Mapped[str] = mapped_column(String(32), nullable=False)
+    target_id: Mapped[str] = mapped_column(String(128), nullable=False)
+    detail: Mapped[str] = mapped_column(Text, default="{}", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, nullable=False, index=True)

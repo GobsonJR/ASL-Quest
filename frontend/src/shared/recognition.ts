@@ -163,7 +163,7 @@ export function troubleshootingTip(phase: LivePhase, framesInPhase: number): str
     case "no_hand":
       return "Move your hand into view, about an arm's length from the camera, with the palm side facing it. Good front lighting and a plain background help.";
     case "low_confidence":
-      return "Hold your hand still with all fingers visible, centered in the green box. The recognizer was trained on hands against a plain wall, so keep your face and busy objects out of the box (a plain background works best) and match the reference sign on the right.";
+      return "Hold your hand still with all fingers visible, centered in the green box. Your hand in the middle of the box, a little away from your face and in front of a plain background, works best. Match the reference sign on the right.";
     case "detector_unavailable":
       return "The server's hand detector isn't running (see /health on the backend). Check the hand_landmarker.task model file.";
     case "error":

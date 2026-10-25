@@ -25,7 +25,7 @@ import { AdminPage } from "./pages/AdminPage";
 import { MentorDashboard } from "./admin/MentorDashboard";
 import { ProfilePage } from "./pages/ProfilePage";
 import { SettingsPage } from "./pages/SettingsPage";
-import { CollectPage } from "./collect/CollectPage";
+import { ADMIN_PAGES, isAdminRole } from "./auth/roles";
 
 function SyncNotifier() {
   const { syncStatus } = useAuth();
@@ -46,8 +46,9 @@ function SyncNotifier() {
 }
 
 function AuthenticatedApp() {
-  const { page, hydrateState, practiceKind } = useGame();
-  const { migrationOffer, dismissMigration, importLocalProgress } = useAuth();
+  const { page, navigate, hydrateState, practiceKind } = useGame();
+  const { user, migrationOffer, dismissMigration, importLocalProgress, landingPage, clearLandingPage } = useAuth();
+  const isAdmin = isAdminRole(user?.role);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [healthError, setHealthError] = useState<string | null>(null);
   const [importing, setImporting] = useState(false);
@@ -68,7 +69,21 @@ function AuthenticatedApp() {
       });
   }, []);
 
-  const ready = Boolean(health?.model_loaded);
+  // Right after sign-in an administrator lands in the Admin workspace (once); everyone else lands where they always did.
+  useEffect(() => {
+    if (!landingPage) return;
+    if (landingPage === "admin" && isAdmin) navigate("admin");
+    clearLandingPage();
+  }, [landingPage, isAdmin, navigate, clearLandingPage]);
+
+  // Admin pages are not rendered for anyone else. (This is only the visible half of the rule: the API refuses them too.)
+  const blockedPage = ADMIN_PAGES.includes(page) && !isAdmin;
+  useEffect(() => {
+    if (blockedPage) navigate("home");
+  }, [blockedPage, navigate]);
+
+  // Practice recognizes letters from browser landmarks, so the landmark model alone is enough; the ResNet is only the fallback.
+  const ready = Boolean(health?.model_loaded || health?.experimental_landmark?.loaded);
   const backendNote = health
     ? `Ready on ${health.device}${health.gpu_name ? ` · ${health.gpu_name}` : ""}`
     : healthError ?? "Checking backend...";
@@ -97,7 +112,7 @@ function AuthenticatedApp() {
         {page === "words" && <WordsPage />}
         {page === "practice" &&
           (practiceKind === "word" ? (
-            <WordPracticePage ready={ready} backendError={healthError} />
+            <WordPracticePage ready={ready} backendError={healthError} experimentalLandmark={health?.experimental_landmark ?? null} />
           ) : (
             <PracticePage ready={ready} backendError={healthError} experimentalLandmark={health?.experimental_landmark ?? null} />
           ))}
@@ -109,9 +124,8 @@ function AuthenticatedApp() {
         {page === "assistant" && <ChatbotPage />}
         {page === "profile" && <ProfilePage />}
         {page === "settings" && <SettingsPage />}
-        {page === "admin" && <AdminPage />}
-        {page === "collect" && import.meta.env.DEV && <CollectPage />}
-        {page === "mentor-dashboard" && <MentorDashboard />}
+        {page === "admin" && isAdmin && <AdminPage />}
+        {page === "mentor-dashboard" && isAdmin && <MentorDashboard />}
       </AppShell>
       <SignoCompanion />
       </SignoProvider>

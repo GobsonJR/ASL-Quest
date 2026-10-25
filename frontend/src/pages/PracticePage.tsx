@@ -2,10 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { Card, EmptyState, PrimaryButton, ProgressBar, SecondaryButton } from "../components/AppShell";
 import { AlphabetReferencePanel } from "../components/AlphabetReferencePanel";
 import { CameraPractice } from "../components/CameraPractice";
+import { LandmarkPractice } from "../components/LandmarkPractice";
 import { CelebrationOverlay, LevelUpOverlay } from "../components/CelebrationOverlay";
 import { LetterProgressStrip } from "../components/LetterProgressStrip";
 import { MissionCard } from "../components/MissionCard";
-import { RecognizerSwitch } from "../components/RecognizerSwitch";
 import type { ExperimentalLandmarkInfo, RecognizerChoice } from "../api";
 import { useSignoEmit } from "../components/signo/SignoContext";
 import { useToast } from "../components/Toast";
@@ -43,9 +43,9 @@ export function PracticePage({
   /** Set only when the backend has an experimental landmark model loaded; enables the developer comparison switch. */
   experimentalLandmark?: ExperimentalLandmarkInfo | null;
 }) {
-  // ResNet is always the starting recognizer; it is never remembered across page loads.
-  const [recognizer, setRecognizer] = useState<RecognizerChoice>("resnet");
-  const activeRecognizer: RecognizerChoice = experimentalLandmark?.loaded ? recognizer : "resnet";
+  // Hand landmarks are the recognizer whenever the backend has the landmark model loaded; there is no user-facing choice.
+  // Only if that model is unavailable does Practice fall back to the ResNet image classifier so it keeps working.
+  const activeRecognizer: RecognizerChoice = experimentalLandmark?.loaded ? "landmarks" : "resnet";
   const {
     state,
     level,
@@ -293,18 +293,32 @@ export function PracticePage({
               />
             ) : (
               <div className="space-y-3">
-              <RecognizerSwitch info={experimentalLandmark} value={activeRecognizer} onChange={setRecognizer} />
-              <CameraPractice
-                recognizer={activeRecognizer}
-                targetLetter={targetLetter}
-                attemptKey={attemptKey}
-                active={phase === "playing"}
-                ready={ready}
-                backendError={backendError}
-                onCorrect={handleCorrect}
-                onIncorrect={handleIncorrect}
-                onStatusChange={setCameraStatus}
-              />
+              {activeRecognizer === "landmarks" ? (
+                // Experimental: MediaPipe runs in the browser and only landmarks are sent. Same callbacks, so XP and
+                // progress still go through handleCorrect/handleIncorrect and the existing game logic.
+                <LandmarkPractice
+                  targetLetter={targetLetter}
+                  attemptKey={attemptKey}
+                  active={phase === "playing"}
+                  ready={ready}
+                  backendError={backendError}
+                  onCorrect={handleCorrect}
+                  onIncorrect={handleIncorrect}
+                  onStatusChange={setCameraStatus}
+                />
+              ) : (
+                <CameraPractice
+                  recognizer={activeRecognizer}
+                  targetLetter={targetLetter}
+                  attemptKey={attemptKey}
+                  active={phase === "playing"}
+                  ready={ready}
+                  backendError={backendError}
+                  onCorrect={handleCorrect}
+                  onIncorrect={handleIncorrect}
+                  onStatusChange={setCameraStatus}
+                />
+              )}
               </div>
             )}
           </Card>
