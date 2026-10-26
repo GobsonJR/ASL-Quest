@@ -1,0 +1,49 @@
+{
+  "source": "dataset\\asl_alphabet_train",
+  "groups": {
+    "A": 3000,
+    "B": 3000,
+    "C": 3000,
+    "D": 3000,
+    "E": 3000,
+    "F": 3000,
+    "G": 3000,
+    "H": 3000,
+    "I": 3000,
+    "J": 3000,
+    "K": 3000,
+    "L": 3000,
+    "M": 3000,
+    "N": 3000,
+    "O": 3000,
+    "P": 3000,
+    "Q": 3000,
+    "R": 3000,
+    "S": 3000,
+    "T": 3000,
+    "U": 3000,
+    "V": 3000,
+    "W": 3000,
+    "X": 3000,
+    "Y": 3000,
+    "Z": 3000
+  },
+  "duplicate_files_by_crc": 0,
+  "cross_split_identical_files": 0,
+  "sample_image_sizes": {
+    "200x200": 780
+  },
+  "sample_modes": {
+    "RGB": 780
+  },
+  "background": {
+    "edge_colour_spread_across_images(std of per-image edge mean)": [
+      16.8,
+      16.5,
+      17.1
+    ],
+    "median_edge_std_within_image": 55.7,
+    "images_with_mostly_black_edges": 0.0,
+    "images_with_transparency": 0.0
+  }
+}
