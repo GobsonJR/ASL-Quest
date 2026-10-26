@@ -1,0 +1,90 @@
+{
+  "subset_name": "asl_native_10",
+  "classes_count": 10,
+  "train_samples": 149,
+  "val_samples": 39,
+  "test_samples": 129,
+  "test_signers_count": 11,
+  "metrics": {
+    "top1_accuracy": 0.9457,
+    "top3_accuracy": 0.9922,
+    "top5_accuracy": 0.9922,
+    "macro_precision": 0.9546,
+    "macro_recall": 0.9491,
+    "macro_f1": 0.9477
+  },
+  "best_epoch": 2,
+  "best_val_acc": 1.0,
+  "per_class": [
+    {
+      "gloss": "BOOK",
+      "support": 12,
+      "precision": 0.9231,
+      "recall": 1.0,
+      "f1": 0.96
+    },
+    {
+      "gloss": "EAT1",
+      "support": 17,
+      "precision": 0.9444,
+      "recall": 1.0,
+      "f1": 0.9714
+    },
+    {
+      "gloss": "HELLO",
+      "support": 14,
+      "precision": 1.0,
+      "recall": 0.9286,
+      "f1": 0.963
+    },
+    {
+      "gloss": "HELP",
+      "support": 13,
+      "precision": 1.0,
+      "recall": 0.8462,
+      "f1": 0.9167
+    },
+    {
+      "gloss": "MOTHER",
+      "support": 15,
+      "precision": 1.0,
+      "recall": 0.8,
+      "f1": 0.8889
+    },
+    {
+      "gloss": "NO",
+      "support": 11,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    },
+    {
+      "gloss": "PLEASE",
+      "support": 13,
+      "precision": 0.9286,
+      "recall": 1.0,
+      "f1": 0.963
+    },
+    {
+      "gloss": "THANKYOU",
+      "support": 12,
+      "precision": 1.0,
+      "recall": 0.9167,
+      "f1": 0.9565
+    },
+    {
+      "gloss": "WATER",
+      "support": 12,
+      "precision": 0.75,
+      "recall": 1.0,
+      "f1": 0.8571
+    },
+    {
+      "gloss": "YES",
+      "support": 10,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0
+    }
+  ]
+}
