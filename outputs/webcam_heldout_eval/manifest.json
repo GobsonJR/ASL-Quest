@@ -1,0 +1,559 @@
+{
+  "git_head": "869e187965bfa9229b9e3630ecbf8687048e0736",
+  "frames": [
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469676336_3a93",
+      "letter": "X",
+      "sha256": "09f33c8a1ff561e069d7e64bcb88a5e9b7aa6d892feb5e77204b058bdab5c431"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469496952_1693",
+      "letter": "A",
+      "sha256": "774f0bcbcf170358ec16c06d556e1fc209a5b4e9bde29df1b8c1955377514bd4"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469497077_5b50",
+      "letter": "A",
+      "sha256": "f037964bb2a86ca7004a6fc8fe6deb0dfb701af33875f6a56060694ae4b4013f"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469497189_1d86",
+      "letter": "A",
+      "sha256": "326810a274f008023b6daf8051f37fd9fe21c2f96c05dbe6e1c15c6a6a66a0d9"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469505083_1538",
+      "letter": "A",
+      "sha256": "4525e183b48b24a126776befd1463863c8dfeb24708fa539899498f202d639f7"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469505139_13e8",
+      "letter": "A",
+      "sha256": "b55a9f7563ac1c8bcabb085a07dc31ae3132f9c237213a73ed10c74879bdc999"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469505214_aaee",
+      "letter": "A",
+      "sha256": "bd29cc55bd837aabe57bbb972b6bbf43e98bf468f43540696f02c5e0cf1c987a"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469517524_c951",
+      "letter": "A",
+      "sha256": "3a353f21c998bd5ab137805498d44b9c2e3580e819be1f4f55cc7cf8c7a86cf6"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469517584_1011",
+      "letter": "A",
+      "sha256": "522fb8c6ccbe30a6d52552422417d6246ec16bc0690ed0a6845251fbbb316803"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469529996_ed0f",
+      "letter": "A",
+      "sha256": "fa1949b7e4cd2f06acda8f0072680b10216f726fddf241cb3f4fe6e7dc44d4d3"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469530230_a69b",
+      "letter": "A",
+      "sha256": "50133f79930e5b829937d8293d03a216624cc8a8378350574de97211558a8d7a"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469530559_fe53",
+      "letter": "A",
+      "sha256": "2450b5b452bcf59c2f3150e91edcd9190d1cdd93af85e8c4dfb106d775203fd7"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469539498_c59e",
+      "letter": "A",
+      "sha256": "6d897e702c4823246816b5ea1345f256ed3d680394771a16a39fcfaea1903648"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469539774_a5eb",
+      "letter": "A",
+      "sha256": "26f5775ac39f41886a95f2b3bb83bfec5a5aab556e51f02118cf7869ae12d0ee"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/A_1792469539967_c9fb",
+      "letter": "A",
+      "sha256": "4e60dd1a8f02af29f82c7af9d8ef82f56d9bd07882596669623deed27be17f38"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469564571_616d",
+      "letter": "B",
+      "sha256": "d604cd648c272ca8d4e74dbfc874b55cb856f3ba22101027b3d2dc575c3f3e4e"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469573262_ce92",
+      "letter": "B",
+      "sha256": "eb53c7f553811cfbd144021120bca9ead072f2ffe888af1d91d3b14e266854a9"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469573386_ce0e",
+      "letter": "B",
+      "sha256": "f9c48ab7543191f192914da141ab61deededc13ec5889d687704b6dcaf019e9b"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469573513_a6d9",
+      "letter": "B",
+      "sha256": "91e704cb388ee2f9ccaa73bf8148ab37926ee8d8524e38d7dfcc841c1e8b1d2d"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469584888_beb4",
+      "letter": "B",
+      "sha256": "396760425d6d29044366cd50a8d64d4aa8701fedc452ca0d4dbedcd96a102d09"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469584952_8213",
+      "letter": "B",
+      "sha256": "568396d3b7f4d14534adf6f0399dd3a93f998aa114adee1d3c2bae4913423f0c"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469595607_b60d",
+      "letter": "B",
+      "sha256": "47c19aef038de5686456c5a60760fe20ac53851f5aeca33d99077e28a4d58906"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469595747_d210",
+      "letter": "B",
+      "sha256": "35c453b1dca4ffee55e1f826cb30715fc2b92d2cfb7eef19172b216e0700e22f"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469595869_f262",
+      "letter": "B",
+      "sha256": "758eb2910a91f9fd935bd3c8f43ef97f43292405eeccee26aacdad47439cb177"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469604719_5e3f",
+      "letter": "B",
+      "sha256": "aabc8225f0ae71bb7dec0f85bfd073535e0a82fd1a5222f0ebc54c522fe26b04"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469604789_6fe9",
+      "letter": "B",
+      "sha256": "8e3a70cbae16c8c782be292cc2373faf5cf601d7f1a875937234b45fbd7da5b2"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469612603_b1b7",
+      "letter": "B",
+      "sha256": "bae3826254b41fa91b5b6ed82e4ccc6934f1831ffb29adcf8cf703bd33b1da3b"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469612749_02e8",
+      "letter": "B",
+      "sha256": "bc254bd5c14d508545fba909a3ee7993e988717002c8cff46bcadd084cca3f83"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/B_1792469612930_3f99",
+      "letter": "B",
+      "sha256": "27da889e080d926c401ba2db31218fc5c143fa3df66b0270c79a7436e33b74a1"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/C_1792469626824_6605",
+      "letter": "C",
+      "sha256": "ea3edb1ad73e7b4a2528d4a09e5b46c345714379a8c7c622cdd4b9bdbba27562"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/C_1792469626975_1799",
+      "letter": "C",
+      "sha256": "d0970fd19afed2cc0fb498c242f176a2de376b3ec2d97958a7a7d42e08cb5432"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/C_1792469627163_765b",
+      "letter": "C",
+      "sha256": "90de1996cc8b79381d9bfc7786f733125b81ca73b84358266f6876e4bb803bcc"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469426166_de4b",
+      "letter": "F",
+      "sha256": "5751a9b37861bc1faf4c979ea61e5d0ded4855f1646ee25be012bd852ceebf70"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469426423_d1e8",
+      "letter": "F",
+      "sha256": "c2c2676fcefb19adf51855f51a482af042b316c98c4d7ecb9645beacb1ef1ff7"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469426605_a036",
+      "letter": "F",
+      "sha256": "823ecf5ae2957b7701756b867f174312cdefc57537155216daa08cf9fc2eb261"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469443058_1c2c",
+      "letter": "F",
+      "sha256": "698795fc5e4cd81d3169feb55d4f72094233698507e68cb62ef9fec977bac41c"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469443126_f724",
+      "letter": "F",
+      "sha256": "72e0e004c7723968160fcd88aabdf012f2dd294045c9122111334d937e19d011"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469443202_5eda",
+      "letter": "F",
+      "sha256": "2ce9977d61d85f88cbb176f01e923eef2a1b7c2e409e53ec552adf96fe36ab49"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469452354_65d4",
+      "letter": "F",
+      "sha256": "277b8322ba6a026b3827369880bb833df6dc9a4b902b4ecf009c05f822c5a85c"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469452489_96e6",
+      "letter": "F",
+      "sha256": "bc9455a3cf934efdbe97c64720ae113a2ab50f9f95f18eebeb4e0e96c8d4288e"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469452719_5cea",
+      "letter": "F",
+      "sha256": "67fd969e2b1f64290410bafc7ac3bdce61fb91d0d45f7c8f85543c5cf078bc67"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469480567_dfb3",
+      "letter": "F",
+      "sha256": "82b488be18a6ddc34fe895635f2dedaba153be8882984f8c3e918162f9a1b437"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469480759_806b",
+      "letter": "F",
+      "sha256": "89fa02f9865c09b9bd94c969eec2e5a3de4e5e15141b3a1493f27eeffda7ffad"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/F_1792469480949_a829",
+      "letter": "F",
+      "sha256": "2f89267bdad6a262fcdc21b809a31b814df20b1f169b9d3b158d042938a0251e"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/U_1792469833472_3dcf",
+      "letter": "U",
+      "sha256": "4cbac345807b787be732bc134e97bdc00413a3e72d907497127e47983f88e15b"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/U_1792470027858_d194",
+      "letter": "U",
+      "sha256": "53d3034b7694de978355e847fe458806791c988dd5c412ccf20c1899edd29d6a"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/U_1792470027942_e582",
+      "letter": "U",
+      "sha256": "b36282b158abedd833050b31e71dd5a3ced3015d93f6b9fedc01b704a17e3eb0"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469786867_b550",
+      "letter": "V",
+      "sha256": "2bbddc8cfc4f3b7f2362cda8d869b59c082ed42b80023f6999d08ed47c018fbd"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469793129_62a5",
+      "letter": "V",
+      "sha256": "4e66d316d5e9f04c013874817f79411c08166bec9b26a57238445cafdffda242"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469793397_cb2c",
+      "letter": "V",
+      "sha256": "a7c7e2adb26097797a269fab2ab440f1ae77b159da64b2bcb2e2f4fcefa10e5c"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469793729_3243",
+      "letter": "V",
+      "sha256": "5ff7203e5aee0be50cf576a523e14daa7ffbb72c6aee80b5c61b0340b10ca20b"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469799557_d838",
+      "letter": "V",
+      "sha256": "e9865b8c775f795ce1f52f0dd4d42785d4dcf2a821632224cb8725e459ce3bea"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469799632_cb2e",
+      "letter": "V",
+      "sha256": "2ed66a566f55a5c358cb45deda281a1fb861e6abeeb0a1ef6251132bd11fd9ea"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469799697_54ff",
+      "letter": "V",
+      "sha256": "1fed430b12befd8cae39281749a543a081ba28799a6e91c8a567337ad69242ea"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469809199_09cc",
+      "letter": "V",
+      "sha256": "1ad525cc3068c3fd382e62a302f7ca991662a4745251f41162e49c7a632a6525"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469809302_3de9",
+      "letter": "V",
+      "sha256": "a5f2104671b51be449710a12e773d20d399c374df6a587407878ac7bc7c2739b"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469816435_7f94",
+      "letter": "V",
+      "sha256": "b470908f5d54e645e568e7cc033963f648e2dc5d19e5f5531aed784d17ef02f6"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469816565_aaaf",
+      "letter": "V",
+      "sha256": "0403b5ca66427ef8c21b36aebceed21b3e3338bcfb57f64715efb7c2c50b6dc9"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/V_1792469816641_345c",
+      "letter": "V",
+      "sha256": "e3b333fd15d45e5ea97dd2b85719b5244eb52a905d8308b7694d617ed00f4802"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469695373_696c",
+      "letter": "W",
+      "sha256": "0903c2fe1bfddf5b16f0f18f60f787ab85900d50bab94a76732dcf2309c6447c"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469695511_f83e",
+      "letter": "W",
+      "sha256": "d9aa7b9f6047de8b416e2ff3033943a030a0735a8108204c7fe2862cb1bb6633"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469702337_c5a3",
+      "letter": "W",
+      "sha256": "5f8e7f1d7245b87913c64ebeb2d3f3e467b0cb5970b9e6fcefd1bec5769df415"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469733464_af5f",
+      "letter": "W",
+      "sha256": "6a14303eb92d44dbbc0e30068b60dfbb732cbbafc63d5e870c05c9144c2b3a1f"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469733622_036b",
+      "letter": "W",
+      "sha256": "0a2465a29ce19f2c86c55d9e443b9d85dedbbb4321b5a614befb2f6e4b29859a"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469733807_ee48",
+      "letter": "W",
+      "sha256": "b645f0ceed9a3ddf420d9e00f7beab4fa2e4df019b8c873b2f2ff4f55dfcc7df"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469741742_101a",
+      "letter": "W",
+      "sha256": "9a6b4ae0ee2d58d9f53739679bb4f9b9646c8303a241dd24b3d051f0b8557d10"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469742016_6cf4",
+      "letter": "W",
+      "sha256": "e2f81d6dfae8faa8f72d5f2987ebfb39f6cc9a082d2d0855120b6ca360322afd"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469742208_a9b5",
+      "letter": "W",
+      "sha256": "62944f26bf44ef1b2c82e814973a529462ec1dc570f1e200ae29f4de2766a035"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469748880_eb8d",
+      "letter": "W",
+      "sha256": "dc08df8647dbf45211348dd445280dffa54e763436355382b37945405cea3451"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469749114_617e",
+      "letter": "W",
+      "sha256": "98af76e14f65a3380ff2be5eaba8a37b830301ddfd16e6a68e5ab5dd46765784"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469749378_6fbc",
+      "letter": "W",
+      "sha256": "54cf513bde17fb073dc716b025ad6a7fd04784e44c938f63f2f5920fe1d9b5aa"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469755837_bdd0",
+      "letter": "W",
+      "sha256": "c5c0b889778c6b844da28c4992de18e32b96a2b2e654d53ae74afd2f368f5e40"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469756006_15d5",
+      "letter": "W",
+      "sha256": "8a98dc87cd36ba1059da0e6699828867d2bbd324225f4f390a8d0817326de55e"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/W_1792469756213_3feb",
+      "letter": "W",
+      "sha256": "822aa1b4d1f9e451da747f98e8a2fd42a8b87a8af88bd9f3c269caf7698ab32b"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469646235_3df0",
+      "letter": "X",
+      "sha256": "f3b57a170f1e8d0da4ec7898bf38499647b8335ef31d276625862ca622a57a6d"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469646423_1aef",
+      "letter": "X",
+      "sha256": "e3d57721337adfe6fa352f91690b33392a5ac4fb0c3c537603040e6804748116"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469646505_2e45",
+      "letter": "X",
+      "sha256": "415c1e8966665490f53826a5f88531528fa2ade3e08fe31b8daab397c2e26824"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469656363_470b",
+      "letter": "X",
+      "sha256": "5860c11f2d164d2cff905e495c04a1eb8432c702144ceb93faa0e1c1b1ba499c"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469656663_91e8",
+      "letter": "X",
+      "sha256": "d9133ad33f6673f2178dc1ebf8fd9540ee94c3e9bf3daac7273ae2aac4df62aa"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469656935_896d",
+      "letter": "X",
+      "sha256": "cd10aecc0eb4d5dfd987b0acc8829b78569ec3111ed94ef014f20c837892993a"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469663301_92a6",
+      "letter": "X",
+      "sha256": "296a35afcd1ffb4d6fa39958f20d344c222a82cd96c28424abf55b2a858fe453"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469663373_0e57",
+      "letter": "X",
+      "sha256": "db007fb5ac5f523b5e9b34be6fd0b7754dd37822d4231e226f84f3926d66ae85"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469670671_139c",
+      "letter": "X",
+      "sha256": "3b0f59c6b79859e5185f3686fd5ecbb2f1d632cddef3996e497474693c32fdba"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469670783_00c8",
+      "letter": "X",
+      "sha256": "4d8a9d4c7217f38ff1173c30354620515921742b2b0c51fdb5f7589fb2f312b4"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469670848_2311",
+      "letter": "X",
+      "sha256": "7840a3be1c53a8fd5e84c6ed799d177f53bf75c52941ffbcf82ca34a3568440d"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469683489_c7d1",
+      "letter": "X",
+      "sha256": "ae76ce984ca7bbe6b3d2076862385dcf96bde0a987a3e7e820c6b60eaf83bdd0"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469683676_7d3f",
+      "letter": "X",
+      "sha256": "699d8da9064d616ce3dc3bb082c2eeedf43e4a49296789a6ba4201129c254a62"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/X_1792469683748_c67f",
+      "letter": "X",
+      "sha256": "9cc89238489ed2423183e1d9c35149ecde78638b31e6aea691373880c14966f3"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/Y_1792469767562_1ed1",
+      "letter": "Y",
+      "sha256": "c1ce09c1f26228d29f7771cef40aad4d25fe4fa3aa3dfe11887f2d0516dddf36"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/Y_1792469767836_0588",
+      "letter": "Y",
+      "sha256": "1e77f07a00fc95d76537400041d5fd88f320e4c48fb7c40ece7513cf2f873ebe"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/Y_1792469768183_342c",
+      "letter": "Y",
+      "sha256": "1ab9671f1649f6c8222a1381698a9b113b963a944e96cbe6992e67986c8a9952"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/Y_1792469775097_5924",
+      "letter": "Y",
+      "sha256": "dfb6bd9cf5e7a66c5810b4fc2316ea565d8df0b5f8e3bdcd68d1ee72fed616b1"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/Y_1792469775421_d332",
+      "letter": "Y",
+      "sha256": "ed4f5140dcb9de11b2854fe153fe7e6867e00c48a8a5a2b5f9cbc3b02b2113dc"
+    },
+    {
+      "id": "heldout/s20261020_093606_bedroom/Y_1792469775773_6ad3",
+      "letter": "Y",
+      "sha256": "a4c51c514c21561f46f3743461ce38e1f0375a70ba32678d20af33c2f5acd473"
+    }
+  ],
+  "audit": {
+    "excluded_sessions": {
+      "s20261019_222243_plain-wall": "a model trained on this room"
+    },
+    "included_sessions": [
+      "s20261019_224255_bedroom",
+      "s20261020_093606_bedroom"
+    ],
+    "training_persons": [],
+    "training_sessions_without_person": [
+      "s20261019_222243_plain-wall"
+    ]
+  },
+  "training_rooms": [
+    "plain-wall"
+  ],
+  "coverage": {
+    "checks": [
+      {
+        "requirement": "every letter >= 30 frames (J and Z included)",
+        "met": false,
+        "have": "short: A=14, B=14, C=3, D=0, E=0, F=12, G=0, H=0, I=0, J=0, K=0, L=0, M=0, N=0, O=0, P=0, Q=0, R=0, S=0, T=0, U=3, V=12, W=15, X=15, Y=6, Z=0"
+      },
+      {
+        "requirement": ">= 3 named people",
+        "met": false,
+        "have": "0 named: {}; frames with no person recorded: 94"
+      },
+      {
+        "requirement": "each person >= 100 frames",
+        "met": false,
+        "have": "{}"
+      },
+      {
+        "requirement": ">= 3 rooms",
+        "met": false,
+        "have": "{'bedroom': 94}"
+      },
+      {
+        "requirement": ">= 3 lighting conditions, each >= 100 frames",
+        "met": false,
+        "have": "{'dim': 94}"
+      },
+      {
+        "requirement": "3 distances, each >= 100 frames",
+        "met": false,
+        "have": "{'medium': 94}"
+      },
+      {
+        "requirement": "left and right hand each >= 200 frames",
+        "met": false,
+        "have": "{'right': 88, 'left': 6}"
+      },
+      {
+        "requirement": "every letter >= 5 LEFT-hand frames",
+        "met": false,
+        "have": "short: B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z"
+      },
+      {
+        "requirement": "no_hand negatives >= 100",
+        "met": false,
+        "have": "0"
+      },
+      {
+        "requirement": "partial_hand negatives >= 100",
+        "met": false,
+        "have": "0"
+      },
+      {
+        "requirement": "labelled frames with the hand touching the frame edge >= 50",
+        "met": false,
+        "have": "0"
+      }
+    ],
+    "met_all": false,
+    "n_positive": 94,
+    "n_negative": 0
+  },
+  "models": {
+    "best_model.pth": "c3de2fa0e1f8f90c2637ee0c85880fce8a70eb0f7e76d666e9cd9a12cd59a3ff",
+    "landmark_L1_s0.joblib": "b0cf02031d8707b9bab06b7ad1f23dcde14027ad417f0322dc4df55995a1ed89",
+    "landmark_L2_s0.joblib": "161daac3d433a35495281fb6b7cae4d80cee44c28d9647376b0981bc3012d162"
+  },
+  "frames_digest": "01a54855e8f047bdf4d0b537d342273590a6b225cea69a7f8c5988ca4d4ecae0"
+}
