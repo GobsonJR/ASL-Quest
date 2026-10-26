@@ -1,0 +1,22 @@
+{
+  "dataset": {
+    "n": 11700,
+    "detection_failure_rate": 0.6535042735042735,
+    "accuracy_end_to_end": {
+      "resnet_crop": 0.32324786324786325,
+      "resnet_full": 0.9407692307692308,
+      "landmark_L1_s0": 0.30735042735042734,
+      "landmark_L2_s0": 0.3058974358974359
+    }
+  },
+  "webcam": {
+    "n": 94,
+    "detection_failure_rate": 0.0,
+    "accuracy_end_to_end": {
+      "resnet_crop": 0.5212765957446809,
+      "resnet_full": 0.1595744680851064,
+      "landmark_L1_s0": 0.6914893617021277,
+      "landmark_L2_s0": 0.8404255319148937
+    }
+  }
+}
