@@ -1,0 +1,20 @@
+{
+  "baseline": 167,
+  "upscale to 400px": 154,
+  "upscale to 640px": 150,
+  "upscale to 1024px": 145,
+  "grey border 25% each side": 94,
+  "edge-replicated border 25% each side": 96,
+  "grey border 50% each side": 84,
+  "edge-replicated border 50% each side": 151,
+  "grey border 100% each side": 71,
+  "edge-replicated border 100% each side": 107,
+  "grey border 100% + upscale to 640px": 72,
+  "BGR channel order (wrong order, as a control)": 76,
+  "grayscale (3 channels)": 73,
+  "CLAHE luminance normalisation": 102,
+  "confidence 0.5": 153,
+  "confidence 0.2": 191,
+  "confidence 0.1": 227,
+  "confidence 0.05": 263
+}
