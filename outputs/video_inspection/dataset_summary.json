@@ -1,0 +1,273 @@
+{
+  "timestamp": "2026-10-25T06:04:58.240868+00:00",
+  "dataset_name": "ASL Citizen",
+  "dataset_root": "D:\\SIGN LANGUAGE\\dataset\\video_raw",
+  "total_annotations": 83399,
+  "files_verified": 83399,
+  "missing_files_count": 0,
+  "class_statistics": {
+    "num_classes": 2731,
+    "total_instances": 83399,
+    "min_samples_per_class": 21,
+    "max_samples_per_class": 45,
+    "mean_samples_per_class": 30.54,
+    "median_samples_per_class": 31
+  },
+  "top_20_classes": [
+    {
+      "gloss": "DOG1",
+      "count": 45
+    },
+    {
+      "gloss": "BASKETBALL1",
+      "count": 44
+    },
+    {
+      "gloss": "WHATFOR1",
+      "count": 43
+    },
+    {
+      "gloss": "BELT1",
+      "count": 40
+    },
+    {
+      "gloss": "BEE1",
+      "count": 39
+    },
+    {
+      "gloss": "BITE1",
+      "count": 39
+    },
+    {
+      "gloss": "BREAKFAST1",
+      "count": 39
+    },
+    {
+      "gloss": "CHRISTMAS1",
+      "count": 39
+    },
+    {
+      "gloss": "DARK1",
+      "count": 39
+    },
+    {
+      "gloss": "DEAF1",
+      "count": 39
+    },
+    {
+      "gloss": "DEMAND1",
+      "count": 39
+    },
+    {
+      "gloss": "EAT1",
+      "count": 39
+    },
+    {
+      "gloss": "ELEVATOR1",
+      "count": 39
+    },
+    {
+      "gloss": "FINE1",
+      "count": 39
+    },
+    {
+      "gloss": "FOREIGNER1",
+      "count": 39
+    },
+    {
+      "gloss": "HOSPITAL1",
+      "count": 39
+    },
+    {
+      "gloss": "MECHANIC1",
+      "count": 39
+    },
+    {
+      "gloss": "MOVIE1",
+      "count": 39
+    },
+    {
+      "gloss": "NIGHT1",
+      "count": 39
+    },
+    {
+      "gloss": "PARTY1",
+      "count": 39
+    }
+  ],
+  "bottom_10_classes": [
+    {
+      "gloss": "CLOUD2",
+      "count": 22
+    },
+    {
+      "gloss": "DEMAND2",
+      "count": 22
+    },
+    {
+      "gloss": "GUESS2",
+      "count": 22
+    },
+    {
+      "gloss": "MECHANIC2",
+      "count": 22
+    },
+    {
+      "gloss": "PATIENT3",
+      "count": 22
+    },
+    {
+      "gloss": "SHAVE2",
+      "count": 22
+    },
+    {
+      "gloss": "THEY2",
+      "count": 22
+    },
+    {
+      "gloss": "TYPE2",
+      "count": 22
+    },
+    {
+      "gloss": "BEE2",
+      "count": 21
+    },
+    {
+      "gloss": "LETTUCE2",
+      "count": 21
+    }
+  ],
+  "signer_analysis": {
+    "total_signers": 52,
+    "train_signers_count": 35,
+    "val_signers_count": 6,
+    "test_signers_count": 11,
+    "is_signer_independent": true,
+    "train_val_overlap": [],
+    "train_test_overlap": [],
+    "val_test_overlap": [],
+    "train_signers_list": [
+      "P1",
+      "P10",
+      "P11",
+      "P14",
+      "P16",
+      "P19",
+      "P2",
+      "P20",
+      "P23",
+      "P24",
+      "P25",
+      "P27",
+      "P28",
+      "P29",
+      "P3",
+      "P30",
+      "P31",
+      "P32",
+      "P33",
+      "P34",
+      "P36",
+      "P37",
+      "P38",
+      "P4",
+      "P40",
+      "P41",
+      "P43",
+      "P44",
+      "P45",
+      "P46",
+      "P50",
+      "P51",
+      "P52",
+      "P7",
+      "P8"
+    ],
+    "val_signers_list": [
+      "P12",
+      "P13",
+      "P21",
+      "P26",
+      "P39",
+      "P5"
+    ],
+    "test_signers_list": [
+      "P15",
+      "P17",
+      "P18",
+      "P22",
+      "P35",
+      "P42",
+      "P47",
+      "P48",
+      "P49",
+      "P6",
+      "P9"
+    ]
+  },
+  "video_probe_statistics": {
+    "sampled_count": 50,
+    "decodable_count": 50,
+    "decodable_ratio": 1.0,
+    "duration_sec": {
+      "min": 1.2,
+      "max": 8.7,
+      "mean": 2.898,
+      "median": 2.317
+    },
+    "frame_count": {
+      "min": 36,
+      "max": 261,
+      "mean": 86.0,
+      "median": 68.5
+    },
+    "fps_distribution": {
+      "30.0": 25,
+      "29.92": 6,
+      "29.97": 5,
+      "30.01": 3,
+      "29.99": 3
+    },
+    "resolution_distribution": {
+      "640x480": 49,
+      "960x540": 1
+    }
+  },
+  "subsets_created": [
+    {
+      "subset_name": "asl_native_10",
+      "classes_count": 10,
+      "total_clips": 317,
+      "train_clips": 149,
+      "val_clips": 39,
+      "test_clips": 129,
+      "manifest_dir": "dataset\\video_processed\\subsets\\asl_native_10"
+    },
+    {
+      "subset_name": "asl_native_25",
+      "classes_count": 25,
+      "total_clips": 989,
+      "train_clips": 489,
+      "val_clips": 101,
+      "test_clips": 399,
+      "manifest_dir": "dataset\\video_processed\\subsets\\asl_native_25"
+    },
+    {
+      "subset_name": "asl_native_50",
+      "classes_count": 50,
+      "total_clips": 1927,
+      "train_clips": 936,
+      "val_clips": 211,
+      "test_clips": 780,
+      "manifest_dir": "dataset\\video_processed\\subsets\\asl_native_50"
+    }
+  ],
+  "contact_sheets": [
+    "outputs\\video_inspection\\contact_sheets\\preview_HELLO_P35.jpg",
+    "outputs\\video_inspection\\contact_sheets\\preview_THANKYOU_P48.jpg",
+    "outputs\\video_inspection\\contact_sheets\\preview_PLEASE_P6.jpg",
+    "outputs\\video_inspection\\contact_sheets\\preview_YES_P26.jpg",
+    "outputs\\video_inspection\\contact_sheets\\preview_NO_P9.jpg",
+    "outputs\\video_inspection\\contact_sheets\\preview_WATER_P22.jpg"
+  ]
+}
