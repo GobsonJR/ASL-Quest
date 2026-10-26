@@ -36,6 +36,10 @@ class FaqEntry:
     related: tuple[str, ...] = ()
 
 
+# Whole-word signs shipped in the Native Signs track (see the native_list entry); "how to sign HELLO" is answered with the
+# Native Signs steps rather than the letter cues.
+_NATIVE_GLOSSES = ("hello", "thank you", "thankyou", "please", "yes", "no", "mother", "water", "book", "help", "eat")
+
 FAQ_ENTRIES: tuple[FaqEntry, ...] = (
     FaqEntry(
         id="what_is",
@@ -109,17 +113,21 @@ FAQ_ENTRIES: tuple[FaqEntry, ...] = (
         id="a_to_z_how",
         title="How does A-Z recognition work?",
         keywords=(
-            "a z", "alphabet", "how does recognition work", "recognition work", "resnet", "resnet18", "handshape",
+            "a z", "how does recognition work", "recognition work", "resnet", "resnet18", "handshape",
             "handshapes", "how does it recognize", "how does it recognise", "how does it detect", "mediapipe",
-            "hand crop", "classifier", "how are letters recognized", "letter recognition", "recognition",
-            "recognize", "recognise", "image classifier",
+            "how does mediapipe work", "hand crop", "classifier", "how are letters recognized", "letter recognition",
+            "recognition", "recognize", "recognise", "image classifier", "landmark", "landmarks", "landmark recognizer",
+            "landmark model", "hand landmarks", "21 points", "how does the camera know",
         ),
         answer=(
-            "A-Z recognition works on a single still image: (1) MediaPipe Hand Landmarker finds and crops your "
-            "hand from the webcam frame (if no hand is found the app says so instead of guessing); (2) a ResNet18 "
-            "image classifier fine-tuned on 26 letter classes predicts the letter; (3) a 0.70 confidence "
-            "threshold and a 7-frame majority vote smooth out flicker, so you must hold a sign steadily until it "
-            "is confirmed. Only static letters are supported - J and Z involve motion and are not truly handled."
+            "A-Z recognition works on your live camera: (1) your browser runs MediaPipe Hand Landmarker and finds "
+            "21 landmark points on your hand (if no hand is found the app says so instead of guessing); (2) only "
+            "those points - not your video - are sent to the server, where a small trained landmark classifier turns "
+            "the hand shape into a letter A-Z with a confidence score; (3) a 0.70 confidence threshold and a vote over "
+            "the last 7 readings (at least 3 must agree) smooth out flicker, so hold the sign steadily until it is "
+            "confirmed. If the landmark model is not available on the server, Practice falls back to the older "
+            "image classifier (a ResNet18 on a cropped photo of your hand). Only static handshapes are recognised; "
+            "J and Z are practised as held shapes."
         ),
         related=("accuracy", "camera_tips", "limitations"),
     ),
@@ -131,11 +139,13 @@ FAQ_ENTRIES: tuple[FaqEntry, ...] = (
             "metrics", "evaluation", "holdout", "test accuracy", "percent", "how well",
         ),
         answer=(
-            "A-Z: the current production checkpoint (a webcam-robustness fine-tune) scores 94.08% overall accuracy "
+            "A-Z (older ResNet image model): the production checkpoint (a webcam-robustness fine-tune) scores 94.08% overall accuracy "
             "on an 11,700-image held-out set (macro precision 95.87%, macro F1 93.49%). The weakest letter is X "
             "(about 18% recall), then T, M and S. These numbers come from dataset images recorded in one setup, so "
             "they do not prove live-webcam accuracy - lighting, background and hand size matter. Native Signs: the "
-            "frozen I3D model with a linear head reached 96.9% top-1 and 99.22% top-5 accuracy on the 10-sign test set."
+            "frozen I3D model with a linear head reached 96.9% top-1 and 99.22% top-5 accuracy on the 10-sign test set. "
+            "The newer landmark model that Practice uses was trained on about 9,900 webcam samples from several "
+            "rooms; I do not have a published accuracy figure for it, so treat live results as the real test."
         ),
         related=("camera_tips", "native_model", "datasets_training"),
     ),
@@ -161,7 +171,8 @@ FAQ_ENTRIES: tuple[FaqEntry, ...] = (
             "hand not detected", "not detecting", "not recognizing", "not recognising", "not recognized",
             "wrong prediction", "wrong letter", "lighting", "background", "tips", "improve", "low confidence",
             "why is it wrong", "wont recognize", "cant detect", "camera", "webcam", "permission", "blocked",
-            "doesnt work", "not working", "black screen", "mirrored",
+            "doesnt work", "not working", "black screen", "mirrored", "sign not recognized", "sign isnt recognized",
+            "why is my sign not recognized", "my sign is not recognized", "not accepting my sign",
         ),
         answer=(
             "Camera / recognition checklist: (1) allow camera access when the browser asks (it only works on "
@@ -211,6 +222,7 @@ FAQ_ENTRIES: tuple[FaqEntry, ...] = (
             "native sign", "native signs", "how to practice native", "record", "recording", "video", "clip",
             "10 seconds", "countdown", "practice a sign", "practice native", "whole word sign", "native practice",
             "record a sign", "how long", "recording time", "stop recording", "native",
+            *(f"how to sign {gloss}" for gloss in _NATIVE_GLOSSES), *(f"how do i sign {gloss}" for gloss in _NATIVE_GLOSSES),
         ),
         answer=(
             "Open Native Signs, pick a sign, watch the reference video, then press 'I'm ready'. Press Start "
@@ -230,9 +242,9 @@ FAQ_ENTRIES: tuple[FaqEntry, ...] = (
             "signs available", "available", "native", "signs are there", "signs can i", "all the signs",
         ),
         answer=(
-            "There are 10 native signs: HELLO (Greetings), THANKYOU and PLEASE (Courtesy), YES and NO "
-            "(Responses), MOTHER (Family), WATER and BOOK (Everyday), and EAT and HELP (Actions). Each has a "
-            "short tip and, where an approved source exists, an embedded reference video."
+            "There are 9 native signs: HELLO (Greetings), THANKYOU and PLEASE (Courtesy), YES and NO "
+            "(Responses), MOTHER (Family), WATER and BOOK (Everyday), and HELP (Actions). Each has a "
+            "short tip and a reference video to watch before you record. (EAT is in the model but not offered yet.)"
         ),
         related=("native_how", "native_model"),
     ),
@@ -258,7 +270,8 @@ FAQ_ENTRIES: tuple[FaqEntry, ...] = (
         title="I can't pass a Native Sign lesson",
         keywords=(
             "cant complete", "cannot complete", "unable to complete", "lesson not completing", "not passing",
-            "keep failing", "sign not recognized", "not quite", "cant pass", "cannot pass", "failing",
+            "keep failing", "native sign not recognized", "native sign is not recognized", "native sign isnt recognized",
+            "native sign not working", "not quite", "cant pass", "cannot pass", "failing",
             "doesnt recognize", "wont complete", "stuck", "book", "complete a lesson", "complete lesson",
             "native not working", "why wrong",
         ),
@@ -657,7 +670,186 @@ FAQ_ENTRIES: tuple[FaqEntry, ...] = (
         ),
         related=("chatbot_aura", "architecture"),
     ),
+    FaqEntry(
+        id="practice_how",
+        title="How does Practice work?",
+        keywords=(
+            "how do i practice", "how does practice work", "how to practice", "practice page", "practice mode",
+            "start practice", "practice a letter", "practice letters", "how practice works", "practice session",
+            "how do i use practice", "how do i use the camera", "how do i play", "how do i use this",
+        ),
+        answer=(
+            "Open Practice from the sidebar. It shows a target letter with its reference handshape. Allow camera "
+            "access, put your hand in view and make the sign; the app reads your hand live and, once the same letter "
+            "is held steadily (confidence of at least 0.70 and at least 3 of the last 7 readings agreeing), it "
+            "confirms it. A correct letter earns 20 XP (30 if you answer within 5 seconds) and updates your mastery; "
+            "a wrong one tells you which letter it saw so you can adjust. Use the Learn page first if you have not "
+            "seen a letter yet."
+        ),
+        related=("camera_tips", "xp_levels", "mastery"),
+    ),
+    FaqEntry(
+        id="alphabet_overview",
+        title="How many letters are there, and how do I learn the alphabet?",
+        keywords=(
+            "alphabet", "how many letters", "number of letters", "teach me the alphabet", "learn the alphabet",
+            "all letters", "a to z letters", "full alphabet", "list of letters", "fingerspelling", "fingerspell",
+        ),
+        answer=(
+            "The A-Z track covers all 26 letters. The Alphabet page shows every handshape with a reference picture "
+            "and a one-line cue, the Learn page walks you through them (beginner letters C, D, F, H and O first), "
+            "and Practice checks your sign on the camera. A letter counts as 'learning' after 3 correct attempts and "
+            "'mastered' after 10. J and Z are drawn with movement in real ASL; here they are practised as held shapes."
+        ),
+        related=("getting_started", "jz", "mastery"),
+    ),
+    FaqEntry(
+        id="hard_letters",
+        title="Which letters are the hardest?",
+        keywords=(
+            "which letters are hard", "hardest letters", "hardest letter", "difficult letters", "hard letters",
+            "which letters are difficult", "tricky letters", "letters i struggle", "most confused", "confused letters",
+            "similar letters", "look alike", "look similar",
+        ),
+        answer=(
+            "The fist-like letters are the easiest to mix up: A, E, M, N, S and T differ only by where the thumb "
+            "sits or how many fingers cross it (for example M has three fingers over the thumb, N has two). In the "
+            "image-model evaluation the weakest letters were X, T, M and S. J and Z are drawn with movement in real "
+            "ASL, so they are practised as held shapes here. Your own weakest letters are listed on the Progress and "
+            "Profile pages, and the Learn page recommends letters to revisit."
+        ),
+        related=("camera_tips", "progress_analytics", "jz"),
+    ),
+    FaqEntry(
+        id="improve_accuracy",
+        title="How can I improve my accuracy?",
+        keywords=(
+            "improve my accuracy", "improve accuracy", "increase accuracy", "better accuracy", "get better",
+            "how can i improve", "how do i improve", "how to improve", "do better", "my accuracy is low",
+            "accuracy is low", "low accuracy", "raise my accuracy",
+        ),
+        answer=(
+            "To raise your accuracy: (1) match the reference handshape shown on the Practice or Alphabet page "
+            "exactly; (2) use even front lighting, a plain background, and keep your whole hand in view at about an "
+            "arm's length; (3) hold the sign still for a moment until it is confirmed; (4) repeat your weakest "
+            "letters - they are listed on the Progress and Profile pages, and the Learn page recommends them; "
+            "(5) practise a little every day so your streak and mastery build up."
+        ),
+        related=("camera_tips", "hard_letters", "progress_analytics"),
+    ),
+    FaqEntry(
+        id="asl_basics",
+        title="What is ASL?",
+        keywords=(
+            "what is asl", "what does asl mean", "asl mean", "american sign language", "is asl universal",
+            "asl vs bsl", "asl and bsl", "same as bsl", "bsl", "sign language the same", "is sign language universal",
+            "what is sign language", "deaf",
+        ),
+        answer=(
+            "ASL is American Sign Language, a complete natural language with its own grammar, used mainly by Deaf "
+            "communities in the United States and parts of Canada. It is not signed English, and sign language is not "
+            "universal: British Sign Language (BSL), for example, is a different language from ASL, with a different "
+            "fingerspelling alphabet. ASL Quest teaches the ASL fingerspelling alphabet, spelled words and a small "
+            "set of whole-word signs; it is a practice tool, not a substitute for learning from Deaf signers."
+        ),
+        related=("what_is", "getting_started", "limitations"),
+    ),
+    FaqEntry(
+        id="device_support",
+        title="Can I use it on my phone or another device?",
+        keywords=(
+            "on my phone", "use it on my phone", "on mobile", "mobile phone", "on a phone", "on my tablet",
+            "which browser", "supported browser", "supported browsers", "does it work on", "what devices",
+            "laptop camera", "external camera",
+        ),
+        answer=(
+            "You need a device with a camera and a modern browser that allows camera access, on HTTPS or "
+            "localhost. Hand tracking runs inside the browser (MediaPipe), so a reasonably recent phone, tablet or "
+            "laptop should work, but I do not have phone-specific test results - older or low-power devices may "
+            "track more slowly. Allow the camera permission when asked and keep your hand fully in view."
+        ),
+        related=("camera_tips", "a_to_z_how", "offline_use"),
+    ),
 )
+
+# One-line handshape cues, the same wording the Learn and Alphabet pages show (frontend/src/pages/alphabetFeedback.ts).
+LETTER_HINTS: dict[str, str] = {
+    "A": "Make a fist with thumb alongside.",
+    "B": "Four fingers up, thumb tucked in.",
+    "C": "Curve your hand like the letter C.",
+    "D": "Index up, other fingers curled to thumb.",
+    "E": "All fingertips touch thumb.",
+    "F": "Index and thumb form a circle, other fingers up.",
+    "G": "Index and thumb point sideways.",
+    "H": "Index and middle finger point sideways.",
+    "I": "Pinky up, other fingers in a fist.",
+    "J": "Pinky up - hold the J shape.",
+    "K": "Index and middle in a V, thumb between them.",
+    "L": "Thumb and index form an L.",
+    "M": "Three fingers over thumb in fist.",
+    "N": "Two fingers over thumb in fist.",
+    "O": "Fingers and thumb form a circle.",
+    "P": "Like K but pointing down.",
+    "Q": "Like G but pointing down.",
+    "R": "Index and middle crossed.",
+    "S": "Closed fist with thumb over fingers.",
+    "T": "Thumb tucked between index and middle.",
+    "U": "Index and middle up together.",
+    "V": "Index and middle spread in a V.",
+    "W": "Three fingers up in a W shape.",
+    "X": "Index finger bent like a hook.",
+    "Y": "Thumb and pinky extended.",
+    "Z": "Index points - hold the Z shape.",
+}
+
+# A single letter is only read as a letter in these shapes, so the article "a" in "what is a streak" is never mistaken for A.
+_LETTER = r"(?:the )?(?:letter )?([a-z])"
+_SINGLE_LETTER_PATTERNS = tuple(
+    re.compile(p)
+    for p in (
+        rf"\bletter ([a-z])\b",
+        rf"\bsign {_LETTER}$",
+        rf"\bsigning {_LETTER}$",
+        rf"\bwhat does {_LETTER} look like\b",
+        rf"\bhow (?:do i|to|can i|would i) (?:make|form|show|do|sign|fingerspell) {_LETTER}$",
+        rf"\bhow (?:do i|to|can i) (?:make|form|show|do|sign) {_LETTER} (?:in asl|with my hand)$",
+    )
+)
+_PAIR_PATTERNS = tuple(
+    re.compile(p)
+    for p in (
+        r"\bdifference between (?:the )?(?:letters? )?([a-z]) and (?:the )?(?:letters? )?([a-z])\b",
+        r"\b([a-z]) (?:vs|versus|or|and) ([a-z])\b",
+    )
+)
+
+
+def letter_answer(normalized_message: str) -> str | None:
+    """Answer 'how do I sign X', 'what does X look like' or 'M vs N' from the app's own per-letter cues; None if not such a question.
+
+    Deterministic and exact: the cue text is the same one the Learn and Alphabet pages show, so the assistant never
+    describes a handshape differently from the app. Pair patterns are limited to short messages so an ordinary sentence
+    containing 'a and b' is not misread as a letter comparison.
+    """
+    words = normalized_message.split()
+    if len(words) <= 9:
+        for pattern in _PAIR_PATTERNS:
+            found = pattern.search(normalized_message)
+            if found and found.group(1) != found.group(2) and (len(words) <= 4 or "between" in normalized_message):
+                first, second = (found.group(1).upper(), found.group(2).upper())
+                return (
+                    f"{first}: {LETTER_HINTS[first]}\n{second}: {LETTER_HINTS[second]}\n\n"
+                    f"The Alphabet page shows both reference pictures side by side, which is the quickest way to see the difference."
+                )
+    for pattern in _SINGLE_LETTER_PATTERNS:
+        found = pattern.search(normalized_message)
+        if found:
+            letter = found.group(1).upper()
+            text = f"{letter}: {LETTER_HINTS[letter]} The Alphabet and Learn pages show the reference picture for {letter}, and Practice checks it on your camera."
+            if letter in ("J", "Z"):
+                text += f" In real ASL {letter} is drawn with a movement; here it is practised as a held shape."
+            return text
+    return None
 
 _BY_ID: dict[str, FaqEntry] = {entry.id: entry for entry in FAQ_ENTRIES}
 

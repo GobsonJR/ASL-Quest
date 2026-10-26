@@ -153,7 +153,7 @@ class FactConsistencyTests(unittest.TestCase):
 
     def test_native_sign_list_matches_the_catalog(self) -> None:
         answer = faq._BY_ID["native_list"].answer
-        for gloss in ["HELLO", "THANKYOU", "PLEASE", "YES", "NO", "MOTHER", "WATER", "BOOK", "EAT", "HELP"]:
+        for gloss in ["HELLO", "THANKYOU", "PLEASE", "YES", "NO", "MOTHER", "WATER", "BOOK", "HELP"]:
             self.assertIn(gloss, answer)
 
     def test_native_recording_window_matches_the_frontend(self) -> None:
@@ -168,6 +168,84 @@ class FactConsistencyTests(unittest.TestCase):
         self.assertEqual(level_from_xp(0), 1)
         self.assertEqual(level_from_xp(1000), 2)
         self.assertIn("1000 XP per level", faq._BY_ID["xp_levels"].answer)
+
+
+# Real learner questions that used to get "I don't have enough information", the wrong topic, or an off-topic refusal.
+NEWLY_ANSWERED = {
+    "How do I practice?": "practice_how",
+    "How does practice work?": "practice_how",
+    "How many letters are there?": "alphabet_overview",
+    "Teach me the alphabet": "alphabet_overview",
+    "Which letters are hard?": "hard_letters",
+    "How do I improve my accuracy?": "improve_accuracy",
+    "What is ASL?": "asl_basics",
+    "Is ASL the same as BSL?": "asl_basics",
+    "Can I use it on my phone?": "device_support",
+    "What is the landmark recognizer?": "a_to_z_how",
+    "How does MediaPipe work here?": "a_to_z_how",
+    "Why is my sign not recognized?": "camera_tips",
+    "How do I sign hello?": "native_how",
+    "My native sign is not recognized": "native_trouble",
+    "How do I log in?": "account",
+}
+
+
+class LearnerQuestionTests(unittest.TestCase):
+    def test_common_learner_questions_reach_the_right_entry(self) -> None:
+        for question, expected in NEWLY_ANSWERED.items():
+            self.assertTrue(kb.is_in_scope(question), f"wrongly refused as off-topic: {question}")
+            answer = kb.fallback_answer(question)
+            self.assertIn(faq._BY_ID[expected].answer, answer, question)
+            self.assertNotIn(kb.NO_INFO_REPLY, answer, question)
+
+    def test_recognition_answer_describes_the_current_pipeline(self) -> None:
+        answer = faq._BY_ID["a_to_z_how"].answer
+        self.assertIn("your browser runs MediaPipe", answer)
+        self.assertIn("21 landmark points", answer)
+        self.assertIn("only those points", answer)
+        self.assertNotIn("finds and crops your hand from the webcam frame", answer)
+
+    def test_single_letter_questions_use_the_apps_own_cue(self) -> None:
+        for question, letter in {
+            "How do I sign the letter A?": "A", "How to sign B": "B", "What does the letter M look like?": "M",
+            "what does K look like": "K", "How do I make the letter W": "W",
+        }.items():
+            answer = kb.fallback_answer(question)
+            self.assertIn(f"{letter}: {faq.LETTER_HINTS[letter]}", answer, question)
+            self.assertTrue(kb.is_in_scope(question), question)
+
+    def test_letter_comparison_gives_both_cues(self) -> None:
+        for question in ["Difference between M and N", "M vs N", "What is the difference between M and N?"]:
+            self.assertTrue(kb.is_in_scope(question), question)
+            answer = kb.fallback_answer(question)
+            self.assertIn(f"M: {faq.LETTER_HINTS['M']}", answer, question)
+            self.assertIn(f"N: {faq.LETTER_HINTS['N']}", answer, question)
+
+    def test_moving_letters_are_described_honestly(self) -> None:
+        for letter in "JZ":
+            self.assertIn("practised as a held shape", kb.fallback_answer(f"How do I sign the letter {letter}?"))
+
+    def test_the_article_a_is_never_read_as_the_letter_a(self) -> None:
+        for question in ["What is a streak?", "How do I earn a badge?", "Is there a daily goal?", "What is a native sign?"]:
+            self.assertIsNone(faq.letter_answer(faq.normalize(question)), question)
+            self.assertNotIn("Make a fist with thumb alongside", kb.fallback_answer(question), question)
+
+    def test_off_topic_questions_are_still_refused(self) -> None:
+        for question in OFF_TOPIC + ["Do you prefer pizza or pasta?", "What phone should I buy?", "Who is better, a or b in cricket today?"]:
+            self.assertFalse(kb.is_in_scope(question), question)
+
+    def test_letter_cues_match_the_frontend_wording(self) -> None:
+        source = (ROOT / "frontend" / "src" / "pages" / "alphabetFeedback.ts").read_text(encoding="utf-8")
+        import re
+
+        frontend = dict(re.findall(r'^\s{2}([A-Z]): "(.+?)",$', source, flags=re.M))
+        self.assertEqual(set(frontend), set(faq.LETTER_HINTS))
+        for letter, cue in frontend.items():
+            self.assertEqual(faq.LETTER_HINTS[letter], cue.replace(" — ", " - "), letter)
+
+    def test_fallback_wording_is_not_an_error_message(self) -> None:
+        self.assertNotIn("isn't reachable", kb.FALLBACK_PREFIX)
+        self.assertIn("knowledge base", kb.FALLBACK_PREFIX)
 
 
 if __name__ == "__main__":

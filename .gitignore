@@ -43,3 +43,4 @@ deployment/database/*.db
 # Live-request diagnostic captures contain your camera frames (hand/room): never commit them
 outputs/diagnostics/live_requests*/
 outputs/diagnostics/frames/
+frontend/public/mediapipe/*.task

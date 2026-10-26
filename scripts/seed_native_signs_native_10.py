@@ -20,6 +20,10 @@ from backend.models import NativeSign
 
 DATA_DIR = ROOT / "data" / "asl_citizen_native_10"
 
+# Catalog entries that are kept in the table (the model knows the class) but not offered to learners yet: the app shows only
+# signs that have a reference demonstration to watch (dataset/videos/). Add the video, then set the row active.
+INACTIVE_GLOSSES = {"EAT1"}
+
 # display_name / meaning / category / difficulty are catalog metadata (not present in the
 # ASL Citizen source CSVs), written in the same style as backend/words/catalog.py.
 CATALOG: list[dict[str, str]] = [
@@ -146,7 +150,7 @@ def main() -> dict:
                     example_text=entry["example_text"],
                     dataset_available=True,
                     model_available=False,
-                    active=True,
+                    active=entry["gloss"] not in INACTIVE_GLOSSES,
                 )
             )
             created.append(entry["gloss"])

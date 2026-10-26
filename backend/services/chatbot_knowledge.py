@@ -184,6 +184,9 @@ PROJECT_KEYWORDS: tuple[str, ...] = (
     "countdown", "recording", "native", "hand", "detect", "detecting", "detected", "video", "clip",
     "locally", "setup", "install", "run the app", "run the project", "offline", "signo", "stored",
     "j and z", "letter j", "letter z", "dynamic letters", "not supported",
+    # Everyday wording for the same topics: signing in/out, the landmark recognizer, devices, ASL itself.
+    "log in", "log out", "sign up", "landmark", "landmarks", "my phone", "on mobile", "on a phone", "browser",
+    "american sign language", "bsl", "deaf", "fingerspelling", "fingerspell", "hardest", "difficult letters",
     "tests", "unit tests", "test suite", "testing",
 )
 
@@ -315,6 +318,9 @@ def is_in_scope(message: str, last_turn_in_scope: bool = False) -> bool:
         return True
     if _KEYWORD_PATTERN.search(normalized):
         return True
+    # "M vs N", "what does X look like": questions about single handshapes carry no project keyword of their own.
+    if faq.letter_answer(normalized) is not None:
+        return True
     if not last_turn_in_scope:
         return False
     return len(normalized.split()) <= _MAX_FOLLOWUP_WORDS and _is_trusted_followup_opener(normalized)
@@ -372,10 +378,7 @@ _SECTION_PATTERNS: dict[str, re.Pattern[str]] = {
     for section, keywords in SECTION_KEYWORDS.items()
 }
 
-FALLBACK_PREFIX = (
-    "AURA's AI model isn't reachable right now, so this answer comes from ASL-Quest's "
-    "offline knowledge base instead:\n\n"
-)
+FALLBACK_PREFIX = "(Answered from ASL-Quest's built-in knowledge base.)\n\n"
 
 
 GREETING_REPLY = (
@@ -406,6 +409,10 @@ def fallback_answer(message: str) -> str:
 
     if _GREETING_PATTERN.match(normalized):
         return GREETING_REPLY
+
+    letter = faq.letter_answer(normalized)
+    if letter:
+        return FALLBACK_PREFIX + letter
 
     matches = faq.best_matches(normalized)
     if matches:
