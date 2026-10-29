@@ -16,8 +16,6 @@ from backend.services.experimental_recognizer import load_experimental_landmarks
 from backend.services.progress import seed_achievements
 from backend.settings import CORS_ORIGINS, EXPERIMENTAL_LANDMARK_MODEL, HAND_DETECTION_CONFIDENCE, LANDMARK_MODEL_PATH, RECOGNIZER
 from src.config import BEST_MODEL_PATH, LEGACY_MODEL_PATH
-from src.inference.engine import Predictor
-from src.inference.hands import HandDetector
 
 app = FastAPI(
     title="ASL Quest",
@@ -64,15 +62,21 @@ def startup() -> None:
     predictor_instance = None
     hand_detector_instance = None
     error: str | None = None
-    try:
-        predictor_instance = Predictor(model_path=path if path.exists() else None)
-        hand_detector_instance = HandDetector(static_image_mode=True, detection_confidence=HAND_DETECTION_CONFIDENCE)
-        print(f"Loaded model from {predictor_instance.model_path} on {predictor_instance.device}")
-        if not hand_detector_instance.available:
-            print(f"Hand detector unavailable: {hand_detector_instance.error}")
-    except Exception as exc:
-        error = str(exc)
-        print(f"Model not loaded: {error}")
+    if path.exists():
+        try:
+            from src.inference.engine import Predictor
+            from src.inference.hands import HandDetector
+
+            predictor_instance = Predictor(model_path=path)
+            hand_detector_instance = HandDetector(static_image_mode=True, detection_confidence=HAND_DETECTION_CONFIDENCE)
+            print(f"Loaded model from {predictor_instance.model_path} on {predictor_instance.device}")
+            if not hand_detector_instance.available:
+                print(f"Hand detector unavailable: {hand_detector_instance.error}")
+        except Exception as exc:
+            error = str(exc)
+            print(f"Model not loaded: {error}")
+    else:
+        error = f"No trained model found. Expected {BEST_MODEL_PATH} or {LEGACY_MODEL_PATH}." 
 
     ml.set_runtime(predictor_instance, hand_detector_instance, error)
 

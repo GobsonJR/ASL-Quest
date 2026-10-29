@@ -23,7 +23,11 @@ from backend.models import (
 from backend.security import get_current_user
 from backend.services.native_local_videos import local_video_path, local_video_url
 from backend.services.progress import ensure_user_progress, level_from_xp, seed_achievements
-from src.i3d_transfer.predict import DEFAULT_HEAD_CHECKPOINT, I3D_BACKBONE_CHECKPOINT, predict_video
+_ROOT = Path(__file__).resolve().parents[2]
+I3D_BACKBONE_CHECKPOINT = _ROOT / "models" / "pretrained" / "asl_citizen_i3d" / "ASL_citizen_I3D_weights.pt"
+DEFAULT_HEAD_CHECKPOINT = (
+    _ROOT / "outputs" / "asl_citizen_native_10" / "experiments" / "i3d_frozen" / "checkpoints" / "head_best.pt"
+)
 
 router = APIRouter(prefix="/native", tags=["native"])
 
@@ -343,6 +347,7 @@ async def predict_native_sign(
         started = time.perf_counter()
         model_unavailable = False
         try:
+            from src.i3d_transfer.predict import predict_video
             result = predict_video(tmp_path, top_k=top_k)
         except FileNotFoundError:
             # Model weights not yet available (backbone or head checkpoint missing).
