@@ -12,9 +12,13 @@ if (-not (Test-Path (Join-Path $FrontendDir "node_modules"))) {
     exit 1
 }
 
+if (-not $env:ComSpec) {
+    $env:ComSpec = "C:\Windows\System32\cmd.exe"
+}
+
 Push-Location $FrontendDir
 try {
-    & npm run dev
+    & npm.cmd run dev
 } finally {
     Pop-Location
 }
