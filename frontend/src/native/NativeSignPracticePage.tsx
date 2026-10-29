@@ -128,6 +128,13 @@ export function NativeSignPracticePage() {
     try {
       const extension = mimeType.includes("mp4") ? "mp4" : "webm";
       const outcome = await practiceNativeSign(clip, sign.id, `practice.${extension}`, 5);
+      if (outcome.model_ready === false) {
+        const message = outcome.model_message ?? "The native sign model is still being set up.";
+        setPredictError(message);
+        push(message, "error");
+        setPhase("capture");
+        return;
+      }
       setResult(outcome);
       setPhase("result");
       applyNativeSignResult(Boolean(outcome.correct), outcome.xp_earned, outcome.new_achievements);

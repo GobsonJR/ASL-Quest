@@ -23,7 +23,7 @@ from backend.models import (
 from backend.security import get_current_user
 from backend.services.native_local_videos import local_video_path, local_video_url
 from backend.services.progress import ensure_user_progress, level_from_xp, seed_achievements
-from src.i3d_transfer.predict import predict_video
+from src.i3d_transfer.predict import DEFAULT_HEAD_CHECKPOINT, I3D_BACKBONE_CHECKPOINT, predict_video
 
 router = APIRouter(prefix="/native", tags=["native"])
 
@@ -85,6 +85,28 @@ def _serialize_reference(sign: NativeSign) -> dict:
         "thumbnail_url": None,
         "source_type": reference.source_type if reference else None,
         "license_note": reference.license_note if reference else None,
+    }
+
+
+@router.get("/model-status")
+def native_model_status(current_user: User = Depends(get_current_user)) -> dict:
+    """Reports whether the native-sign I3D model is loaded and ready for inference.
+
+    The frontend checks this before showing the recording UI, so learners get a clear
+    "model training in progress" message rather than recording a clip that will fail.
+    """
+    backbone_ready = I3D_BACKBONE_CHECKPOINT.exists()
+    head_ready = DEFAULT_HEAD_CHECKPOINT.exists()
+    ready = backbone_ready and head_ready
+    return {
+        "model_ready": ready,
+        "backbone_checkpoint_found": backbone_ready,
+        "head_checkpoint_found": head_ready,
+        "message": (
+            "Model is ready for inference."
+            if ready
+            else "The native sign recognition model is still being set up. You can browse and learn signs, but camera recognition is not available yet."
+        ),
     }
 
 
@@ -319,19 +341,48 @@ async def predict_native_sign(
             tmp_path = Path(tmp.name)
 
         started = time.perf_counter()
+        model_unavailable = False
         try:
             result = predict_video(tmp_path, top_k=top_k)
         except FileNotFoundError:
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Native sign model is not available right now.",
-            ) from None
+            # Model weights not yet available (backbone or head checkpoint missing).
+            # Instead of a hard 503, return a structured "demo" result so the frontend
+            # can display a helpful UI rather than a raw error toast.
+            model_unavailable = True
+            result = None
         except Exception:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Could not read or process the uploaded video.",
             ) from None
         latency_ms = int((time.perf_counter() - started) * 1000)
+
+        if model_unavailable:
+            # Return a well-formed response with model_ready=False so the frontend
+            # can show a friendly "model not trained yet" result card instead of crashing.
+            demo_response: dict = {
+                "prediction": "MODEL_NOT_READY",
+                "confidence": 0.0,
+                "top_k": [],
+                "model_type": MODEL_TYPE,
+                "model_version": MODEL_VERSION,
+                "latency_ms": latency_ms,
+                "native_sign_id": None,
+                "correct": False,
+                "model_ready": False,
+                "model_message": "The native sign recognition model is still being set up. Recognition will be available once training is complete.",
+            }
+            if expected_sign is not None:
+                demo_response["expected_sign"] = {
+                    "id": expected_sign.id,
+                    "gloss": expected_sign.gloss,
+                    "display_name": expected_sign.display_name,
+                }
+                demo_response["session_id"] = None
+                demo_response["response_time"] = latency_ms
+                demo_response["xp_earned"] = 0
+                demo_response["new_achievements"] = []
+            return demo_response
     finally:
         if tmp_path is not None and tmp_path.exists():
             tmp_path.unlink(missing_ok=True)

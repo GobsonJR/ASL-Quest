@@ -41,6 +41,8 @@ export type NativePrediction = {
   latency_ms: number;
   native_sign_id: number | null;
   correct: boolean | null;
+  model_ready?: boolean;
+  model_message?: string;
 };
 
 export type NativeAchievement = { id: string; name: string };
