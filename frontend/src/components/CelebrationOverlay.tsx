@@ -1,9 +1,11 @@
+import { useEffect } from "react";
 import { BADGES } from "../game/constants";
 import type { PracticeOutcome } from "../game/types";
 import { LetterMasteryBar } from "./LetterMasteryBar";
 import { PrimaryButton, SecondaryButton } from "./AppShell";
 import { Dialog } from "./Dialog";
 import { Glyph } from "./Icon";
+import { playCelebrationSound } from "../utils/soundEffects";
 
 function badgeTitle(id: string): string {
   return BADGES.find((badge) => badge.id === id)?.title ?? id.replace(/_/g, " ");
@@ -48,6 +50,15 @@ export function CelebrationOverlay({
   lettersCompleted?: number;
 }) {
   const upperLetter = letter.toUpperCase();
+
+  useEffect(() => {
+    playCelebrationSound({
+      streak,
+      leveledUp: outcome.leveledUp,
+      badgesUnlocked: outcome.badgesUnlocked.length > 0,
+    });
+  }, [streak, outcome.leveledUp, outcome.badgesUnlocked.length]);
+
   return (
     <div
       className="animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-success)]/25 bg-[var(--color-success-soft)] p-6 text-center"
@@ -172,6 +183,10 @@ export function WordCompleteOverlay({
   onBack: () => void;
   challengeSummary?: string;
 }) {
+  useEffect(() => {
+    playCelebrationSound({ streak: 1 });
+  }, []);
+
   return (
     <div className="animate-celebrate rounded-[var(--radius-panel)] border-2 border-[var(--color-success)]/25 bg-[var(--color-success-soft)] p-6 text-center">
       <p className="text-5xl" aria-hidden="true"><Glyph value="🎉" /></p>

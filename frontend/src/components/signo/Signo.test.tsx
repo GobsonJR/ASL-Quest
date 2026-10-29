@@ -1,5 +1,6 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { MASTERED_CORRECT } from "../../game/constants";
 import { createInitialState } from "../../game/storage";
 import type { GameState } from "../../game/types";
 import { SignoCharacter } from "./SignoCharacter";
@@ -186,14 +187,14 @@ describe("SignoCompanion: reacts to real events", () => {
 
   it("celebrates real progress changes (completed letter, XP) but never on first load", () => {
     mockState = { ...createInitialState(), xp: 500, streak: 3 };
-    mockState.letterStats = { ...mockState.letterStats, C: { correct: 9, attempts: 9 } };
+    mockState.letterStats = { ...mockState.letterStats, C: { correct: MASTERED_CORRECT - 1, attempts: MASTERED_CORRECT - 1 } };
     const { rerenderSigno } = renderSigno();
     expect(liveText()).toBe(""); // loading existing progress is not an achievement
 
     mockState = {
       ...mockState,
       xp: 520,
-      letterStats: { ...mockState.letterStats, C: { correct: 10, attempts: 10 } },
+      letterStats: { ...mockState.letterStats, C: { correct: MASTERED_CORRECT, attempts: MASTERED_CORRECT } },
     };
     act(() => rerenderSigno());
     expect(liveText()).toBe("Letter C complete (+20 XP)!");

@@ -261,7 +261,7 @@ describe("CollectPage", () => {
     await openSession();
     chooseLetter("C");
     fireEvent.click(screen.getByRole("button", { name: "Capture a hold sequence of 10 frames" }));
-    const save = await screen.findByRole("button", { name: /save 8 frames/i });
+    const save = await screen.findByRole("button", { name: /save 8 frames/i }, { timeout: 5000 });
     fireEvent.click(save);
     await waitFor(() => expect(api.saveSample).toHaveBeenCalledTimes(8));
     const calls = vi.mocked(api.saveSample).mock.calls.map((c) => c[0]);

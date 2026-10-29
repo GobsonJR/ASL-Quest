@@ -18,11 +18,15 @@ import {
   SectionHeader,
 } from "../components/AppShell";
 import { useToast } from "../components/Toast";
+import { isSoundEnabled, playCelebrationSound, setSoundEnabled } from "../utils/soundEffects";
+import { generateProgressPdf } from "../utils/exportPdf";
 
 export function SettingsPage() {
   const { logout } = useAuth();
   const { push } = useToast();
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [soundEnabled, setSoundEnabledState] = useState(() => isSoundEnabled());
+  const [exporting, setExporting] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [deletePassword, setDeletePassword] = useState("");
@@ -53,16 +57,30 @@ export function SettingsPage() {
   }
 
   async function handleExport() {
+    setExporting(true);
+    try {
+      const data = await exportUserData();
+      generateProgressPdf(data);
+      push("Learning progress PDF downloaded!", "success");
+    } catch (error) {
+      console.error("Export error:", error);
+      push("Export failed", "error");
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function handleJsonExport() {
     try {
       const data = await exportUserData();
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "asl-quest-export.json";
+      link.download = "asl-quest-raw-data.json";
       link.click();
       URL.revokeObjectURL(url);
-      push("Data exported", "success");
+      push("Raw JSON data downloaded", "info");
     } catch {
       push("Export failed", "error");
     }
@@ -112,8 +130,59 @@ export function SettingsPage() {
       <Divider />
 
       <section className="space-y-4">
-        <SectionHeader title="Your data" description="Download your profile, progress, practice history, and achievements." />
-        <PrimaryButton onClick={handleExport}>Export my data</PrimaryButton>
+        <SectionHeader
+          title="Sound & Celebrations"
+          description="Audio feedback when you get signs right and build streaks (Duolingo style)."
+        />
+        <div className="space-y-3">
+          <label className="flex items-center gap-3 text-sm text-[var(--color-ink-soft)] cursor-pointer">
+            <input
+              type="checkbox"
+              checked={soundEnabled}
+              onChange={(event) => {
+                const checked = event.target.checked;
+                setSoundEnabledState(checked);
+                setSoundEnabled(checked);
+                push(checked ? "Celebration sound enabled" : "Celebration sound muted", "info");
+              }}
+            />
+            <span>Play cheerful chime and streak celebration sound effects</span>
+          </label>
+          {soundEnabled && (
+            <div className="pt-1">
+              <SecondaryButton
+                type="button"
+                onClick={() => {
+                  playCelebrationSound({ streak: 5 });
+                  push("Playing preview celebration chime!", "info");
+                }}
+              >
+                🔊 Test celebration sound
+              </SecondaryButton>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <Divider />
+
+      <section className="space-y-4">
+        <SectionHeader
+          title="Your data"
+          description="Download your learning progress report in a clean, human-readable PDF with executive summary and mastery breakdown."
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <PrimaryButton onClick={handleExport} disabled={exporting}>
+            {exporting ? "Generating PDF..." : "📄 Export my progress (PDF)"}
+          </PrimaryButton>
+          <button
+            type="button"
+            onClick={handleJsonExport}
+            className="text-xs text-[var(--color-muted)] hover:underline"
+          >
+            Download raw JSON
+          </button>
+        </div>
       </section>
 
       <Divider />

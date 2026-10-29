@@ -29,8 +29,8 @@ export const FAST_ANSWER_MS = 5000;
 export const DAILY_TARGET = 10;
 export const SPEED_TARGET = 5;
 export const SPEED_LIMIT_MS = 45000;
-export const MASTERED_CORRECT = 10;
-export const LEARNING_CORRECT = 3;
+export const MASTERED_CORRECT = 5;
+export const LEARNING_CORRECT = 2;
 
 export type NavPage =
   | "home"

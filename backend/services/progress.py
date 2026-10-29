@@ -9,7 +9,7 @@ from backend.models import Achievement, ChallengeProgress, LetterProgress, User,
 from backend.schemas import GameStateSchema, LetterStatsSchema
 
 LETTERS = [chr(ord("A") + index) for index in range(26)]
-MASTERED_CORRECT = 10
+MASTERED_CORRECT = 5
 DAILY_TARGET = 10
 
 ACHIEVEMENT_SEED = [
