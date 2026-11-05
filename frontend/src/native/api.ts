@@ -109,11 +109,16 @@ async function postNativeVideo<T>(
   // No Content-Type set here: the browser must set its own multipart boundary for FormData.
 
   const query = params.toString();
-  const response = await fetch(`${API}/native/predict${query ? `?${query}` : ""}`, {
-    method: "POST",
-    headers,
-    body,
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API}/native/predict${query ? `?${query}` : ""}`, {
+      method: "POST",
+      headers,
+      body,
+    });
+  } catch {
+    throw new Error("Unable to reach the recognition server. Please ensure the backend is running and try again.");
+  }
   if (!response.ok) throw new Error(await parseError(response, "Native sign prediction failed."));
   return response.json();
 }

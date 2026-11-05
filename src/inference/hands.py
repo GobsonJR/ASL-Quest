@@ -73,6 +73,24 @@ def crop_square(rgb: np.ndarray, window: tuple[int, int, int, int]) -> Image.Ima
     return Image.fromarray(np.ascontiguousarray(rgb[top + pad_t : bottom + pad_t, left + pad_l : right + pad_l]))
 
 
+def _ensure_hand_landmarker_model(model_path: Path) -> bool:
+    if model_path.exists():
+        return True
+    url = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
+    try:
+        import urllib.request
+        model_path.parent.mkdir(parents=True, exist_ok=True)
+        temp_dest = model_path.with_suffix(".tmp")
+        print(f"Downloading MediaPipe hand_landmarker model to {model_path}...")
+        urllib.request.urlretrieve(url, temp_dest)
+        temp_dest.replace(model_path)
+        print(f"Downloaded MediaPipe hand_landmarker model ({model_path.stat().st_size} bytes).")
+        return True
+    except Exception as exc:
+        print(f"Could not auto-download MediaPipe model: {exc}")
+        return False
+
+
 class HandDetector:
     """Crop a hand region using MediaPipe when a compatible runtime is available."""
 
@@ -119,6 +137,8 @@ class HandDetector:
         static_image_mode: bool,
         model_path: Path,
     ) -> None:
+        if not model_path.exists():
+            _ensure_hand_landmarker_model(model_path)
         if not model_path.exists():
             raise RuntimeError(
                 f"MediaPipe Hands Tasks model not found at {model_path}. "

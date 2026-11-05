@@ -135,7 +135,24 @@ def analyze_frame(image: Image.Image, detector: Any) -> tuple[QualityReport, Any
     warnings: list[str] = []
 
     if detector is None or not getattr(detector, "available", False):
-        return QualityReport(False, ["hand detector unavailable on the server"], [], metrics), None
+        sharp = sharpness(rgb)
+        metrics.update(
+            hand_px=float(min(width, height)),
+            hand_height_fraction=1.0,
+            sharpness=round(sharp, 1),
+            crop_size=[width, height],
+            landmark_box=[0.0, 0.0, float(width), float(height)],
+        )
+        if sharp < MIN_SHARPNESS:
+            reasons.append(f"blurry (sharpness {sharp:.0f} < {MIN_SHARPNESS:.0f}): hold still or add light")
+        if gray_mean < MIN_BRIGHTNESS:
+            reasons.append("too dark")
+        if gray_mean > MAX_BRIGHTNESS:
+            reasons.append("too bright / overexposed")
+        warnings.append("hand detector unavailable on server (accepted without landmark crop)")
+        from src.inference.hands import HandCrop
+        crop = HandCrop(image=rgb, box=(0, 0, width, height), detected=True, hand_box=(0.0, 0.0, float(width), float(height)))
+        return QualityReport(not reasons, reasons, warnings, metrics), crop
     crop = detector.crop_pil(rgb)
     if not crop.detected:
         reasons.append("no hand detected")

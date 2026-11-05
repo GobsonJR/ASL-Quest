@@ -336,23 +336,23 @@ async def predict_native_sign(
 
     tmp_path: Path | None = None
     started_at = datetime.now(timezone.utc)
-    try:
-        # Native inference (src/i3d_transfer/predict.py's decoder) needs a real file on
-        # disk, not an in-memory buffer. Written to a private temp file and always
-        # deleted below; the clip is never persisted anywhere.
-        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-            tmp.write(payload)
-            tmp_path = Path(tmp.name)
+    started = time.perf_counter()
+    model_unavailable = False
+    result = None
 
-        started = time.perf_counter()
-        model_unavailable = False
+    if not I3D_BACKBONE_CHECKPOINT.exists() or not DEFAULT_HEAD_CHECKPOINT.exists():
+        # Checkpoints missing on this server instance (e.g. lightweight deployment).
+        # Skip video frame decoding and InceptionI3D PyTorch graph allocation to prevent 512MB RAM OOM.
+        model_unavailable = True
+    else:
         try:
+            with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+                tmp.write(payload)
+                tmp_path = Path(tmp.name)
+
             from src.i3d_transfer.predict import predict_video
             result = predict_video(tmp_path, top_k=top_k)
         except FileNotFoundError:
-            # Model weights not yet available (backbone or head checkpoint missing).
-            # Instead of a hard 503, return a structured "demo" result so the frontend
-            # can display a helpful UI rather than a raw error toast.
             model_unavailable = True
             result = None
         except Exception:
@@ -360,37 +360,38 @@ async def predict_native_sign(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="Could not read or process the uploaded video.",
             ) from None
-        latency_ms = int((time.perf_counter() - started) * 1000)
+        finally:
+            if tmp_path is not None and tmp_path.exists():
+                tmp_path.unlink(missing_ok=True)
 
-        if model_unavailable:
-            # Return a well-formed response with model_ready=False so the frontend
-            # can show a friendly "model not trained yet" result card instead of crashing.
-            demo_response: dict = {
-                "prediction": "MODEL_NOT_READY",
-                "confidence": 0.0,
-                "top_k": [],
-                "model_type": MODEL_TYPE,
-                "model_version": MODEL_VERSION,
-                "latency_ms": latency_ms,
-                "native_sign_id": None,
-                "correct": False,
-                "model_ready": False,
-                "model_message": "The native sign recognition model is still being set up. Recognition will be available once training is complete.",
+    latency_ms = int((time.perf_counter() - started) * 1000)
+
+    if model_unavailable:
+        # Return a well-formed response with model_ready=False so the frontend
+        # can show a friendly "model not trained yet" result card instead of crashing.
+        demo_response: dict = {
+            "prediction": "MODEL_NOT_READY",
+            "confidence": 0.0,
+            "top_k": [],
+            "model_type": MODEL_TYPE,
+            "model_version": MODEL_VERSION,
+            "latency_ms": latency_ms,
+            "native_sign_id": None,
+            "correct": False,
+            "model_ready": False,
+            "model_message": "The native sign recognition model is still being set up. Recognition will be available once training is complete.",
+        }
+        if expected_sign is not None:
+            demo_response["expected_sign"] = {
+                "id": expected_sign.id,
+                "gloss": expected_sign.gloss,
+                "display_name": expected_sign.display_name,
             }
-            if expected_sign is not None:
-                demo_response["expected_sign"] = {
-                    "id": expected_sign.id,
-                    "gloss": expected_sign.gloss,
-                    "display_name": expected_sign.display_name,
-                }
-                demo_response["session_id"] = None
-                demo_response["response_time"] = latency_ms
-                demo_response["xp_earned"] = 0
-                demo_response["new_achievements"] = []
-            return demo_response
-    finally:
-        if tmp_path is not None and tmp_path.exists():
-            tmp_path.unlink(missing_ok=True)
+            demo_response["session_id"] = None
+            demo_response["response_time"] = latency_ms
+            demo_response["xp_earned"] = 0
+            demo_response["new_achievements"] = []
+        return demo_response
     completed_at = datetime.now(timezone.utc)
 
     resolved_native_sign_id = None
