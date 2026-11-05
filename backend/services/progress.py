@@ -41,6 +41,52 @@ def seed_achievements(db: Session) -> None:
     db.commit()
 
 
+def seed_default_admin(db: Session) -> None:
+    """Ensure a default admin account exists with fixed credentials (admin123 / admin@123)
+    so that evaluators or administrators can log in directly without manual registration.
+    Also ensures kaushiknr326@gmail.com has admin privileges if present.
+    """
+    from backend.security import hash_password, verify_password
+
+    admin_username = "admin123"
+    admin_email = "admin@aslquest.com"
+    admin_password = "admin@123"
+
+    user = db.query(User).filter((User.username == admin_username) | (User.email == admin_email)).first()
+    if user is None:
+        user = User(
+            username=admin_username,
+            email=admin_email,
+            password_hash=hash_password(admin_password),
+            role="admin",
+            is_active=True,
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        ensure_user_progress(db, user)
+        print(f"Created default admin account: {admin_username} / {admin_password}")
+    else:
+        changed = False
+        if user.role != "admin":
+            user.role = "admin"
+            changed = True
+        if not user.is_active:
+            user.is_active = True
+            changed = True
+        if not verify_password(admin_password, user.password_hash):
+            user.password_hash = hash_password(admin_password)
+            changed = True
+        if changed:
+            db.commit()
+
+    # Also guarantee kaushik has admin role if present
+    kaushik = db.query(User).filter((User.username == "kaushik") | (User.email == "kaushiknr326@gmail.com")).first()
+    if kaushik and kaushik.role != "admin":
+        kaushik.role = "admin"
+        db.commit()
+
+
 def mastery_percent(correct_attempts: int) -> float:
     return min(100.0, (correct_attempts / MASTERED_CORRECT) * 100.0)
 

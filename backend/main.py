@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from backend.database import init_db
 from backend.routers import achievements, analytics, auth, admin, admin_ops, challenges, chatbot, collect, ml, native, practice, progress, recommendations, users, words
 from backend.services.experimental_recognizer import load_experimental_landmarks
-from backend.services.progress import seed_achievements
+from backend.services.progress import seed_achievements, seed_default_admin
 from backend.settings import CORS_ORIGINS, EXPERIMENTAL_LANDMARK_MODEL, HAND_DETECTION_CONFIDENCE, LANDMARK_MODEL_PATH, RECOGNIZER
 from src.config import BEST_MODEL_PATH, LEGACY_MODEL_PATH
 
@@ -57,6 +57,7 @@ def startup() -> None:
 
     with SessionLocal() as db:
         seed_achievements(db)
+        seed_default_admin(db)
 
     path = BEST_MODEL_PATH if BEST_MODEL_PATH.exists() else LEGACY_MODEL_PATH
     predictor_instance = None
