@@ -83,6 +83,41 @@ def _get_owned_conversation(db: Session, conversation_id: int, user: User) -> Ch
 
 
 def _build_user_context(db: Session, user: User, message: str) -> str | None:
+    # If the user is an Administrator, inject live platform analytics into the prompt
+    # so AURA can answer admin queries such as "which sign is practiced / trained more by users?",
+    # "how many users are registered?", "what are the difficult letters?", etc.
+    if user.role == "admin":
+        from backend.services.admin_stats import get_admin_letters_stats, get_admin_overview
+        overview = get_admin_overview(db)
+        letters_stats = get_admin_letters_stats(db)
+
+        popular_letters = [
+            f"Letter {item['letter']} ({item['attempts']} attempts, {item['accuracy']}% accuracy)"
+            for item in letters_stats.get("popular", [])[:5]
+        ]
+        difficult_letters = [
+            f"Letter {item['letter']} ({item['attempts']} attempts, {item['accuracy']}% accuracy)"
+            for item in letters_stats.get("difficult", [])[:5]
+        ]
+
+        lines = [
+            "=== AUTHORIZED ASL-QUEST PLATFORM ADMINISTRATOR SESSION ===",
+            "You are chatting directly with a verified PLATFORM ADMINISTRATOR.",
+            "You ARE fully authorized to share platform-level metrics, analytics, and performance insights:",
+            f"- Total registered learners: {overview.get('total_users', 0)}",
+            f"- Active practicing learners: {overview.get('active_users', 0)}",
+            f"- Total sign practice sessions: {overview.get('total_practice_sessions', 0)}",
+            f"- Overall letter recognition accuracy: {overview.get('average_accuracy', 0)}%",
+            f"- Word practice sessions: {overview.get('total_word_practice_sessions', 0)} (words completed: {overview.get('words_completed', 0)}, word accuracy: {overview.get('average_word_accuracy', 0)}%)",
+            "- Most practiced / trained signs by users:",
+            "  " + (", ".join(popular_letters) if popular_letters else "No letter attempts recorded yet"),
+            "- Most difficult signs (lowest accuracy):",
+            "  " + (", ".join(difficult_letters) if difficult_letters else "No letter attempts recorded yet"),
+        ]
+        if user.progress:
+            lines.append(f"- Admin personal stats: {user.progress.xp} XP, level {user.progress.level}, streak {user.progress.current_streak}")
+        return "\n".join(lines)
+
     normalized = message.lower()
     if not any(trigger in normalized for trigger in _PROGRESS_CONTEXT_TRIGGERS):
         return None

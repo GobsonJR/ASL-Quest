@@ -51,21 +51,30 @@ BOOTSTRAP_ADMIN_EMAIL = get_bootstrap_admin_email()
 # itself. The CHATBOT_* prefix is kept for the model/base-URL knobs, which stay
 # provider-shaped concepts either way.
 def get_chatbot_api_key() -> str:
-    return os.getenv("OPENROUTER_API_KEY", "").strip()
+    return (
+        os.getenv("GROQ_API_KEY", "").strip()
+        or os.getenv("OPENROUTER_API_KEY", "").strip()
+    )
 
 
 def get_chatbot_model() -> str:
-    return os.getenv("CHATBOT_MODEL", "").strip() or "openrouter/free"
+    override = os.getenv("CHATBOT_MODEL", "").strip()
+    if override:
+        return override
+    key = get_chatbot_api_key()
+    if key.startswith("gsk_"):
+        return "qwen/qwen3.8-27b"
+    return "openrouter/free"
 
 
-# Optional override for the provider's API endpoint (e.g. a corporate proxy or a
-# different OpenAI-compatible endpoint). Defaults to OpenRouter's own chat
-# completions API — most deployments never need to set this.
 def get_chatbot_api_base_url() -> str:
-    return (
-        os.getenv("CHATBOT_API_BASE_URL", "").strip()
-        or "https://openrouter.ai/api/v1/chat/completions"
-    )
+    override = os.getenv("CHATBOT_API_BASE_URL", "").strip()
+    if override:
+        return override
+    key = get_chatbot_api_key()
+    if key.startswith("gsk_"):
+        return "https://api.groq.com/openai/v1/chat/completions"
+    return "https://openrouter.ai/api/v1/chat/completions" 
 
 
 # Which LLM provider AURA uses: "openrouter" (default, unchanged behavior),
@@ -135,5 +144,5 @@ LANDMARK_MODEL_PATH = Path(os.getenv("ASL_QUEST_LANDMARK_MODEL", "").strip() or 
 # /predict?recognizer=landmarks while "resnet" stays the default for everyone. Empty (default) = feature off, nothing is loaded.
 EXPERIMENTAL_LANDMARK_MODEL = os.getenv("ASL_QUEST_EXPERIMENTAL_LANDMARK_MODEL", "").strip()
 
-DEV_COLLECT = os.getenv("ASL_QUEST_DEV_COLLECT", "").strip().lower() in {"1", "true", "yes"}
+DEV_COLLECT = os.getenv("ASL_QUEST_DEV_COLLECT", "1").strip().lower() in {"1", "true", "yes"}
 WEBCAM_DATASET_DIR = Path(__file__).resolve().parent.parent / "dataset" / "webcam"

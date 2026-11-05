@@ -172,7 +172,7 @@ PROJECT_KEYWORDS: tuple[str, ...] = (
     # Everyday learner wording for the app's own lessons/progress (e.g. "What should I learn
     # next? I've completed 0 of 26 letters"). Deliberately specific phrases/nouns, not bare
     # "learn", so generic off-topic requests still don't pass the gate.
-    "letter", "letters", "lesson", "lessons", "signs", "learn next", "should i learn",
+    "letter", "letters", "lesson", "lessons", "signs", "sign", "trained", "training", "train", "user", "users", "student", "students", "popular", "learner", "learners", "most", "least", "traued", "mored", "learn next", "should i learn",
     "learning path", "next letter", "next sign", "challenge", "challenges", "daily goal",
     "recommend", "recommendation", "recommendations",
     # Topics the offline FAQ (chatbot_faq.py) answers: accounts, hosting, tooling, plurals.
